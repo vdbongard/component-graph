@@ -115,12 +115,14 @@ export class GraphComponent implements OnInit, OnDestroy {
       .attr('r', 8)
       .attr('fill', d => this.scale(d.group.toString()));
 
-    nodes
-      .append('text')
-      .text(d => d.id)
-      .style('font-size', '12px')
-      .attr('x', 9)
-      .attr('y', 4);
+    if (window.location.search.indexOf('text=true') >= 0) {
+      nodes
+        .append('text')
+        .text(d => d.id)
+        .style('font-size', '12px')
+        .attr('x', 9)
+        .attr('y', 4);
+    }
 
     return nodes;
   }
