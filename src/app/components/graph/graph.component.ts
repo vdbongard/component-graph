@@ -15,7 +15,7 @@ export class GraphComponent implements OnInit, OnDestroy {
   width = window.innerWidth;
   height = window.innerHeight - 64;
 
-  svg: d3.Selection<SVGSVGElement, any, any, any>;
+  svgZoomGroup: d3.Selection<SVGGElement, any, any, any>;
   simulation: d3.Simulation<any, any>;
   links: d3.Selection<any, any, any, any>;
   nodes: d3.Selection<any, any, any, any>;
@@ -23,17 +23,25 @@ export class GraphComponent implements OnInit, OnDestroy {
   scale = d3.scaleOrdinal(d3.schemeCategory10);
 
   ngOnInit() {
-    this.svg = this.createSVG();
+    this.svgZoomGroup = this.createSVG();
     this.simulation = this.createSimulation();
     this.links = this.createLinks();
     this.nodes = this.createNodes();
   }
 
   private createSVG() {
-    return d3
+    const svg = d3
       .select('#d3-root')
       .append('svg')
-      .attr('style', 'width: 100%; height: 100%; display: block');
+      .attr('style', 'width: 100%; height: 100%; display: block')
+      .call(
+        d3.zoom().on('zoom', () => {
+          svg.attr('transform', d3.event.transform);
+        })
+      )
+      .append('g');
+
+    return svg;
   }
 
   private createSimulation() {
@@ -60,7 +68,7 @@ export class GraphComponent implements OnInit, OnDestroy {
   }
 
   private createLinks() {
-    return this.svg
+    return this.svgZoomGroup
       .append('g')
       .attr('stroke', '#999')
       .attr('stroke-opacity', 0.6)
@@ -71,7 +79,7 @@ export class GraphComponent implements OnInit, OnDestroy {
   }
 
   private createNodes() {
-    const node = this.svg
+    const node = this.svgZoomGroup
       .append('g')
       .attr('stroke', '#fff')
       .attr('stroke-width', 1.5)
