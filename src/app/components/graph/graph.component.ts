@@ -90,6 +90,7 @@ export class GraphComponent implements OnInit, OnDestroy {
       .attr('fill', d => {
         return this.scale(d.group.toString());
       })
+      .attr('style', 'cursor: pointer')
       .call(this.drag(this.simulation));
 
     node.append('title').text(d => d.id);
