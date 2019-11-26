@@ -41,6 +41,21 @@ export class GraphComponent implements OnInit, OnDestroy {
       )
       .append('g');
 
+    svg
+      .append('defs')
+      .append('marker')
+      .attr('id', 'arrowhead')
+      .attr('viewBox', '-0 -5 10 10')
+      .attr('refX', 21)
+      .attr('refY', 0)
+      .attr('orient', 'auto')
+      .attr('markerWidth', 8)
+      .attr('markerHeight', 8)
+      .append('svg:path')
+      .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
+      .attr('fill', '#999')
+      .style('stroke', 'none');
+
     return svg;
   }
 
@@ -75,14 +90,13 @@ export class GraphComponent implements OnInit, OnDestroy {
       .selectAll('line')
       .data(this.linkData)
       .join('line')
-      .attr('stroke-width', d => Math.sqrt(d.value));
+      .attr('stroke-width', 0.8)
+      .attr('marker-end', 'url(#arrowhead)');
   }
 
   private createNodes() {
     const node = this.svgZoomGroup
       .append('g')
-      .attr('stroke', '#fff')
-      .attr('stroke-width', 1.5)
       .selectAll('circle')
       .data(this.nodeData)
       .join('circle')
