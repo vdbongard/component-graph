@@ -30,7 +30,7 @@ export class GraphComponent implements OnInit, OnDestroy {
         'link',
         d3.forceLink(this.links).id((d: any) => d.id)
       )
-      .force('charge', d3.forceManyBody())
+      .force('charge', d3.forceManyBody().strength(-100))
       .force('center', d3.forceCenter(this.width / 2, this.height / 2));
 
     const link = this.svg
@@ -49,7 +49,7 @@ export class GraphComponent implements OnInit, OnDestroy {
       .selectAll('circle')
       .data(this.nodes)
       .join('circle')
-      .attr('r', 5)
+      .attr('r', 8)
       .attr('fill', d => {
         return this.scale(d.group);
       })
