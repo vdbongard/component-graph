@@ -130,8 +130,11 @@ export class GraphComponent implements OnInit, OnDestroy {
       if (!d3.event.active) {
         simulation.alphaTarget(0);
       }
-      d.fx = null;
-      d.fy = null;
+      // stick node at the position if the shift key is pressed
+      if (!d3.event.sourceEvent.shiftKey) {
+        d.fx = null;
+        d.fy = null;
+      }
     }
 
     return d3
