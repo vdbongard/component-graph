@@ -76,7 +76,7 @@ export class GraphComponent implements OnInit, OnDestroy {
         .attr('x2', d => d.target.x)
         .attr('y2', d => d.target.y);
 
-      this.nodes.attr('cx', d => d.x).attr('cy', d => d.y);
+      this.nodes.attr('transform', d => `translate(${d.x}, ${d.y})`);
     });
 
     return simulation;
@@ -95,21 +95,28 @@ export class GraphComponent implements OnInit, OnDestroy {
   }
 
   private createNodes() {
-    const node = this.svgZoomGroup
+    const nodes = this.svgZoomGroup
       .append('g')
-      .selectAll('circle')
+      .selectAll('.node')
       .data(this.nodeData)
-      .join('circle')
-      .attr('r', 8)
-      .attr('fill', d => {
-        return this.scale(d.group.toString());
-      })
+      .join('g')
+      .attr('class', 'node')
       .attr('style', 'cursor: pointer')
       .call(this.drag(this.simulation));
 
-    node.append('title').text(d => d.id);
+    nodes
+      .append('circle')
+      .attr('r', 8)
+      .attr('fill', d => this.scale(d.group.toString()));
 
-    return node;
+    nodes
+      .append('text')
+      .text(d => d.id)
+      .style('font-size', '12px')
+      .attr('x', 9)
+      .attr('y', 4);
+
+    return nodes;
   }
 
   private drag(simulation: d3.Simulation<any, any>): any {
