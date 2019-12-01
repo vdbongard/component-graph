@@ -11,7 +11,14 @@
   flex-shrink: 0;
 
   .title {
-    cursor: default;
+    cursor: pointer;
+    color: white;
+    text-decoration: none;
+
+    &:focus-visible {
+      outline: none;
+      text-decoration: underline;
+    }
   }
 }
 
