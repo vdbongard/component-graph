@@ -1,0 +1,26 @@
+<div class="upload-card" [class.is-dragging-over]="isDraggingOver">
+  <label
+    for="file-upload"
+    class="upload-button"
+    (dragover)="$event.preventDefault()"
+    (dragenter)="dragEnter($event)"
+    (dragleave)="dragLeave($event)"
+    (drop)="drop($event)"
+  >
+    <mat-icon>note_add</mat-icon>
+    <span class="upload-button-text">
+      Drag and drop <br />
+      or <br />
+      browse a file
+    </span>
+  </label>
+</div>
+
+<input
+  type="file"
+  id="file-upload"
+  name="file-upload"
+  class="file-upload"
+  (change)="onFileChange($event.target['files'])"
+  multiple
+/>

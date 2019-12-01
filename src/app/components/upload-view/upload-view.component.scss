@@ -1,0 +1,61 @@
+@import '~@angular/material/theming';
+
+:host {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  padding: 16px;
+}
+
+.upload-card {
+  width: 100%;
+  height: 100%;
+  max-width: 640px;
+  max-height: 400px;
+  border: 2px dashed mat-color($mat-grey, 400);
+  border-radius: 16px;
+  background-color: white;
+  color: mat-color($mat-grey, 700);
+  transition: transform 150ms ease-out;
+
+  &:hover,
+  &.is-dragging-over {
+    border-color: mat-color($mat-grey, 500);
+    color: mat-color($mat-grey, 800);
+    transform: scale(1.05);
+  }
+}
+
+.upload-button {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  text-align: center;
+
+  > * {
+    pointer-events: none;
+    user-select: none;
+  }
+
+  mat-icon {
+    $icon-size: 104px;
+
+    font-size: $icon-size;
+    width: $icon-size;
+    height: $icon-size;
+  }
+
+  .upload-button-text {
+    font-size: 22px;
+    margin-top: 24px;
+  }
+}
+
+.file-upload {
+  display: none;
+}

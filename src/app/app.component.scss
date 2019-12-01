@@ -1,9 +1,20 @@
-.mat-toolbar.mat-primary {
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.toolbar {
   position: sticky;
   top: 0;
   z-index: 1;
+  flex-shrink: 0;
+
+  .title {
+    cursor: default;
+  }
 }
 
-.title {
-  cursor: default;
+.content {
+  flex: 1;
 }
