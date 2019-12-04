@@ -14,6 +14,6 @@ export class UploadViewComponent implements OnInit {
 
   onFileChange(file) {
     this.dataService.setFile(file);
-    this.router.navigateByUrl('graph');
+    this.router.navigate(['graph'], { queryParams: { text: 1, fade: 1 } });
   }
 }
