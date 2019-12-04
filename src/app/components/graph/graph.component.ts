@@ -94,7 +94,7 @@ export class GraphComponent implements OnInit, OnDestroy {
   }
 
   private createSimulation() {
-    const chargeForce = Math.min(-5000 + this.nodeData.length * 200, -100);
+    const chargeForce = Math.min(-4000 + this.nodeData.length * 200, -100);
     console.log('Charge force:', chargeForce);
 
     const simulation = d3

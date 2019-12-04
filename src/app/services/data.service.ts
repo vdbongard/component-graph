@@ -79,15 +79,45 @@ export class DataService {
         }
       },
       CallExpression: path => {
-        if (graph.nodes.find(node => node.id === path.node.callee.name)) {
+        const calleeName = this.getCalleeName(path.node.callee);
+
+        if (graph.nodes.find(node => node.id === calleeName)) {
+          const classMethodName = this.getClassMethodName(path);
+
+          if (!classMethodName) {
+            return;
+          }
+
           graph.links.push({
-            source: path.scope.block.key.name,
-            target: path.node.callee.name
+            source: classMethodName,
+            target: calleeName
           });
         }
       }
     });
 
     this.graphData$.next(graph);
+  }
+
+  private getCalleeName(callee) {
+    if (callee.type === 'MemberExpression') {
+      return callee.property.name;
+    } else if (callee.type === 'Identifier') {
+      return callee.name;
+    }
+  }
+
+  private getClassMethodName(path) {
+    let currentPath = path;
+
+    while (currentPath.scope.block.type !== 'ClassMethod') {
+      currentPath = currentPath.parentPath;
+
+      if (!currentPath) {
+        return;
+      }
+    }
+
+    return currentPath.scope.block.key.name;
   }
 }
