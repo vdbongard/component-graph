@@ -1,14 +1,21 @@
 #d3-root {
   height: 100%;
+  position: relative;
 
   &.is-dragging-over::before {
-    content: '';
+    content: 'Drop file here';
+    display: flex;
+    justify-content: center;
+    align-items: center;
     position: absolute;
     top: 0;
     right: 0;
     bottom: 0;
     left: 0;
-    background-color: rgba(black, 0.4);
+    z-index: 999;
+    background-color: rgba(0, 0, 0, 0.55);
     pointer-events: none;
+    font-size: 32px;
+    color: white;
   }
 }

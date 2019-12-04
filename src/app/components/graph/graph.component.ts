@@ -36,7 +36,7 @@ export class GraphComponent implements OnInit, OnDestroy {
     const svg = d3
       .select('#d3-root')
       .append('svg')
-      .attr('style', 'width: 100%; height: 100%; display: block')
+      .attr('style', 'width: 100%; height: 100%')
       .on('wheel', () => {
         svg.style('transition', 'transform 0.1s ease-out');
       })
