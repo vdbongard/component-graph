@@ -26,10 +26,35 @@ export class GraphComponent implements OnInit, OnDestroy {
   constructor(public dataService: DataService) {}
 
   ngOnInit() {
+    this.dataService.graphData$.subscribe(graph => {
+      if (graph) {
+        this.linkData = graph.links;
+        this.nodeData = graph.nodes;
+      }
+
+      if (this.simulation) {
+        this.stopGraph();
+      }
+
+      this.startGraph();
+    });
+  }
+
+  private startGraph() {
     this.svgZoomGroup = this.createSVG();
     this.simulation = this.createSimulation();
     this.links = this.createLinks();
     this.nodes = this.createNodes();
+  }
+
+  private stopGraph() {
+    if (this.simulation) {
+      this.simulation.stop();
+      this.simulation = null;
+    }
+    d3.select('#d3-root')
+      .selectAll('*')
+      .remove();
   }
 
   private createSVG() {
@@ -116,7 +141,7 @@ export class GraphComponent implements OnInit, OnDestroy {
     nodes
       .append('circle')
       .attr('r', 8)
-      .attr('fill', d => this.scale(d.group.toString()));
+      .attr('fill', d => this.scale(d.group ? d.group.toString() : '1'));
 
     if (window.location.search.indexOf('text=true') >= 0) {
       nodes
@@ -163,6 +188,6 @@ export class GraphComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.simulation.stop();
+    this.stopGraph();
   }
 }
