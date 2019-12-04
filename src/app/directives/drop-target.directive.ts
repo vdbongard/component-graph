@@ -53,7 +53,7 @@ export class DropTargetDirective {
       return;
     }
 
-    console.log(files);
+    console.log('File:', files[0]);
     this.fileDropped.emit(files[0]);
   }
 }

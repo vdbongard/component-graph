@@ -94,13 +94,16 @@ export class GraphComponent implements OnInit, OnDestroy {
   }
 
   private createSimulation() {
+    const chargeForce = Math.min(-5000 + this.nodeData.length * 200, -100);
+    console.log('Charge force:', chargeForce);
+
     const simulation = d3
       .forceSimulation(this.nodeData)
       .force(
         'link',
         d3.forceLink(this.linkData).id((d: any) => d.id)
       )
-      .force('charge', d3.forceManyBody().strength(-100))
+      .force('charge', d3.forceManyBody().strength(chargeForce))
       .force('center', d3.forceCenter(this.width / 2, this.height / 2));
 
     simulation.on('tick', () => {
