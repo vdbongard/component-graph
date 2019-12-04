@@ -157,16 +157,18 @@ export class GraphComponent implements OnInit, OnDestroy {
           );
           this.restartGraph();
         }
-      })
-      .on('mouseover.fade', fade(0.1))
-      .on('mouseout.fade', fade(1));
+      });
+
+    if (window.location.search.indexOf('fade=1') >= 0) {
+      nodes.on('mouseover.fade', fade(0.1)).on('mouseout.fade', fade(1));
+    }
 
     nodes
       .append('circle')
       .attr('r', 8)
       .attr('fill', d => this.scale(d.group ? d.group.toString() : '1'));
 
-    if (window.location.search.indexOf('text=true') >= 0) {
+    if (window.location.search.indexOf('text=1') >= 0) {
       nodes
         .append('text')
         .text(d => d.id)
