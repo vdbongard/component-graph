@@ -32,11 +32,7 @@ export class GraphComponent implements OnInit, OnDestroy {
         this.nodeData = graph.nodes;
       }
 
-      if (this.simulation) {
-        this.stopGraph();
-      }
-
-      this.startGraph();
+      this.restartGraph();
     });
   }
 
@@ -57,11 +53,16 @@ export class GraphComponent implements OnInit, OnDestroy {
       .remove();
   }
 
+  private restartGraph() {
+    this.stopGraph();
+    this.startGraph();
+  }
+
   private createSVG() {
     const svg = d3
       .select('#d3-root')
       .append('svg')
-      .attr('style', 'width: 100%; height: 100%')
+      .attr('style', 'width: 100%; height: 100%; user-select: none;')
       .on('wheel', () => {
         svg.style('transition', 'transform 0.1s ease-out');
       })
@@ -139,7 +140,17 @@ export class GraphComponent implements OnInit, OnDestroy {
       .join('g')
       .attr('class', 'node')
       .attr('style', 'cursor: pointer')
-      .call(this.drag(this.simulation));
+      .call(this.drag(this.simulation))
+      .on('click', event => {
+        if (d3.event.ctrlKey) {
+          this.nodeData = this.nodeData.filter(node => node.id !== event.id);
+          this.linkData = this.linkData.filter(
+            // @ts-ignore
+            link => link.source.id !== event.id && link.target.id !== event.id
+          );
+          this.restartGraph();
+        }
+      });
 
     nodes
       .append('circle')
