@@ -23,7 +23,7 @@ export class GraphComponent implements OnInit, OnDestroy {
 
   scale = d3.scaleOrdinal(d3.schemeCategory10);
 
-  constructor(private dataService: DataService) {}
+  constructor(public dataService: DataService) {}
 
   ngOnInit() {
     this.svgZoomGroup = this.createSVG();
