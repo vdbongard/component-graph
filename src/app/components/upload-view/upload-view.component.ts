@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { DataService } from '../../services/data.service';
 
 @Component({
   selector: 'app-upload-view',
@@ -9,7 +10,7 @@ import { Router } from '@angular/router';
 export class UploadViewComponent implements OnInit {
   isDraggingOver = false;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private dataService: DataService) {}
 
   ngOnInit() {}
 
@@ -33,6 +34,7 @@ export class UploadViewComponent implements OnInit {
     if (files.length === 0) {
       return;
     }
+    this.dataService.setFile(files[0]);
     this.router.navigateByUrl('graph');
   }
 }
