@@ -22,6 +22,7 @@ export class GraphComponent implements OnInit, OnDestroy {
   nodes: d3.Selection<any, any, any, any>;
 
   scale = d3.scaleOrdinal(d3.schemeCategory10);
+  dragging = false;
 
   constructor(public dataService: DataService) {}
 
@@ -161,7 +162,9 @@ export class GraphComponent implements OnInit, OnDestroy {
     nodes
       .append('circle')
       .attr('r', 8)
-      .attr('fill', d => this.scale(d.group ? d.group.toString() : '1'));
+      .attr('fill', d => this.scale(d.group ? d.group.toString() : '1'))
+      .on('mouseover.fade', fade(0.1))
+      .on('mouseout.fade', fade(1));
 
     if (window.location.search.indexOf('text=true') >= 0) {
       nodes
@@ -172,16 +175,65 @@ export class GraphComponent implements OnInit, OnDestroy {
         .attr('y', 4);
     }
 
+    const linkedByIndex = {};
+    this.linkData.forEach(d => {
+      // @ts-ignore
+      linkedByIndex[`${d.source.index},${d.target.index}`] = 1;
+    });
+
+    function isConnected(a, b) {
+      return (
+        linkedByIndex[`${a.index},${b.index}`] ||
+        linkedByIndex[`${b.index},${a.index}`] ||
+        a.index === b.index
+      );
+    }
+
+    const links = this.links;
+    const self = this;
+
+    function fade(opacity: number) {
+      return d => {
+        if (self.dragging) {
+          return;
+        }
+        nodes
+          .select('circle')
+          .attr('fill-opacity', o =>
+            opacity === 1 || isConnected(d, o) ? 1 : opacity
+          );
+
+        nodes
+          .select('text')
+          .style('opacity', o =>
+            opacity === 1 || isConnected(d, o) ? 1 : opacity
+          );
+
+        links
+          .style('stroke-opacity', o =>
+            opacity === 1 || o.source === d || o.target === d ? 1 : opacity
+          )
+          .attr('marker-end', o =>
+            opacity === 1 || o.source === d || o.target === d
+              ? 'url(#arrowhead)'
+              : undefined
+          );
+      };
+    }
+
     return nodes;
   }
 
   private drag(simulation: d3.Simulation<any, any>): any {
+    const self = this;
+
     function dragStarted(d) {
       if (!d3.event.active) {
         simulation.alphaTarget(0.3).restart();
       }
       d.fx = d.x;
       d.fy = d.y;
+      self.dragging = true;
     }
 
     function dragged(d) {
@@ -198,6 +250,7 @@ export class GraphComponent implements OnInit, OnDestroy {
         d.fx = null;
         d.fy = null;
       }
+      self.dragging = false;
     }
 
     return d3
