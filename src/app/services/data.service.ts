@@ -20,17 +20,24 @@ export class DataService {
     const reader = new FileReader();
     reader.onload = () => {
       if (typeof reader.result === 'string') {
-        this.parse(reader.result);
+        const fileExtension = file.name.split('.').pop();
+        this.parse(reader.result, fileExtension);
       }
     };
     reader.readAsText(file);
   }
 
-  private parse(code: string) {
+  private parse(code: string, fileExtension?: string) {
     const options: ParserOptions = {
       sourceType: 'module',
       plugins: ['jsx', 'classProperties']
     };
+
+    if (fileExtension === 'tsx' || fileExtension === 'ts') {
+      options.plugins.push('typescript');
+    } else {
+      options.plugins.push('flow');
+    }
 
     this.ast = parse(code, options);
 
