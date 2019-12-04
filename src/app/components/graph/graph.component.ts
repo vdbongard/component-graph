@@ -34,11 +34,14 @@ export class GraphComponent implements OnInit, OnDestroy {
 
       this.restartGraph();
     });
+
+    // @ts-ignore
+    window.restartGraph = this.restartGraph.bind(this);
   }
 
-  private startGraph() {
+  private startGraph(force?: number) {
     this.svgZoomGroup = this.createSVG();
-    this.simulation = this.createSimulation();
+    this.simulation = this.createSimulation(force);
     this.links = this.createLinks();
     this.nodes = this.createNodes();
   }
@@ -53,9 +56,9 @@ export class GraphComponent implements OnInit, OnDestroy {
       .remove();
   }
 
-  private restartGraph() {
+  private restartGraph(force?: number) {
     this.stopGraph();
-    this.startGraph();
+    this.startGraph(force);
   }
 
   private createSVG() {
@@ -94,8 +97,11 @@ export class GraphComponent implements OnInit, OnDestroy {
     return svg;
   }
 
-  private createSimulation() {
-    const chargeForce = Math.min(-4000 + this.nodeData.length * 200, -100);
+  private createSimulation(force?: number) {
+    const chargeForce =
+      force !== undefined
+        ? force
+        : Math.min(-4000 + this.nodeData.length * 200, -100);
     console.log('Charge force:', chargeForce);
 
     const simulation = d3
