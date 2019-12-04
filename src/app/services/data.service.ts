@@ -40,13 +40,44 @@ export class DataService {
 
   private traverse(ast: Babel.File) {
     const graph: Graph = {
-      nodes: [{ id: 'Node1' }, { id: 'Node2' }],
-      links: [{ source: 'Node1', target: 'Node2' }]
+      nodes: [],
+      links: []
     };
 
     traverse(ast, {
-      Identifier: path => {
-        console.log('Identifier:', path.node.name);
+      ClassDeclaration: path => {
+        graph.nodes.push({ id: path.node.id.name, group: 2 });
+      },
+      ClassMethod: path => {
+        graph.nodes.push({ id: path.node.key.name });
+        graph.links.push({
+          source: path.context.scope.block.id.name,
+          target: path.node.key.name
+        });
+      }
+    });
+
+    traverse(ast, {
+      MemberExpression: path => {
+        if (
+          path.node.object.type === 'ThisExpression' &&
+          path.node.property.type === 'Identifier' &&
+          graph.nodes.find(node => node.id === path.node.property.name) &&
+          path.scope.block.type === 'ClassMethod'
+        ) {
+          graph.links.push({
+            source: path.scope.block.key.name,
+            target: path.node.property.name
+          });
+        }
+      },
+      CallExpression: path => {
+        if (graph.nodes.find(node => node.id === path.node.callee.name)) {
+          graph.links.push({
+            source: path.scope.block.key.name,
+            target: path.node.callee.name
+          });
+        }
       }
     });
 
