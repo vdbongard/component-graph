@@ -1,12 +1,5 @@
-<div class="upload-card" [class.is-dragging-over]="isDraggingOver">
-  <label
-    for="file-upload"
-    class="upload-button"
-    (dragover)="$event.preventDefault()"
-    (dragenter)="dragEnter($event)"
-    (dragleave)="dragLeave($event)"
-    (drop)="drop($event)"
-  >
+<div class="upload-card" appDropTarget (fileDropped)="onFileChange($event)">
+  <label for="file-upload" class="upload-button">
     <mat-icon>note_add</mat-icon>
     <span class="upload-button-text">
       Drag and drop <br />
@@ -21,6 +14,5 @@
   id="file-upload"
   name="file-upload"
   class="file-upload"
-  (change)="onFileChange($event.target['files'])"
-  multiple
+  (change)="onFileChange($event.target['files'][0])"
 />

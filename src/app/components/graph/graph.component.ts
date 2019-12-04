@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import * as d3 from 'd3';
 import data from '../../data';
 import { Link, Node } from '../../interfaces';
+import { DataService } from '../../services/data.service';
 
 @Component({
   selector: 'app-graph',
@@ -21,6 +22,8 @@ export class GraphComponent implements OnInit, OnDestroy {
   nodes: d3.Selection<any, any, any, any>;
 
   scale = d3.scaleOrdinal(d3.schemeCategory10);
+
+  constructor(private dataService: DataService) {}
 
   ngOnInit() {
     this.svgZoomGroup = this.createSVG();

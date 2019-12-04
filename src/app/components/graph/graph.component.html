@@ -1,1 +1,5 @@
-<div id="d3-root"></div>
+<div
+  id="d3-root"
+  appDropTarget
+  (fileDropped)="dataService.setFile($event)"
+></div>

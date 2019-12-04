@@ -8,9 +8,15 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { GraphComponent } from './components/graph/graph.component';
 import { UploadViewComponent } from './components/upload-view/upload-view.component';
 import { MatCardModule, MatIconModule } from '@angular/material';
+import { DropTargetDirective } from './directives/drop-target.directive';
 
 @NgModule({
-  declarations: [AppComponent, GraphComponent, UploadViewComponent],
+  declarations: [
+    AppComponent,
+    GraphComponent,
+    UploadViewComponent,
+    DropTargetDirective
+  ],
   imports: [
     BrowserModule,
     AppRoutingModule,

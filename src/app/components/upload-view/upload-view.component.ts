@@ -8,33 +8,12 @@ import { DataService } from '../../services/data.service';
   styleUrls: ['./upload-view.component.scss']
 })
 export class UploadViewComponent implements OnInit {
-  isDraggingOver = false;
-
   constructor(private router: Router, private dataService: DataService) {}
 
   ngOnInit() {}
 
-  dragEnter(event) {
-    event.preventDefault();
-    this.isDraggingOver = true;
-  }
-
-  dragLeave(event) {
-    event.preventDefault();
-    this.isDraggingOver = false;
-  }
-
-  drop(event) {
-    event.preventDefault();
-    this.isDraggingOver = false;
-    this.onFileChange(event.dataTransfer.files);
-  }
-
-  onFileChange(files) {
-    if (files.length === 0) {
-      return;
-    }
-    this.dataService.setFile(files[0]);
+  onFileChange(file) {
+    this.dataService.setFile(file);
     this.router.navigateByUrl('graph');
   }
 }
