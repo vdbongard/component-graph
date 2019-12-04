@@ -4,6 +4,7 @@ import { parse, ParserOptions } from '@babel/parser';
 import * as Babel from '@babel/types';
 import { BehaviorSubject } from 'rxjs';
 import { Graph } from '../interfaces';
+import { reactMethods } from '../constants/special-methods';
 
 @Injectable({
   providedIn: 'root'
@@ -49,11 +50,17 @@ export class DataService {
         graph.nodes.push({ id: path.node.id.name, group: 2 });
       },
       ClassMethod: path => {
-        graph.nodes.push({ id: path.node.key.name });
-        graph.links.push({
-          source: path.context.scope.block.id.name,
-          target: path.node.key.name
-        });
+        const methodName = path.node.key.name;
+        const isReactMethod = reactMethods.includes(methodName);
+
+        graph.nodes.push({ id: methodName, group: isReactMethod ? 3 : 1 });
+
+        if (isReactMethod) {
+          graph.links.push({
+            source: path.context.scope.block.id.name,
+            target: methodName
+          });
+        }
       }
     });
 

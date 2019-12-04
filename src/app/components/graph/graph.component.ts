@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import * as d3 from 'd3';
-import data from '../../data';
+import data from '../../constants/data';
 import { Link, Node } from '../../interfaces';
 import { DataService } from '../../services/data.service';
 
