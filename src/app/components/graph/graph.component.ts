@@ -146,7 +146,7 @@ export class GraphComponent implements OnInit, OnDestroy {
       .data(this.nodeData)
       .join('g')
       .attr('class', 'node')
-      .attr('style', 'cursor: pointer')
+      .attr('style', 'cursor: pointer; outline: none;')
       .call(this.drag(this.simulation))
       .on('click', event => {
         if (d3.event.ctrlKey) {
@@ -160,7 +160,7 @@ export class GraphComponent implements OnInit, OnDestroy {
       });
 
     if (window.location.search.indexOf('fade=1') >= 0) {
-      nodes.on('mouseover.fade', fade(0.1)).on('mouseout.fade', fade(1));
+      nodes.on('click', fade(0.1)).on('blur', fade(1));
     }
 
     nodes
