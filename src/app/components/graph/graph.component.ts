@@ -200,25 +200,15 @@ export class GraphComponent implements OnInit, OnDestroy {
           return;
         }
         nodes
-          .select('circle')
-          .attr('fill-opacity', o =>
-            opacity === 1 || isConnected(d, o) ? 1 : opacity
-          );
-
-        nodes
-          .select('text')
+          .transition()
           .style('opacity', o =>
             opacity === 1 || isConnected(d, o) ? 1 : opacity
           );
 
         links
-          .style('stroke-opacity', o =>
+          .transition()
+          .attr('opacity', o =>
             opacity === 1 || o.source === d || o.target === d ? 1 : opacity
-          )
-          .attr('marker-end', o =>
-            opacity === 1 || o.source === d || o.target === d
-              ? 'url(#arrowhead)'
-              : undefined
           );
       };
     }
