@@ -77,6 +77,7 @@ export class DataService {
       },
       ClassProperty: path => {
         if (
+          path.node.value &&
           path.node.value.type === 'CallExpression' &&
           path.node.value.callee.property.name === 'bind'
         ) {
