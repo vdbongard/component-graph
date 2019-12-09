@@ -52,6 +52,8 @@ export class DataService {
       links: []
     };
 
+    const aliases: { [key: string]: string } = {};
+
     traverse(ast, {
       ClassDeclaration: path => {
         this.pushUniqueNode({ id: path.node.id.name, group: 2 }, graph.nodes);
@@ -82,6 +84,9 @@ export class DataService {
           path.node.value.callee.property.name === 'bind'
         ) {
           this.pushUniqueNode({ id: path.node.key.name }, graph.nodes);
+          const regularName = path.node.value.callee.object.property.name;
+          const aliasName = path.node.key.name;
+          aliases[aliasName] = regularName;
         }
       }
     });
@@ -129,7 +134,28 @@ export class DataService {
       }
     });
 
+    this.mergeAliasesWithOriginals(graph, aliases);
+
     this.graphData$.next(graph);
+  }
+
+  private mergeAliasesWithOriginals(
+    graph: Graph,
+    aliases: { [p: string]: string }
+  ) {
+    graph.nodes = graph.nodes.filter(
+      node => !Object.keys(aliases).includes(node.id)
+    );
+
+    graph.links = graph.links.map(link => {
+      if (Object.keys(aliases).includes(link.source)) {
+        link.source = aliases[link.source];
+      }
+      if (Object.keys(aliases).includes(link.target)) {
+        link.target = aliases[link.target];
+      }
+      return link;
+    });
   }
 
   private getCalleeName(callee) {
@@ -161,13 +187,19 @@ export class DataService {
   }
 
   private pushUniqueLink(link: Link, links: Link[]) {
+    if (link.source === link.target) {
+      return;
+    }
+
     if (
-      !links.find(
+      links.find(
         searchLink =>
           searchLink.source === link.source && searchLink.target === link.target
       )
     ) {
-      links.push(link);
+      return;
     }
+
+    links.push(link);
   }
 }
