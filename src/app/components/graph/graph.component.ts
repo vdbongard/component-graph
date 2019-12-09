@@ -163,6 +163,17 @@ export class GraphComponent implements OnInit, OnDestroy {
 
     if (window.location.search.indexOf('fade=1') >= 0) {
       nodes.on('blur', fade(1));
+      nodes
+        .on('mouseover.fade', d => {
+          if (d3.event.ctrlKey) {
+            _fade(d, 0.1);
+          }
+        })
+        .on('mouseout.fade', d => {
+          if (d3.event.ctrlKey) {
+            _fade(d, 1);
+          }
+        });
     }
 
     nodes
