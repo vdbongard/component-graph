@@ -156,11 +156,13 @@ export class GraphComponent implements OnInit, OnDestroy {
             link => link.source.id !== event.id && link.target.id !== event.id
           );
           this.restartGraph();
+        } else if (window.location.search.indexOf('fade=1') >= 0) {
+          _fade(event, 0.1);
         }
       });
 
     if (window.location.search.indexOf('fade=1') >= 0) {
-      nodes.on('click', fade(0.1)).on('blur', fade(1));
+      nodes.on('blur', fade(1));
     }
 
     nodes
@@ -196,21 +198,26 @@ export class GraphComponent implements OnInit, OnDestroy {
 
     function fade(opacity: number) {
       return d => {
-        if (self.dragging) {
-          return;
-        }
-        nodes
-          .transition()
-          .style('opacity', o =>
-            opacity === 1 || isConnected(d, o) ? 1 : opacity
-          );
-
-        links
-          .transition()
-          .attr('opacity', o =>
-            opacity === 1 || o.source === d || o.target === d ? 1 : opacity
-          );
+        _fade(d, opacity);
       };
+    }
+
+    function _fade(d: Node, opacity: number) {
+      if (self.dragging) {
+        return;
+      }
+
+      nodes
+        .transition()
+        .style('opacity', o =>
+          opacity === 1 || isConnected(d, o) ? 1 : opacity
+        );
+
+      links
+        .transition()
+        .attr('opacity', o =>
+          opacity === 1 || o.source === d || o.target === d ? 1 : opacity
+        );
     }
 
     return nodes;
