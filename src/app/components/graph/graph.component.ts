@@ -152,6 +152,7 @@ export class GraphComponent implements OnInit, OnDestroy {
       .append('g')
       .attr('stroke', this.linkColor)
       .attr('stroke-opacity', this.linkOpacity)
+      .style('opacity', 1)
       .selectAll('line')
       .data(this.linkData)
       .join('line')
@@ -166,7 +167,7 @@ export class GraphComponent implements OnInit, OnDestroy {
       .data(this.nodeData)
       .join('g')
       .attr('class', 'node')
-      .attr('style', 'cursor: pointer; outline: none;')
+      .attr('style', 'cursor: pointer; outline: none; opacity: 1;')
       .call(this.drag(this.simulation))
       .on('click', event => {
         if (d3.event.ctrlKey) {
