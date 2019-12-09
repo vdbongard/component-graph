@@ -52,7 +52,7 @@ export class DataService {
       links: []
     };
 
-    const aliases: { [key: string]: string } = {};
+    const aliases: { [alias: string]: string } = {};
 
     traverse(ast, {
       ClassDeclaration: path => {
@@ -141,7 +141,7 @@ export class DataService {
 
   private mergeAliasesWithOriginals(
     graph: Graph,
-    aliases: { [p: string]: string }
+    aliases: { [alias: string]: string }
   ) {
     graph.nodes = graph.nodes.filter(
       node => !Object.keys(aliases).includes(node.id)
