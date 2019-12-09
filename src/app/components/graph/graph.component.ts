@@ -23,8 +23,18 @@ export class GraphComponent implements OnInit, OnDestroy {
 
   scale = d3.scaleOrdinal(d3.schemeCategory10);
   dragging = false;
+
+  // Settings
   normalTextSize = 12;
   maxTextSize = 18;
+  fadeOpacity = 0.1;
+  zoomTransition = '0.1s ease-out';
+  linkColor = '#999';
+  linkOpacity = 0.6;
+  linkStrokeWidth = 0.8;
+  circleRadius = 8;
+  arrowOffset = 21;
+  dragAlphaTarget = 0.3; // how much the dragged node influences other nodes
 
   constructor(public dataService: DataService) {}
 
@@ -70,7 +80,7 @@ export class GraphComponent implements OnInit, OnDestroy {
       .append('svg')
       .attr('style', 'width: 100%; height: 100%; user-select: none;')
       .on('wheel', () => {
-        svg.style('transition', 'transform 0.1s ease-out');
+        svg.style('transition', `transform ${this.zoomTransition}`);
       })
       .on('mousedown', () => {
         svg.style('transition', null);
@@ -95,7 +105,7 @@ export class GraphComponent implements OnInit, OnDestroy {
       .append('marker')
       .attr('id', 'arrowhead')
       .attr('viewBox', '-0 -5 10 10')
-      .attr('refX', 21)
+      .attr('refX', this.arrowOffset)
       .attr('refY', 0)
       .attr('orient', 'auto')
       .attr('markerWidth', 8)
@@ -140,12 +150,12 @@ export class GraphComponent implements OnInit, OnDestroy {
   private createLinks() {
     return this.svgZoomGroup
       .append('g')
-      .attr('stroke', '#999')
-      .attr('stroke-opacity', 0.6)
+      .attr('stroke', this.linkColor)
+      .attr('stroke-opacity', this.linkOpacity)
       .selectAll('line')
       .data(this.linkData)
       .join('line')
-      .attr('stroke-width', 0.8)
+      .attr('stroke-width', this.linkStrokeWidth)
       .attr('marker-end', 'url(#arrowhead)');
   }
 
@@ -171,11 +181,11 @@ export class GraphComponent implements OnInit, OnDestroy {
 
     if (window.location.search.indexOf('fade=1') >= 0) {
       nodes
-        .on('click.fade', fade(0.1))
+        .on('click.fade', fade(this.fadeOpacity))
         .on('blur', fade(1))
         .on('mouseover.fade', d => {
           if (d3.event.ctrlKey) {
-            _fade(d, 0.1);
+            _fade(d, this.fadeOpacity);
           }
         })
         .on('mouseout.fade', d => {
@@ -187,7 +197,7 @@ export class GraphComponent implements OnInit, OnDestroy {
 
     nodes
       .append('circle')
-      .attr('r', 8)
+      .attr('r', this.circleRadius)
       .attr('fill', d => this.scale(d.group ? d.group.toString() : '1'));
 
     if (window.location.search.indexOf('text=1') >= 0) {
@@ -196,7 +206,7 @@ export class GraphComponent implements OnInit, OnDestroy {
         .text(d => d.id)
         .style('font-size', `${this.normalTextSize}px`)
         .style('dominant-baseline', 'central')
-        .style('transition', 'font-size 0.1s ease-out')
+        .style('transition', `font-size ${this.zoomTransition}`)
         .attr('x', 9);
     }
 
@@ -249,7 +259,7 @@ export class GraphComponent implements OnInit, OnDestroy {
 
     function dragged(d) {
       if (!self.dragging) {
-        simulation.alphaTarget(0.3).restart();
+        simulation.alphaTarget(self.dragAlphaTarget).restart();
         self.dragging = true;
       }
 
