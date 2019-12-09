@@ -238,7 +238,6 @@ export class GraphComponent implements OnInit, OnDestroy {
 
     function dragged(d) {
       if (!self.dragging) {
-        console.log('dragged');
         simulation.alphaTarget(0.3).restart();
         self.dragging = true;
       }
