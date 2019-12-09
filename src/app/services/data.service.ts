@@ -3,7 +3,7 @@ import traverse from '@babel/traverse';
 import { parse, ParserOptions } from '@babel/parser';
 import * as Babel from '@babel/types';
 import { BehaviorSubject } from 'rxjs';
-import { Graph } from '../interfaces';
+import { Graph, Link, Node } from '../interfaces';
 import { reactMethods } from '../constants/special-methods';
 
 @Injectable({
@@ -54,19 +54,33 @@ export class DataService {
 
     traverse(ast, {
       ClassDeclaration: path => {
-        graph.nodes.push({ id: path.node.id.name, group: 2 });
+        this.pushUniqueNode({ id: path.node.id.name, group: 2 }, graph.nodes);
       },
       ClassMethod: path => {
         const methodName = path.node.key.name;
         const isReactMethod = reactMethods.includes(methodName);
 
-        graph.nodes.push({ id: methodName, group: isReactMethod ? 3 : 1 });
+        this.pushUniqueNode(
+          { id: methodName, group: isReactMethod ? 3 : 1 },
+          graph.nodes
+        );
 
         if (isReactMethod) {
-          graph.links.push({
-            source: path.context.scope.block.id.name,
-            target: methodName
-          });
+          this.pushUniqueLink(
+            {
+              source: path.context.scope.block.id.name,
+              target: methodName
+            },
+            graph.links
+          );
+        }
+      },
+      ClassProperty: path => {
+        if (
+          path.node.value.type === 'CallExpression' &&
+          path.node.value.callee.property.name === 'bind'
+        ) {
+          this.pushUniqueNode({ id: path.node.key.name }, graph.nodes);
         }
       }
     });
@@ -76,13 +90,21 @@ export class DataService {
         if (
           path.node.object.type === 'ThisExpression' &&
           path.node.property.type === 'Identifier' &&
-          graph.nodes.find(node => node.id === path.node.property.name) &&
-          path.scope.block.type === 'ClassMethod'
+          graph.nodes.find(node => node.id === path.node.property.name)
         ) {
-          graph.links.push({
-            source: path.scope.block.key.name,
-            target: path.node.property.name
-          });
+          const classMethodName = this.getClassMethodName(path);
+
+          if (!classMethodName) {
+            return;
+          }
+
+          this.pushUniqueLink(
+            {
+              source: classMethodName,
+              target: path.node.property.name
+            },
+            graph.links
+          );
         }
       },
       CallExpression: path => {
@@ -95,10 +117,13 @@ export class DataService {
             return;
           }
 
-          graph.links.push({
-            source: classMethodName,
-            target: calleeName
-          });
+          this.pushUniqueLink(
+            {
+              source: classMethodName,
+              target: calleeName
+            },
+            graph.links
+          );
         }
       }
     });
@@ -126,5 +151,22 @@ export class DataService {
     }
 
     return currentPath.scope.block.key.name;
+  }
+
+  private pushUniqueNode(node: Node, nodes: Node[]) {
+    if (!nodes.find(searchNode => searchNode.id === node.id)) {
+      nodes.push(node);
+    }
+  }
+
+  private pushUniqueLink(link: Link, links: Link[]) {
+    if (
+      !links.find(
+        searchLink =>
+          searchLink.source === link.source && searchLink.target === link.target
+      )
+    ) {
+      links.push(link);
+    }
   }
 }
