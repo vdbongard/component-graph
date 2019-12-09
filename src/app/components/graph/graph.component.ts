@@ -23,6 +23,8 @@ export class GraphComponent implements OnInit, OnDestroy {
 
   scale = d3.scaleOrdinal(d3.schemeCategory10);
   dragging = false;
+  normalTextSize = 12;
+  maxTextSize = 18;
 
   constructor(public dataService: DataService) {}
 
@@ -76,6 +78,14 @@ export class GraphComponent implements OnInit, OnDestroy {
       .call(
         d3.zoom().on('zoom', () => {
           svg.attr('transform', d3.event.transform);
+          if (this.normalTextSize * d3.event.transform.k > this.maxTextSize) {
+            this.nodes
+              .select('text')
+              .style(
+                'font-size',
+                `${this.maxTextSize / d3.event.transform.k}px`
+              );
+          }
         })
       )
       .append('g');
@@ -184,9 +194,10 @@ export class GraphComponent implements OnInit, OnDestroy {
       nodes
         .append('text')
         .text(d => d.id)
-        .style('font-size', '12px')
-        .attr('x', 9)
-        .attr('y', 4);
+        .style('font-size', `${this.normalTextSize}px`)
+        .style('dominant-baseline', 'central')
+        .style('transition', 'font-size 0.1s ease-out')
+        .attr('x', 9);
     }
 
     const linkedByIndex = {};
