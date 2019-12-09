@@ -237,16 +237,13 @@ export class GraphComponent implements OnInit, OnDestroy {
   private drag(simulation: d3.Simulation<any, any>): any {
     const self = this;
 
-    function dragStarted(d) {
-      if (!d3.event.active) {
-        simulation.alphaTarget(0.3).restart();
-      }
-      d.fx = d.x;
-      d.fy = d.y;
-      self.dragging = true;
-    }
-
     function dragged(d) {
+      if (!self.dragging) {
+        console.log('dragged');
+        simulation.alphaTarget(0.3).restart();
+        self.dragging = true;
+      }
+
       d.fx = d3.event.x;
       d.fy = d3.event.y;
     }
@@ -265,7 +262,6 @@ export class GraphComponent implements OnInit, OnDestroy {
 
     return d3
       .drag()
-      .on('start', dragStarted)
       .on('drag', dragged)
       .on('end', dragEnded);
   }
