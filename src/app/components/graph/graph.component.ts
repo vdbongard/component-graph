@@ -32,8 +32,8 @@ export class GraphComponent implements OnInit, OnDestroy {
   linkColor = '#999';
   linkOpacity = 0.6;
   linkStrokeWidth = 0.8;
+  maxLinkStrokeWidth = 1.6;
   circleRadius = 8;
-  arrowOffset = 21;
   dragAlphaTarget = 0.3; // how much the dragged node influences other nodes
 
   constructor(public dataService: DataService) {}
@@ -96,6 +96,15 @@ export class GraphComponent implements OnInit, OnDestroy {
                 `${this.maxTextSize / d3.event.transform.k}px`
               );
           }
+          if (
+            this.linkStrokeWidth * d3.event.transform.k >
+            this.maxLinkStrokeWidth
+          ) {
+            this.links.style(
+              'stroke-width',
+              this.maxLinkStrokeWidth / d3.event.transform.k
+            );
+          }
         })
       )
       .append('g');
@@ -105,7 +114,7 @@ export class GraphComponent implements OnInit, OnDestroy {
       .append('marker')
       .attr('id', 'arrowhead')
       .attr('viewBox', '-0 -5 10 10')
-      .attr('refX', this.arrowOffset)
+      .attr('refX', 9)
       .attr('refY', 0)
       .attr('orient', 'auto')
       .attr('markerWidth', 8)
@@ -138,8 +147,22 @@ export class GraphComponent implements OnInit, OnDestroy {
       this.links
         .attr('x1', d => d.source.x)
         .attr('y1', d => d.source.y)
-        .attr('x2', d => d.target.x)
-        .attr('y2', d => d.target.y);
+        .attr('x2', d => {
+          const diffX = d.target.x - d.source.x;
+          const diffY = d.target.y - d.source.y;
+          const distance = Math.sqrt(Math.pow(diffX, 2) + Math.pow(diffY, 2));
+          return (
+            d.source.x + (diffX / distance) * (distance - this.circleRadius)
+          );
+        })
+        .attr('y2', d => {
+          const diffX = d.target.x - d.source.x;
+          const diffY = d.target.y - d.source.y;
+          const distance = Math.sqrt(Math.pow(diffX, 2) + Math.pow(diffY, 2));
+          return (
+            d.source.y + (diffY / distance) * (distance - this.circleRadius)
+          );
+        });
 
       this.nodes.attr('transform', d => `translate(${d.x}, ${d.y})`);
     });
@@ -156,6 +179,7 @@ export class GraphComponent implements OnInit, OnDestroy {
       .selectAll('line')
       .data(this.linkData)
       .join('line')
+      .style('transition', `stroke-width ${this.zoomTransition}`)
       .attr('stroke-width', this.linkStrokeWidth)
       .attr('marker-end', 'url(#arrowhead)');
   }
