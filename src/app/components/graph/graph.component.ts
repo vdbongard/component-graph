@@ -80,7 +80,7 @@ export class GraphComponent implements OnInit, OnDestroy {
       .append('svg')
       .attr(
         'style',
-        'width: 100%; height: 100%; user-select: none;display: block;'
+        'width: 100%; height: 100%; user-select: none; display: block;'
       )
       .on('wheel', () => {
         svg.style('transition', `transform ${this.zoomTransition}`);
