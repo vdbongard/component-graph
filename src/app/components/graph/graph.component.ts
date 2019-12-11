@@ -78,7 +78,10 @@ export class GraphComponent implements OnInit, OnDestroy {
     const svg = d3
       .select('#d3-root')
       .append('svg')
-      .attr('style', 'width: 100%; height: 100%; user-select: none;')
+      .attr(
+        'style',
+        'width: 100%; height: 100%; user-select: none;display: block;'
+      )
       .on('wheel', () => {
         svg.style('transition', `transform ${this.zoomTransition}`);
       })
