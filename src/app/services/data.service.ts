@@ -144,18 +144,27 @@ export class DataService {
     graph: Graph,
     aliases: { [alias: string]: string }
   ) {
+    const linkIndexesToRemove = [];
+
     graph.nodes = graph.nodes.filter(
       node => !Object.keys(aliases).includes(node.id)
     );
 
-    graph.links = graph.links.map(link => {
+    graph.links = graph.links.map((link, index) => {
       if (Object.keys(aliases).includes(link.source)) {
         link.source = aliases[link.source];
       }
       if (Object.keys(aliases).includes(link.target)) {
         link.target = aliases[link.target];
       }
+      if (link.source === link.target) {
+        linkIndexesToRemove.push(index);
+      }
       return link;
+    });
+
+    linkIndexesToRemove.forEach(index => {
+      graph.links.splice(index, 1);
     });
   }
 
