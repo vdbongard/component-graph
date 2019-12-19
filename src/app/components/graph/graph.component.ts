@@ -34,11 +34,27 @@ export class GraphComponent implements OnInit, OnDestroy {
   linkStrokeWidth = 0.8;
   maxLinkStrokeWidth = 1.6;
   circleRadius = 8;
+  circleFillBrightness = 0;
+  circleStrokeWidth = 0;
   dragAlphaTarget = 0.3; // how much the dragged node influences other nodes
+  minChargeForce = -100;
+  linkDistance = 30;
+  textCenter = false;
 
   constructor(public dataService: DataService) {}
 
   ngOnInit() {
+    if (window.location.search.indexOf('textCenter=1') >= 0) {
+      this.normalTextSize = 14;
+      this.maxTextSize = 20;
+      this.circleRadius = 24;
+      this.circleFillBrightness = 0.8;
+      this.circleStrokeWidth = 1;
+      this.minChargeForce = -600;
+      this.linkDistance = 100;
+      this.textCenter = true;
+    }
+
     this.dataService.graphData$.subscribe(graph => {
       if (graph) {
         this.linkData = graph.links;
@@ -134,17 +150,21 @@ export class GraphComponent implements OnInit, OnDestroy {
     const chargeForce =
       force !== undefined
         ? force
-        : Math.min(-4000 + this.nodeData.length * 200, -100);
+        : Math.min(-4000 + this.nodeData.length * 200, this.minChargeForce);
     console.log('Charge force:', chargeForce);
 
     const simulation = d3
       .forceSimulation(this.nodeData)
       .force(
         'link',
-        d3.forceLink(this.linkData).id((d: any) => d.id)
+        d3
+          .forceLink(this.linkData)
+          .id((d: any) => d.id)
+          .distance(this.linkDistance)
       )
       .force('charge', d3.forceManyBody().strength(chargeForce))
-      .force('center', d3.forceCenter(this.width / 2, this.height / 2));
+      .force('center', d3.forceCenter(this.width / 2, this.height / 2))
+      .force('collide', d3.forceCollide().radius(this.circleRadius * 1.2));
 
     simulation.on('tick', () => {
       this.links
@@ -226,7 +246,13 @@ export class GraphComponent implements OnInit, OnDestroy {
     nodes
       .append('circle')
       .attr('r', this.circleRadius)
-      .attr('fill', d => this.scale(d.group ? d.group.toString() : '1'));
+      .attr('fill', d => {
+        const color = d3.hsl(this.scale(d.group ? d.group.toString() : '1'));
+        color.l += (1 - color.l) * this.circleFillBrightness;
+        return color.toString();
+      })
+      .attr('stroke', d => this.scale(d.group ? d.group.toString() : '1'))
+      .attr('stroke-width', this.circleStrokeWidth);
 
     if (window.location.search.indexOf('text=1') >= 0) {
       nodes
@@ -235,7 +261,14 @@ export class GraphComponent implements OnInit, OnDestroy {
         .style('font-size', `${this.normalTextSize}px`)
         .style('dominant-baseline', 'central')
         .style('transition', `font-size ${this.zoomTransition}`)
-        .attr('x', 9);
+        .attr('x', this.circleRadius * 1.1);
+
+      if (this.textCenter) {
+        nodes
+          .select('text')
+          .style('text-anchor', 'middle')
+          .attr('x', null);
+      }
     }
 
     const linkedByIndex = {};
