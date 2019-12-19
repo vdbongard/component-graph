@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import * as d3 from 'd3';
 import data from '../../constants/data';
-import { Link, Node } from '../../interfaces';
+import { Graph, Link, Node } from '../../interfaces';
 import { DataService } from '../../services/data.service';
 
 @Component({
@@ -44,6 +44,13 @@ export class GraphComponent implements OnInit, OnDestroy {
   constructor(public dataService: DataService) {}
 
   ngOnInit() {
+    const storedGraph: Graph = JSON.parse(window.localStorage.getItem('graph'));
+
+    if (storedGraph) {
+      this.linkData = storedGraph.links;
+      this.nodeData = storedGraph.nodes;
+    }
+
     if (window.location.search.indexOf('textCenter=1') >= 0) {
       this.normalTextSize = 14;
       this.maxTextSize = 20;
@@ -59,9 +66,11 @@ export class GraphComponent implements OnInit, OnDestroy {
       if (graph) {
         this.linkData = graph.links;
         this.nodeData = graph.nodes;
+
+        window.localStorage.setItem('graph', JSON.stringify(graph));
       }
 
-      this.restartGraph();
+      setTimeout(this.restartGraph.bind(this), 0);
     });
 
     // @ts-ignore
