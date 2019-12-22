@@ -14,5 +14,7 @@
   id="file-upload"
   name="file-upload"
   class="file-upload"
-  (change)="onFileChange($event.target['files'][0])"
+  (change)="onFileChange($event)"
+  webkitdirectory
+  mozdirectory
 />

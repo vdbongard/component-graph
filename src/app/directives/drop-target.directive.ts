@@ -45,7 +45,7 @@ export class DropTargetDirective {
   drop(event) {
     event.preventDefault();
     this.isDraggingOver = false;
-    this.onFileChange(event.dataTransfer.files);
+    this.onFileChange(event.dataTransfer);
   }
 
   onFileChange(files) {
@@ -53,7 +53,6 @@ export class DropTargetDirective {
       return;
     }
 
-    console.log('File:', files[0]);
-    this.fileDropped.emit(files[0]);
+    this.fileDropped.emit(files);
   }
 }

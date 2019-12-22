@@ -3,7 +3,7 @@ import traverse from '@babel/traverse';
 import { parse, ParserOptions } from '@babel/parser';
 import * as Babel from '@babel/types';
 import { BehaviorSubject } from 'rxjs';
-import { Graph, Link, Node } from '../interfaces';
+import { Entry, Graph, Link, Node } from '../interfaces';
 import { reactMethods } from '../constants/special-methods';
 
 @Injectable({
@@ -11,10 +11,46 @@ import { reactMethods } from '../constants/special-methods';
 })
 export class DataService {
   ast: Babel.File;
+  files: { file: File; fullPath: string }[] = [];
 
   graphData$ = new BehaviorSubject<Graph>(undefined);
 
   constructor() {}
+
+  setFiles(data) {
+    this.files = [];
+
+    if (data instanceof FileList) {
+      // case: html input
+      // @ts-ignore
+      for (const file of data) {
+        this.files.push({ file, fullPath: file.webkitRelativePath });
+      }
+    } else {
+      // case: directory drop
+      for (const item of data.items) {
+        const itemEntry = item.webkitGetAsEntry();
+        if (itemEntry) {
+          this.getFilesFromEntry(itemEntry);
+        }
+      }
+    }
+  }
+
+  getFilesFromEntry(item: Entry) {
+    if (item.isDirectory) {
+      const directoryReader = item.createReader();
+      directoryReader.readEntries(entries => {
+        entries.forEach(entry => {
+          this.getFilesFromEntry(entry);
+        });
+      });
+    } else {
+      item.file(file => {
+        this.files.push({ file, fullPath: item.fullPath });
+      });
+    }
+  }
 
   setFile(file: File) {
     const reader = new FileReader();
