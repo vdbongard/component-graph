@@ -18,19 +18,17 @@ export class DataService {
 
   constructor() {}
 
-  setFiles(files: FileWithPath[]) {
+  async setFiles(files: FileWithPath[]) {
     console.log('setFiles: ', files);
+    this.setFile(files[0].file);
   }
 
-  setFile(file: File) {
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === 'string') {
-        const fileExtension = file.name.split('.').pop();
-        this.parse(reader.result, fileExtension);
-      }
-    };
-    reader.readAsText(file);
+  async setFile(file: File) {
+    // @ts-ignore
+    const code = await file.text();
+    const fileExtension = file.name.split('.').pop();
+
+    this.parse(code, fileExtension);
   }
 
   private parse(code: string, fileExtension?: string) {
