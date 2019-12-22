@@ -5,7 +5,7 @@ import * as Babel from '@babel/types';
 import { BehaviorSubject } from 'rxjs';
 import { Graph, Link, Node } from '../interfaces';
 import { reactMethods } from '../constants/special-methods';
-import { FileWithPath, getFilesAsync } from '../helper/getFilesAsyc';
+import { FileWithPath } from '../helper/getFilesAsyc';
 
 @Injectable({
   providedIn: 'root'
@@ -18,20 +18,8 @@ export class DataService {
 
   constructor() {}
 
-  async setFiles(data: FileList | DataTransfer) {
-    this.files = [];
-
-    if (data instanceof FileList) {
-      // case: html input
-      // @ts-ignore
-      for (const file of data) {
-        this.files.push({ file, path: '/' + file.webkitRelativePath });
-      }
-    } else if (data instanceof DataTransfer) {
-      // case: directory drop
-      this.files = await getFilesAsync(data);
-    }
-    console.log(this.files);
+  setFiles(files: FileWithPath[]) {
+    console.log('setFiles: ', files);
   }
 
   setFile(file: File) {

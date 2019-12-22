@@ -6,6 +6,7 @@ import {
   HostListener,
   Output
 } from '@angular/core';
+import { getFilesAsync } from '../helper/getFilesAsyc';
 
 @Directive({
   selector: '[appDropTarget]'
@@ -42,17 +43,15 @@ export class DropTargetDirective {
   }
 
   @HostListener('drop', ['$event'])
-  drop(event) {
+  async drop(event) {
     event.preventDefault();
     this.isDraggingOver = false;
-    this.onFileChange(event.dataTransfer);
-  }
 
-  onFileChange(files) {
-    if (files.length === 0) {
+    if (event.dataTransfer.items.length === 0) {
       return;
     }
 
+    const files = await getFilesAsync(event.dataTransfer);
     this.fileDropped.emit(files);
   }
 }

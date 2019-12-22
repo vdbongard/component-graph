@@ -13,7 +13,12 @@ export class UploadViewComponent implements OnInit {
   ngOnInit() {}
 
   onFileChange(event) {
-    this.dataService.setFiles(event.target.files);
+    const files = [];
+    for (const file of event.target.files) {
+      files.push({ file, path: '/' + file.webkitRelativePath });
+    }
+
+    this.dataService.setFiles(files);
     this.router.navigate(['graph'], { queryParams: { text: 1, fade: 1 } });
   }
 }
