@@ -5,7 +5,7 @@ import * as Babel from '@babel/types';
 import { BehaviorSubject } from 'rxjs';
 import { Graph, Link, Node } from '../interfaces';
 import { reactMethods } from '../constants/special-methods';
-import { FileWithPath } from '../helper/getFilesAsyc';
+import { FileWithPath } from '../helper/getFilesAsync';
 
 @Injectable({
   providedIn: 'root'

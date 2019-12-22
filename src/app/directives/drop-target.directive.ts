@@ -6,7 +6,7 @@ import {
   HostListener,
   Output
 } from '@angular/core';
-import { getFilesAsync } from '../helper/getFilesAsyc';
+import { getFilesAsync } from '../helper/getFilesAsync';
 
 @Directive({
   selector: '[appDropTarget]'
