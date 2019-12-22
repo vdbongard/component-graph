@@ -3,53 +3,35 @@ import traverse from '@babel/traverse';
 import { parse, ParserOptions } from '@babel/parser';
 import * as Babel from '@babel/types';
 import { BehaviorSubject } from 'rxjs';
-import { Entry, Graph, Link, Node } from '../interfaces';
+import { Graph, Link, Node } from '../interfaces';
 import { reactMethods } from '../constants/special-methods';
+import { FileWithPath, getFilesAsync } from '../helper/getFilesAsyc';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DataService {
   ast: Babel.File;
-  files: { file: File; fullPath: string }[] = [];
+  files: FileWithPath[] = [];
 
   graphData$ = new BehaviorSubject<Graph>(undefined);
 
   constructor() {}
 
-  setFiles(data) {
+  async setFiles(data: FileList | DataTransfer) {
     this.files = [];
 
     if (data instanceof FileList) {
       // case: html input
       // @ts-ignore
       for (const file of data) {
-        this.files.push({ file, fullPath: file.webkitRelativePath });
+        this.files.push({ file, path: '/' + file.webkitRelativePath });
       }
-    } else {
+    } else if (data instanceof DataTransfer) {
       // case: directory drop
-      for (const item of data.items) {
-        const itemEntry = item.webkitGetAsEntry();
-        if (itemEntry) {
-          this.getFilesFromEntry(itemEntry);
-        }
-      }
+      this.files = await getFilesAsync(data);
     }
-  }
-
-  getFilesFromEntry(item: Entry) {
-    if (item.isDirectory) {
-      const directoryReader = item.createReader();
-      directoryReader.readEntries(entries => {
-        entries.forEach(entry => {
-          this.getFilesFromEntry(entry);
-        });
-      });
-    } else {
-      item.file(file => {
-        this.files.push({ file, fullPath: item.fullPath });
-      });
-    }
+    console.log(this.files);
   }
 
   setFile(file: File) {
