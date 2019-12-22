@@ -6,7 +6,7 @@ import { BehaviorSubject } from 'rxjs';
 import { Graph, Link, Node } from '../interfaces';
 import { reactMethods } from '../constants/special-methods';
 import { FileWithPath } from '../helper/getFilesAsync';
-import { supportedExtensions } from '../constants/fileExtensions';
+import { excludedFolders, supportedExtensions } from '../constants/files';
 
 @Injectable({
   providedIn: 'root'
@@ -22,11 +22,15 @@ export class DataService {
   async setFiles(files: FileWithPath[]) {
     console.log('setFiles: ', files);
     const componentFiles = files.filter(file => {
-      const pathParts = file.path.split('.');
+      if (excludedFolders.some(folder => file.path.includes(folder))) {
+        return;
+      }
+
+      const fileParts = file.path.split('.');
       return (
-        pathParts.length >= 2 &&
-        pathParts[pathParts.length - 2] !== 'test' &&
-        supportedExtensions.includes(pathParts[pathParts.length - 1])
+        fileParts.length >= 2 &&
+        fileParts[fileParts.length - 2] !== 'test' &&
+        supportedExtensions.includes(fileParts[fileParts.length - 1])
       );
     });
     console.log('componentFiles: ', componentFiles);
