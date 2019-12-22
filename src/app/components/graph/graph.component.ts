@@ -184,7 +184,9 @@ export class GraphComponent implements OnInit, OnDestroy {
           const diffY = d.target.y - d.source.y;
           const distance = Math.sqrt(Math.pow(diffX, 2) + Math.pow(diffY, 2));
           return (
-            d.source.x + (diffX / distance) * (distance - this.circleRadius)
+            d.source.x +
+            (diffX / distance) *
+              (distance - this.circleRadius - this.circleStrokeWidth / 2)
           );
         })
         .attr('y2', d => {
@@ -192,7 +194,9 @@ export class GraphComponent implements OnInit, OnDestroy {
           const diffY = d.target.y - d.source.y;
           const distance = Math.sqrt(Math.pow(diffX, 2) + Math.pow(diffY, 2));
           return (
-            d.source.y + (diffY / distance) * (distance - this.circleRadius)
+            d.source.y +
+            (diffY / distance) *
+              (distance - this.circleRadius - this.circleStrokeWidth / 2)
           );
         });
 
