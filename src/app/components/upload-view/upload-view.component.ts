@@ -12,10 +12,17 @@ export class UploadViewComponent implements OnInit {
 
   ngOnInit() {}
 
-  onFileChange(event) {
-    const files = [];
-    for (const file of event.target.files) {
-      files.push({ file, path: '/' + file.webkitRelativePath });
+  onFileChange(event: { target: { files: File[] } } | File[]) {
+    console.log(event);
+    let files = [];
+
+    if (!(event instanceof Array)) {
+      for (const file of event.target.files) {
+        // @ts-ignore
+        files.push({ file, path: '/' + file.webkitRelativePath });
+      }
+    } else {
+      files = event;
     }
 
     this.dataService.setFiles(files);
