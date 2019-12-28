@@ -72,13 +72,17 @@ export class DataService {
       });
 
       if (value.extends) {
-        this.pushUniqueLink(
-          {
-            source: value.extends,
-            target: path
-          },
-          this.appGraph.links
-        );
+        if (!this.appGraph.nodes.find(node => node.id === value.extends)) {
+          console.log('Found a wrong super class path: ', value.extends);
+        } else {
+          this.pushUniqueLink(
+            {
+              source: value.extends,
+              target: path
+            },
+            this.appGraph.links
+          );
+        }
       }
     }
 
