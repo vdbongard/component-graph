@@ -18,6 +18,7 @@ export class DataService {
     [componentName: string]: {
       graph?: Graph;
       imports?: { name: string; source: string }[];
+      extends?: string;
       dependencies?: Set<string>;
     };
   } = {};
@@ -69,6 +70,16 @@ export class DataService {
           this.appGraph.links
         );
       });
+
+      if (value.extends) {
+        this.pushUniqueLink(
+          {
+            source: value.extends,
+            target: path
+          },
+          this.appGraph.links
+        );
+      }
     }
 
     this.graphData$.next(this.appGraph);
@@ -133,6 +144,25 @@ export class DataService {
     traverse(ast, {
       ClassDeclaration: path => {
         this.pushUniqueNode({ id: path.node.id.name, group: 2 }, graph.nodes);
+        if (path.node.superClass) {
+          const superClassName =
+            path.node.superClass.name ||
+            (path.node.superClass.property &&
+              path.node.superClass.property.name);
+          if (superClassName === 'Component') {
+            return;
+          }
+          const extendsImport = this.componentMap[fileName].imports.find(
+            theImport => theImport.name === path.node.superClass.name
+          );
+          if (!extendsImport) {
+            return;
+          }
+          this.componentMap[fileName].extends = this.getImportPath(
+            extendsImport,
+            fileName
+          );
+        }
       },
       ClassMethod: path => {
         const methodName = path.node.key.name;
