@@ -3,7 +3,7 @@ import traverse from '@babel/traverse';
 import { parse, ParserOptions } from '@babel/parser';
 import * as Babel from '@babel/types';
 import { BehaviorSubject } from 'rxjs';
-import { Graph, Link, Node } from '../interfaces';
+import { Graph, Import, Link, Node } from '../interfaces';
 import { reactMethods } from '../constants/special-methods';
 import { FileWithPath } from '../helper/getFilesAsync';
 import { excludedFolders, supportedExtensions } from '../constants/files';
@@ -14,6 +14,18 @@ import { excludedFolders, supportedExtensions } from '../constants/files';
 export class DataService {
   ast: Babel.File;
   files: FileWithPath[] = [];
+  componentMap: {
+    [componentName: string]: {
+      graph?: Graph;
+      imports?: { name: string; source: string }[];
+      dependencies?: Set<string>;
+    };
+  } = {};
+  appGraph: Graph = {
+    nodes: [],
+    links: []
+  };
+  componentFiles: FileWithPath[];
 
   graphData$ = new BehaviorSubject<Graph>(undefined);
 
@@ -21,7 +33,7 @@ export class DataService {
 
   async setFiles(files: FileWithPath[]) {
     console.log('setFiles: ', files);
-    const componentFiles = files.filter(file => {
+    this.componentFiles = files.filter(file => {
       if (excludedFolders.some(folder => file.path.includes(folder))) {
         return;
       }
@@ -33,21 +45,45 @@ export class DataService {
         supportedExtensions.includes(fileParts[fileParts.length - 1])
       );
     });
-    console.log('componentFiles: ', componentFiles);
-    if (componentFiles) {
-      this.setFile(componentFiles[0].file);
+    console.log('componentFiles: ', this.componentFiles);
+
+    for (const [index, file] of this.componentFiles.entries()) {
+      await this.setFile(file);
+      console.log(`Analyzing [${index + 1}/${this.componentFiles.length}]...`);
+      // console.log(`${file.file.name}:`, this.componentMap[file.path]);
     }
+
+    console.log('ComponentMap:', this.componentMap);
+    console.log('AppGraph:', this.appGraph);
+
+    for (const [path, value] of Object.entries(this.componentMap)) {
+      value.dependencies.forEach(dependency => {
+        if (!dependency.startsWith('/')) {
+          return;
+        }
+        this.pushUniqueLink(
+          {
+            source: path,
+            target: dependency
+          },
+          this.appGraph.links
+        );
+      });
+    }
+
+    this.graphData$.next(this.appGraph);
   }
 
-  async setFile(file: File) {
+  async setFile(file: FileWithPath) {
     // @ts-ignore
-    const code = await file.text();
-    const fileExtension = file.name.split('.').pop();
+    const code = await file.file.text();
 
-    this.parse(code, fileExtension);
+    this.parse(code, file.path);
   }
 
-  private parse(code: string, fileExtension?: string) {
+  private parse(code: string, fileName?: string) {
+    const fileExtension = fileName.split('.').pop();
+
     const options: ParserOptions = {
       sourceType: 'module',
       plugins: ['jsx', 'classProperties']
@@ -61,18 +97,38 @@ export class DataService {
 
     this.ast = parse(code, options);
 
-    console.log('AST:', this.ast);
+    // console.log('AST:', this.ast);
 
-    this.traverse(this.ast);
+    this.componentMap[fileName] = {
+      imports: [],
+      graph: {
+        nodes: [],
+        links: []
+      },
+      dependencies: new Set<string>()
+    };
+
+    this.traverse(this.ast, fileName);
   }
 
-  private traverse(ast: Babel.File) {
+  private traverse(ast: Babel.File, fileName: string) {
     const graph: Graph = {
       nodes: [],
       links: []
     };
 
     const aliases: { [alias: string]: string } = {};
+
+    this.pushUniqueNode(
+      {
+        id: fileName,
+        label: fileName
+          .split('/')
+          .pop()
+          .split('.')[0]
+      },
+      this.appGraph.nodes
+    );
 
     traverse(ast, {
       ClassDeclaration: path => {
@@ -109,7 +165,9 @@ export class DataService {
           const aliasName = path.node.key.name;
           aliases[aliasName] = regularName;
         }
-      }
+      },
+      ImportSpecifier: path => this.handleImport(path, fileName),
+      ImportDefaultSpecifier: path => this.handleImport(path, fileName)
     });
 
     traverse(ast, {
@@ -152,12 +210,41 @@ export class DataService {
             graph.links
           );
         }
+      },
+      JSXIdentifier: path => {
+        if (path.container.type === 'JSXOpeningElement') {
+          const foundImport = this.componentMap[fileName].imports.find(
+            theImport => theImport.name === path.node.name
+          );
+
+          if (foundImport) {
+            const importPath = this.getImportPath(foundImport, fileName);
+            this.componentMap[fileName].dependencies.add(importPath);
+          }
+        }
       }
     });
 
     this.mergeAliasesWithOriginals(graph, aliases);
 
-    this.graphData$.next(graph);
+    this.componentMap[fileName].graph = graph;
+  }
+
+  private handleImport(path, fileName: string) {
+    if (!this.componentMap[fileName]) {
+      this.componentMap[fileName] = {
+        imports: []
+      };
+    }
+
+    if (!this.componentMap[fileName].imports) {
+      this.componentMap[fileName].imports = [];
+    }
+
+    this.componentMap[fileName].imports.push({
+      name: path.node.local.name,
+      source: path.parent.source.value
+    });
   }
 
   private mergeAliasesWithOriginals(
@@ -231,5 +318,38 @@ export class DataService {
     }
 
     links.push(link);
+  }
+
+  private getImportPath(theImport: Import, basePath: string) {
+    // npm module import
+    if (!theImport.source.startsWith('.')) {
+      return theImport.source;
+    }
+
+    const absolutePath = this.getAbsolutePath(theImport.source, basePath);
+
+    return this.componentFiles.find(file => file.path.startsWith(absolutePath))
+      .path;
+  }
+
+  private getAbsolutePath(relativePath: string, basePath: string) {
+    const stack = basePath.split('/');
+    const parts = relativePath.split('/');
+
+    stack.pop(); // remove current file name
+
+    // tslint:disable-next-line:prefer-for-of
+    for (let i = 0; i < parts.length; i++) {
+      if (parts[i] === '.') {
+        continue;
+      }
+      if (parts[i] === '..') {
+        stack.pop();
+      } else {
+        stack.push(parts[i]);
+      }
+    }
+
+    return stack.join('/');
   }
 }

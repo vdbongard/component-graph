@@ -9,6 +9,7 @@ export interface Link extends SimulationNodeDatum {
 
 export interface Node extends SimulationNodeDatum {
   id: string;
+  label?: string;
   group?: number;
 }
 
@@ -29,4 +30,9 @@ export interface Entry {
   getFile: () => any;
   getDirectory: () => any;
   removeRecursively: () => any;
+}
+
+export interface Import {
+  name: string;
+  source: string;
 }

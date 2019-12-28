@@ -270,7 +270,7 @@ export class GraphComponent implements OnInit, OnDestroy {
     if (window.location.search.indexOf('text=1') >= 0) {
       nodes
         .append('text')
-        .text(d => d.id)
+        .text(d => d.label || d.id)
         .style('font-size', `${this.normalTextSize}px`)
         .style('dominant-baseline', 'central')
         .style('transition', `font-size ${this.zoomTransition}`)
