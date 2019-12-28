@@ -32,6 +32,34 @@ export class DataService {
 
   constructor() {}
 
+  saveToLocalStorage() {
+    if (this.graphData$.value) {
+      console.log('Saving to local storage...');
+      window.localStorage.setItem(
+        'graph',
+        JSON.stringify(this.graphData$.value)
+      );
+      window.localStorage.setItem(
+        'components',
+        JSON.stringify(this.componentMap)
+      );
+    }
+  }
+
+  restoreFromLocalStorage() {
+    console.log('Restoring from local storage...');
+
+    this.componentMap =
+      JSON.parse(window.localStorage.getItem('components')) || {};
+    const storedGraph: Graph = JSON.parse(window.localStorage.getItem('graph'));
+
+    if (storedGraph) {
+      console.log('ComponentMap: ', this.componentMap);
+      console.log('Graph:', storedGraph);
+      this.graphData$.next(storedGraph);
+    }
+  }
+
   async setFiles(files: FileWithPath[]) {
     console.log('setFiles: ', files);
     this.componentFiles = files.filter(file => {
@@ -51,11 +79,10 @@ export class DataService {
     for (const [index, file] of this.componentFiles.entries()) {
       await this.setFile(file);
       console.log(`Analyzing [${index + 1}/${this.componentFiles.length}]...`);
-      // console.log(`${file.file.name}:`, this.componentMap[file.path]);
     }
 
     console.log('ComponentMap:', this.componentMap);
-    console.log('AppGraph:', this.appGraph);
+    console.log('Graph:', this.appGraph);
 
     for (const [path, value] of Object.entries(this.componentMap)) {
       value.dependencies.forEach(dependency => {

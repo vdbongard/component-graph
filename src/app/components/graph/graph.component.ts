@@ -44,13 +44,6 @@ export class GraphComponent implements OnInit, OnDestroy {
   constructor(public dataService: DataService) {}
 
   ngOnInit() {
-    const storedGraph: Graph = JSON.parse(window.localStorage.getItem('graph'));
-
-    if (storedGraph) {
-      this.linkData = storedGraph.links;
-      this.nodeData = storedGraph.nodes;
-    }
-
     if (window.location.search.indexOf('textCenter=1') >= 0) {
       this.normalTextSize = 14;
       this.maxTextSize = 20;
@@ -64,10 +57,9 @@ export class GraphComponent implements OnInit, OnDestroy {
 
     this.dataService.graphData$.subscribe(graph => {
       if (graph) {
-        this.linkData = graph.links;
-        this.nodeData = graph.nodes;
-
-        window.localStorage.setItem('graph', JSON.stringify(graph));
+        // clone data to prevent simulation changes from getting saved to localStorage
+        this.linkData = JSON.parse(JSON.stringify(graph.links));
+        this.nodeData = JSON.parse(JSON.stringify(graph.nodes));
       }
 
       setTimeout(this.restartGraph.bind(this), 0);
@@ -75,6 +67,9 @@ export class GraphComponent implements OnInit, OnDestroy {
 
     // @ts-ignore
     window.restartGraph = this.restartGraph.bind(this);
+
+    this.dataService.restoreFromLocalStorage();
+    window.onbeforeunload = () => this.dataService.saveToLocalStorage();
   }
 
   private startGraph(force?: number) {
