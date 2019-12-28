@@ -35,10 +35,7 @@ export class DataService {
   saveToLocalStorage() {
     if (this.graphData$.value) {
       console.log('Saving to local storage...');
-      window.localStorage.setItem(
-        'graph',
-        JSON.stringify(this.graphData$.value)
-      );
+      window.localStorage.setItem('graph', JSON.stringify(this.appGraph));
       window.localStorage.setItem(
         'components',
         JSON.stringify(this.componentMap)
@@ -49,14 +46,14 @@ export class DataService {
   restoreFromLocalStorage() {
     console.log('Restoring from local storage...');
 
-    this.componentMap =
-      JSON.parse(window.localStorage.getItem('components')) || {};
-    const storedGraph: Graph = JSON.parse(window.localStorage.getItem('graph'));
+    this.appGraph = JSON.parse(window.localStorage.getItem('graph'));
 
-    if (storedGraph) {
+    if (this.appGraph) {
+      this.componentMap =
+        JSON.parse(window.localStorage.getItem('components')) || {};
       console.log('ComponentMap: ', this.componentMap);
-      console.log('Graph:', storedGraph);
-      this.graphData$.next(storedGraph);
+      console.log('Graph:', this.appGraph);
+      this.graphData$.next(this.appGraph);
     }
   }
 
