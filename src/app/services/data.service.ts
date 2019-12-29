@@ -7,6 +7,7 @@ import { Graph, Import, Link, Node } from '../interfaces';
 import { reactMethods } from '../constants/special-methods';
 import { FileWithPath } from '../helper/getFilesAsync';
 import { excludedFolders, supportedExtensions } from '../constants/files';
+import { JSONToSet, SetToJSON } from '../helper/SetToJson';
 
 @Injectable({
   providedIn: 'root'
@@ -38,7 +39,7 @@ export class DataService {
       window.localStorage.setItem('graph', JSON.stringify(this.appGraph));
       window.localStorage.setItem(
         'components',
-        JSON.stringify(this.componentMap)
+        JSON.stringify(this.componentMap, SetToJSON)
       );
     }
   }
@@ -50,7 +51,7 @@ export class DataService {
 
     if (this.appGraph) {
       this.componentMap =
-        JSON.parse(window.localStorage.getItem('components')) || {};
+        JSON.parse(window.localStorage.getItem('components'), JSONToSet) || {};
       console.log('ComponentMap: ', this.componentMap);
       console.log('Graph:', this.appGraph);
       this.graphData$.next(this.appGraph);
@@ -58,20 +59,12 @@ export class DataService {
   }
 
   async setFiles(files: FileWithPath[]) {
-    console.log('setFiles: ', files);
-    this.componentFiles = files.filter(file => {
-      if (excludedFolders.some(folder => file.path.includes(folder))) {
-        return;
-      }
+    this.resetData();
 
-      const fileParts = file.path.split('.');
-      return (
-        fileParts.length >= 2 &&
-        fileParts[fileParts.length - 2] !== 'test' &&
-        supportedExtensions.includes(fileParts[fileParts.length - 1])
-      );
-    });
-    console.log('componentFiles: ', this.componentFiles);
+    console.log('all files: ', files);
+
+    this.componentFiles = this.getComponentFiles(files);
+    console.log('component files: ', this.componentFiles);
 
     for (const [index, file] of this.componentFiles.entries()) {
       await this.setFile(file);
@@ -79,7 +72,6 @@ export class DataService {
     }
 
     console.log('ComponentMap:', this.componentMap);
-    console.log('Graph:', this.appGraph);
 
     for (const [path, value] of Object.entries(this.componentMap)) {
       value.dependencies.forEach(dependency => {
@@ -110,7 +102,33 @@ export class DataService {
       }
     }
 
+    console.log('Graph:', this.appGraph);
+
     this.graphData$.next(this.appGraph);
+  }
+
+  private resetData() {
+    this.componentFiles = [];
+    this.componentMap = {};
+    this.appGraph = {
+      nodes: [],
+      links: []
+    };
+  }
+
+  private getComponentFiles(files: FileWithPath[]) {
+    return files.filter(file => {
+      if (excludedFolders.some(folder => file.path.includes(folder))) {
+        return;
+      }
+
+      const fileParts = file.path.split('.');
+      return (
+        fileParts.length >= 2 &&
+        fileParts[fileParts.length - 2] !== 'test' &&
+        supportedExtensions.includes(fileParts[fileParts.length - 1])
+      );
+    });
   }
 
   async setFile(file: FileWithPath) {
