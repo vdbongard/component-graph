@@ -22,13 +22,16 @@ export class GraphComponent implements OnInit, OnDestroy {
 
   @ViewChild('d3Root', { static: false }) d3Root: ElementRef;
 
+  svg: d3.Selection<SVGElement, any, any, any>;
   svgZoomGroup: d3.Selection<SVGGElement, any, any, any>;
   simulation: d3.Simulation<any, any>;
   links: d3.Selection<any, any, any, any>;
   nodes: d3.Selection<any, any, any, any>;
+  zoom: d3.ZoomBehavior<any, any>;
 
   scale = d3.scaleOrdinal(d3.schemeCategory10);
   dragging = false;
+  firstSimulation = true;
 
   // Settings
   normalTextSize = 12;
@@ -80,6 +83,8 @@ export class GraphComponent implements OnInit, OnDestroy {
 
     // @ts-ignore
     window.restartGraph = this.restartGraph.bind(this);
+    // @ts-ignore
+    window.zoomFit = this.zoomToFit.bind(this);
 
     this.dataService.restoreFromLocalStorage();
     window.onbeforeunload = () => this.dataService.saveToLocalStorage();
@@ -90,6 +95,7 @@ export class GraphComponent implements OnInit, OnDestroy {
   }
 
   private startGraph(force?: number) {
+    this.firstSimulation = true;
     this.svgZoomGroup = this.createSVG();
     this.simulation = this.createSimulation(force);
     this.links = this.createLinks();
@@ -112,7 +118,25 @@ export class GraphComponent implements OnInit, OnDestroy {
   }
 
   private createSVG() {
-    const svg = d3
+    this.zoom = d3.zoom().on('zoom', () => {
+      this.svgZoomGroup.attr('transform', d3.event.transform);
+      if (this.normalTextSize * d3.event.transform.k > this.maxTextSize) {
+        this.nodes
+          .select('text')
+          .style('font-size', `${this.maxTextSize / d3.event.transform.k}px`);
+      }
+      if (
+        this.linkStrokeWidth * d3.event.transform.k >
+        this.maxLinkStrokeWidth
+      ) {
+        this.links.style(
+          'stroke-width',
+          this.maxLinkStrokeWidth / d3.event.transform.k
+        );
+      }
+    });
+
+    this.svg = d3
       .select('#d3-root')
       .append('svg')
       .attr(
@@ -120,36 +144,17 @@ export class GraphComponent implements OnInit, OnDestroy {
         'width: 100%; height: 100%; user-select: none; display: block;'
       )
       .on('wheel', () => {
-        svg.style('transition', `transform ${this.zoomTransition}`);
+        this.svgZoomGroup.style(
+          'transition',
+          `transform ${this.zoomTransition}`
+        );
       })
       .on('mousedown', () => {
-        svg.style('transition', null);
+        this.svgZoomGroup.style('transition', null);
       })
-      .call(
-        d3.zoom().on('zoom', () => {
-          svg.attr('transform', d3.event.transform);
-          if (this.normalTextSize * d3.event.transform.k > this.maxTextSize) {
-            this.nodes
-              .select('text')
-              .style(
-                'font-size',
-                `${this.maxTextSize / d3.event.transform.k}px`
-              );
-          }
-          if (
-            this.linkStrokeWidth * d3.event.transform.k >
-            this.maxLinkStrokeWidth
-          ) {
-            this.links.style(
-              'stroke-width',
-              this.maxLinkStrokeWidth / d3.event.transform.k
-            );
-          }
-        })
-      )
-      .append('g');
+      .call(this.zoom);
 
-    svg
+    this.svg
       .append('defs')
       .append('marker')
       .attr('id', 'arrowhead')
@@ -164,7 +169,7 @@ export class GraphComponent implements OnInit, OnDestroy {
       .attr('fill', '#999')
       .style('stroke', 'none');
 
-    return svg;
+    return this.svg.append('g');
   }
 
   private createSimulation(force?: number) {
@@ -193,33 +198,40 @@ export class GraphComponent implements OnInit, OnDestroy {
       )
       .force('collide', d3.forceCollide().radius(this.circleRadius * 1.2));
 
-    simulation.on('tick', () => {
-      this.links
-        .attr('x1', d => d.source.x)
-        .attr('y1', d => d.source.y)
-        .attr('x2', d => {
-          const diffX = d.target.x - d.source.x;
-          const diffY = d.target.y - d.source.y;
-          const distance = Math.sqrt(Math.pow(diffX, 2) + Math.pow(diffY, 2));
-          return (
-            d.source.x +
-            (diffX / distance) *
-              (distance - this.circleRadius - this.circleStrokeWidth / 2)
-          );
-        })
-        .attr('y2', d => {
-          const diffX = d.target.x - d.source.x;
-          const diffY = d.target.y - d.source.y;
-          const distance = Math.sqrt(Math.pow(diffX, 2) + Math.pow(diffY, 2));
-          return (
-            d.source.y +
-            (diffY / distance) *
-              (distance - this.circleRadius - this.circleStrokeWidth / 2)
-          );
-        });
+    simulation
+      .on('tick', () => {
+        this.links
+          .attr('x1', d => d.source.x)
+          .attr('y1', d => d.source.y)
+          .attr('x2', d => {
+            const diffX = d.target.x - d.source.x;
+            const diffY = d.target.y - d.source.y;
+            const distance = Math.sqrt(Math.pow(diffX, 2) + Math.pow(diffY, 2));
+            return (
+              d.source.x +
+              (diffX / distance) *
+                (distance - this.circleRadius - this.circleStrokeWidth / 2)
+            );
+          })
+          .attr('y2', d => {
+            const diffX = d.target.x - d.source.x;
+            const diffY = d.target.y - d.source.y;
+            const distance = Math.sqrt(Math.pow(diffX, 2) + Math.pow(diffY, 2));
+            return (
+              d.source.y +
+              (diffY / distance) *
+                (distance - this.circleRadius - this.circleStrokeWidth / 2)
+            );
+          });
 
-      this.nodes.attr('transform', d => `translate(${d.x}, ${d.y})`);
-    });
+        this.nodes.attr('transform', d => `translate(${d.x}, ${d.y})`);
+      })
+      .on('end', () => {
+        if (this.firstSimulation) {
+          this.firstSimulation = false;
+          this.zoomToFit();
+        }
+      });
 
     return simulation;
   }
@@ -354,6 +366,36 @@ export class GraphComponent implements OnInit, OnDestroy {
     }
 
     return nodes;
+  }
+
+  zoomToFit(paddingPercent = 0.95) {
+    const bounds = this.svgZoomGroup.node().getBBox();
+    const parent = this.svgZoomGroup.node().parentElement;
+    const fullWidth = parent.clientWidth;
+    const fullHeight = parent.clientHeight;
+    const width = bounds.width;
+    const height = bounds.height;
+    const midX = bounds.x + width / 2;
+    const midY = bounds.y + height / 2;
+
+    // nothing to fit
+    if (width === 0 || height === 0) {
+      return;
+    }
+
+    const scale =
+      paddingPercent / Math.max(width / fullWidth, height / fullHeight);
+    const translate = [
+      fullWidth / 2 - scale * midX,
+      fullHeight / 2 - scale * midY
+    ];
+
+    this.svg
+      .transition()
+      .call(
+        this.zoom.transform,
+        d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale)
+      );
   }
 
   private drag(simulation: d3.Simulation<any, any>): any {
