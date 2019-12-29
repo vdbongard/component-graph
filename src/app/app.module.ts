@@ -9,6 +9,7 @@ import { GraphComponent } from './components/graph/graph.component';
 import { UploadViewComponent } from './components/upload-view/upload-view.component';
 import { MatCardModule, MatIconModule } from '@angular/material';
 import { DropTargetDirective } from './directives/drop-target.directive';
+import { NgxResizableModule } from '@3dgenomes/ngx-resizable';
 
 @NgModule({
   declarations: [
@@ -23,7 +24,8 @@ import { DropTargetDirective } from './directives/drop-target.directive';
     BrowserAnimationsModule,
     MatToolbarModule,
     MatIconModule,
-    MatCardModule
+    MatCardModule,
+    NgxResizableModule
   ],
   providers: [],
   bootstrap: [AppComponent]

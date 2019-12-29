@@ -1,3 +1,26 @@
+:host {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+  height: 100%;
+}
+
+.row.left.resizable {
+  flex: 0 0 280px;
+}
+
+.row.right.resizable {
+  flex: 0 0 360px;
+}
+
+.cell.main {
+  background-color: #fafafa;
+}
+
+.cell:not(.main) {
+  padding: 8px;
+}
+
 #d3-root {
   height: 100%;
   position: relative;

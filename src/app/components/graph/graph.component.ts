@@ -1,4 +1,10 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  OnDestroy,
+  OnInit,
+  ViewChild
+} from '@angular/core';
 import * as d3 from 'd3';
 import data from '../../constants/data';
 import { Link, Node } from '../../interfaces';
@@ -14,8 +20,7 @@ export class GraphComponent implements OnInit, OnDestroy {
   linkData: Link[] = data.links;
   nodeData: Node[] = data.nodes;
 
-  width = window.innerWidth;
-  height = window.innerHeight - 64;
+  @ViewChild('d3Root') d3Root: ElementRef;
 
   svgZoomGroup: d3.Selection<SVGGElement, any, any, any>;
   simulation: d3.Simulation<any, any>;
@@ -41,6 +46,7 @@ export class GraphComponent implements OnInit, OnDestroy {
   minChargeForce = -100;
   linkDistance = 30;
   textCenter = false;
+  fullScreen = window.location.search.indexOf('fullScreen=0') === -1;
 
   constructor(
     public dataService: DataService,
@@ -176,7 +182,13 @@ export class GraphComponent implements OnInit, OnDestroy {
           .distance(this.linkDistance)
       )
       .force('charge', d3.forceManyBody().strength(chargeForce))
-      .force('center', d3.forceCenter(this.width / 2, this.height / 2))
+      .force(
+        'center',
+        d3.forceCenter(
+          this.d3Root.nativeElement.clientWidth / 2,
+          this.d3Root.nativeElement.clientHeight / 2
+        )
+      )
       .force('collide', d3.forceCollide().radius(this.circleRadius * 1.2));
 
     simulation.on('tick', () => {

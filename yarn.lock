@@ -2,6 +2,13 @@
 # yarn lockfile v1
 
 
+"@3dgenomes/ngx-resizable@^1.8.1":
+  version "1.8.1"
+  resolved "https://registry.yarnpkg.com/@3dgenomes/ngx-resizable/-/ngx-resizable-1.8.1.tgz#0d35774c4c698e8be0d52e3d6db247f87b91f763"
+  integrity sha512-MrFLjNHY1tr4uaptI9aFVgJgTvfmNU9OIBAwN72QumSd7DgOqVlZFv30sd1zO0kfxGEdihlXHUmEbjuOy+JuYg==
+  dependencies:
+    tslib "^1.9.0"
+
 "@angular-devkit/architect@0.803.19":
   version "0.803.19"
   resolved "https://registry.yarnpkg.com/@angular-devkit/architect/-/architect-0.803.19.tgz#03c13c94cd9c71f6a6c74b80b7323b973325a1fc"
