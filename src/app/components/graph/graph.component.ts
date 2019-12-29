@@ -1,8 +1,9 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import * as d3 from 'd3';
 import data from '../../constants/data';
-import { Graph, Link, Node } from '../../interfaces';
+import { Link, Node } from '../../interfaces';
 import { DataService } from '../../services/data.service';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-graph',
@@ -41,7 +42,11 @@ export class GraphComponent implements OnInit, OnDestroy {
   linkDistance = 30;
   textCenter = false;
 
-  constructor(public dataService: DataService) {}
+  constructor(
+    public dataService: DataService,
+    private router: Router,
+    private activatedRoute: ActivatedRoute
+  ) {}
 
   ngOnInit() {
     if (window.location.search.indexOf('textCenter=1') >= 0) {
@@ -70,6 +75,10 @@ export class GraphComponent implements OnInit, OnDestroy {
 
     this.dataService.restoreFromLocalStorage();
     window.onbeforeunload = () => this.dataService.saveToLocalStorage();
+
+    this.activatedRoute.queryParams.subscribe(queryParams => {
+      this.dataService.setComponent(queryParams.id);
+    });
   }
 
   private startGraph(force?: number) {
@@ -237,7 +246,17 @@ export class GraphComponent implements OnInit, OnDestroy {
 
     if (window.location.search.indexOf('fade=1') >= 0) {
       nodes
-        .on('click.fade', fade(this.fadeOpacity))
+        .on('click.fade', d => {
+          if (d.id.startsWith('/')) {
+            this.router.navigate([], {
+              relativeTo: this.activatedRoute,
+              queryParams: { id: d.id },
+              queryParamsHandling: 'merge'
+            });
+          } else {
+            fade(this.fadeOpacity).call(this, d);
+          }
+        })
         .on('blur', fade(1))
         .on('mouseover.fade', d => {
           if (d3.event.ctrlKey) {

@@ -410,4 +410,14 @@ export class DataService {
 
     return stack.join('/');
   }
+
+  setComponent(id: string) {
+    if (id) {
+      console.log('Activating component: ' + id, this.componentMap[id]);
+      this.graphData$.next(this.componentMap[id].graph);
+    } else {
+      console.log('Activating app graph: ', this.appGraph);
+      this.graphData$.next(this.appGraph);
+    }
+  }
 }
