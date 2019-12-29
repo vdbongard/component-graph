@@ -68,6 +68,8 @@ export class GraphComponent implements OnInit, OnDestroy {
 
     this.dataService.graphData$.subscribe(graph => {
       if (graph) {
+        console.log('Graph:', graph);
+
         // clone data to prevent simulation changes from getting saved to localStorage
         this.linkData = JSON.parse(JSON.stringify(graph.links));
         this.nodeData = JSON.parse(JSON.stringify(graph.nodes));

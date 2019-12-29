@@ -53,8 +53,6 @@ export class DataService {
       this.componentMap =
         JSON.parse(window.localStorage.getItem('components'), JSONToSet) || {};
       console.log('ComponentMap: ', this.componentMap);
-      console.log('Graph:', this.appGraph);
-      this.graphData$.next(this.appGraph);
     }
   }
 
@@ -101,8 +99,6 @@ export class DataService {
         }
       }
     }
-
-    console.log('Graph:', this.appGraph);
 
     this.graphData$.next(this.appGraph);
   }
@@ -431,10 +427,8 @@ export class DataService {
 
   setComponent(id: string) {
     if (id) {
-      console.log('Activating component: ' + id, this.componentMap[id]);
       this.graphData$.next(this.componentMap[id].graph);
     } else {
-      console.log('Activating app graph: ', this.appGraph);
       this.graphData$.next(this.appGraph);
     }
   }
