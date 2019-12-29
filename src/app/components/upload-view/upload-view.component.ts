@@ -13,7 +13,6 @@ export class UploadViewComponent implements OnInit {
   ngOnInit() {}
 
   onFileChange(event: { target: { files: File[] } } | File[]) {
-    console.log(event);
     let files = [];
 
     if (!(event instanceof Array)) {

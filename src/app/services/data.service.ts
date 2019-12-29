@@ -59,10 +59,10 @@ export class DataService {
   async setFiles(files: FileWithPath[]) {
     this.resetData();
 
-    console.log('all files: ', files);
+    console.log('loaded files count:', files.length);
 
     this.componentFiles = this.getComponentFiles(files);
-    console.log('component files: ', this.componentFiles);
+    console.log('component files:', this.componentFiles);
 
     for (const [index, file] of this.componentFiles.entries()) {
       await this.setFile(file);
