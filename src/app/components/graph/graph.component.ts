@@ -20,7 +20,7 @@ export class GraphComponent implements OnInit, OnDestroy {
   linkData: Link[] = data.links;
   nodeData: Node[] = data.nodes;
 
-  @ViewChild('d3Root') d3Root: ElementRef;
+  @ViewChild('d3Root', { static: false }) d3Root: ElementRef;
 
   svgZoomGroup: d3.Selection<SVGGElement, any, any, any>;
   simulation: d3.Simulation<any, any>;
