@@ -7,7 +7,7 @@
   ></div>
 </ng-template>
 
-<div *ngIf="!fullScreen" class="content cols">
+<div *ngIf="!settings.fullScreen" class="content cols">
   <rsz-layout class="row left" [directions]="['right']" [rFlex]="true">
     <div class="cell">
       <h1 class="mat-h3">Files</h1>
@@ -28,6 +28,6 @@
   </rsz-layout>
 </div>
 
-<div *ngIf="fullScreen">
+<div *ngIf="settings.fullScreen">
   <ng-container *ngTemplateOutlet="d3RootTemplate"></ng-container>
 </div>

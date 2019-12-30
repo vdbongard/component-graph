@@ -1,0 +1,19 @@
+.settings-container {
+  margin-bottom: 16px;
+}
+
+mat-slide-toggle {
+  width: 100%;
+  height: 40px;
+
+  ::ng-deep {
+    .mat-slide-toggle-label {
+      justify-content: space-between;
+      cursor: default;
+    }
+    .mat-slide-toggle-bar,
+    .mat-slide-toggle-thumb-container {
+      cursor: pointer;
+    }
+  }
+}

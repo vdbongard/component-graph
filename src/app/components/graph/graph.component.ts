@@ -7,9 +7,10 @@ import {
 } from '@angular/core';
 import * as d3 from 'd3';
 import data from '../../constants/data';
-import { Link, Node } from '../../interfaces';
+import { Link, Node, Settings } from '../../interfaces';
 import { DataService } from '../../services/data.service';
 import { ActivatedRoute, Router } from '@angular/router';
+import { SettingsService } from '../../services/settings.service';
 
 @Component({
   selector: 'app-graph',
@@ -34,51 +35,59 @@ export class GraphComponent implements OnInit, OnDestroy {
   firstSimulation = true;
 
   // Settings
-  normalTextSize = 12;
-  maxTextSize = 18;
+  settings: Settings;
   fadeOpacity = 0.1;
   zoomTransition = '0.1s ease-out';
   linkColor = '#999';
   linkOpacity = 0.6;
   linkStrokeWidth = 0.8;
   maxLinkStrokeWidth = 1.6;
-  circleRadius = 8;
-  circleFillBrightness = 0;
-  circleStrokeWidth = 0;
   dragAlphaTarget = 0.3; // how much the dragged node influences other nodes
-  minChargeForce = -100;
-  linkDistance = 30;
-  textCenter = false;
-  fullScreen = window.location.search.indexOf('fullScreen=0') === -1;
+
+  normalTextSize: number;
+  maxTextSize: number;
+  circleRadius: number;
+  circleFillBrightness: number;
+  circleStrokeWidth: number;
+  minChargeForce: number;
+  linkDistance: number;
 
   constructor(
     public dataService: DataService,
     private router: Router,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private settingsService: SettingsService
   ) {}
 
   ngOnInit() {
-    if (window.location.search.indexOf('textCenter=1') >= 0) {
-      this.normalTextSize = 14;
-      this.maxTextSize = 20;
-      this.circleRadius = 24;
-      this.circleFillBrightness = 0.8;
-      this.circleStrokeWidth = 1;
-      this.minChargeForce = -200;
-      this.linkDistance = 100;
-      this.textCenter = true;
-    }
+    this.settingsService.settings$.subscribe(settings => {
+      const firstLoad = !this.settings;
+      this.settings = settings;
 
-    this.dataService.graphData$.subscribe(graph => {
-      if (graph) {
-        console.log('Graph:', graph);
-
-        // clone data to prevent simulation changes from getting saved to localStorage
-        this.linkData = JSON.parse(JSON.stringify(graph.links));
-        this.nodeData = JSON.parse(JSON.stringify(graph.nodes));
+      // layout settings
+      if (this.settings.textCenter) {
+        this.normalTextSize = 14;
+        this.maxTextSize = 20;
+        this.circleRadius = 24;
+        this.circleFillBrightness = 0.8;
+        this.circleStrokeWidth = 1;
+        this.minChargeForce = -200;
+        this.linkDistance = 100;
+      } else {
+        this.normalTextSize = 12;
+        this.maxTextSize = 18;
+        this.circleRadius = 8;
+        this.circleFillBrightness = 0;
+        this.circleStrokeWidth = 0;
+        this.minChargeForce = -100;
+        this.linkDistance = 30;
       }
 
-      setTimeout(this.restartGraph.bind(this), 0);
+      if (firstLoad) {
+        this.initGraph();
+      } else {
+        setTimeout(this.restartGraph.bind(this), 0);
+      }
     });
 
     // @ts-ignore
@@ -91,6 +100,20 @@ export class GraphComponent implements OnInit, OnDestroy {
 
     this.activatedRoute.queryParams.subscribe(queryParams => {
       this.dataService.setComponent(queryParams.id);
+    });
+  }
+
+  private initGraph() {
+    this.dataService.graphData$.subscribe(graph => {
+      if (graph) {
+        console.log('Graph:', graph);
+
+        // clone data to prevent simulation changes from getting saved to localStorage
+        this.linkData = JSON.parse(JSON.stringify(graph.links));
+        this.nodeData = JSON.parse(JSON.stringify(graph.nodes));
+      }
+
+      setTimeout(this.restartGraph.bind(this), 0);
     });
   }
 
@@ -270,7 +293,7 @@ export class GraphComponent implements OnInit, OnDestroy {
         }
       });
 
-    if (window.location.search.indexOf('fade=1') >= 0) {
+    if (this.settings.fade) {
       nodes
         .on('click.fade', d => {
           if (d.id.startsWith('/')) {
@@ -307,7 +330,7 @@ export class GraphComponent implements OnInit, OnDestroy {
       .attr('stroke', d => this.scale(d.group ? d.group.toString() : '1'))
       .attr('stroke-width', this.circleStrokeWidth);
 
-    if (window.location.search.indexOf('text=1') >= 0) {
+    if (this.settings.text) {
       nodes
         .append('text')
         .text(d => d.label || d.id)
@@ -316,7 +339,7 @@ export class GraphComponent implements OnInit, OnDestroy {
         .style('transition', `font-size ${this.zoomTransition}`)
         .attr('x', this.circleRadius * 1.1);
 
-      if (this.textCenter) {
+      if (this.settings.textCenter) {
         nodes
           .select('text')
           .style('text-anchor', 'middle')

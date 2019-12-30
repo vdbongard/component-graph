@@ -36,3 +36,10 @@ export interface Import {
   name: string;
   source: string;
 }
+
+export interface Settings {
+  textCenter?: boolean;
+  text?: boolean;
+  fade?: boolean;
+  fullScreen?: boolean;
+}

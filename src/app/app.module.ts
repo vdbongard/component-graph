@@ -7,16 +7,28 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { GraphComponent } from './components/graph/graph.component';
 import { UploadViewComponent } from './components/upload-view/upload-view.component';
-import { MatCardModule, MatIconModule } from '@angular/material';
+import {
+  MatButtonModule,
+  MatCardModule,
+  MatDialogModule,
+  MatIconModule,
+  MatInputModule,
+  MatSlideToggleModule,
+  MatTooltipModule
+} from '@angular/material';
 import { DropTargetDirective } from './directives/drop-target.directive';
 import { NgxResizableModule } from '@3dgenomes/ngx-resizable';
+import { SettingsModalComponent } from './components/settings-modal/settings-modal.component';
+import { ReactiveFormsModule } from '@angular/forms';
+import { A11yModule } from '@angular/cdk/a11y';
 
 @NgModule({
   declarations: [
     AppComponent,
     GraphComponent,
     UploadViewComponent,
-    DropTargetDirective
+    DropTargetDirective,
+    SettingsModalComponent
   ],
   imports: [
     BrowserModule,
@@ -25,8 +37,16 @@ import { NgxResizableModule } from '@3dgenomes/ngx-resizable';
     MatToolbarModule,
     MatIconModule,
     MatCardModule,
-    NgxResizableModule
+    NgxResizableModule,
+    MatButtonModule,
+    MatTooltipModule,
+    MatDialogModule,
+    MatInputModule,
+    A11yModule,
+    ReactiveFormsModule,
+    MatSlideToggleModule
   ],
+  entryComponents: [SettingsModalComponent],
   providers: [],
   bootstrap: [AppComponent]
 })
