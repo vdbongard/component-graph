@@ -4,8 +4,13 @@
       <h1 class="mat-h3">Files</h1>
     </div>
   </rsz-layout>
-  <rsz-layout class="row" [directions]="['left', 'right']" [rFlex]="false">
-    <div class="cell main" [class.full-screen]="settings.fullScreen">
+  <rsz-layout
+    class="row main"
+    [directions]="['left', 'right']"
+    [rFlex]="false"
+    [class.full-screen]="settings.fullScreen"
+  >
+    <div class="cell main">
       <div
         id="d3-root"
         appDropTarget
