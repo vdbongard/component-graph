@@ -64,7 +64,7 @@ export class GraphComponent implements OnInit, OnDestroy {
       this.circleRadius = 24;
       this.circleFillBrightness = 0.8;
       this.circleStrokeWidth = 1;
-      this.minChargeForce = -600;
+      this.minChargeForce = -200;
       this.linkDistance = 100;
       this.textCenter = true;
     }
