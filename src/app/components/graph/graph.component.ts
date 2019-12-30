@@ -139,6 +139,8 @@ export class GraphComponent implements OnInit, OnDestroy {
       this.simulation.stop();
       this.simulation = null;
     }
+    this.links = null;
+    this.nodes = null;
     d3.select('#d3-root')
       .selectAll('*')
       .remove();
