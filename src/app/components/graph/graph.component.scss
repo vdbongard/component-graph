@@ -28,10 +28,18 @@
 
 .cell.main {
   background-color: #fafafa;
+  position: relative;
 }
 
 .cell:not(.main) {
   padding: 8px;
+}
+
+.action-buttons {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  color: #808080;
 }
 
 #d3-root {

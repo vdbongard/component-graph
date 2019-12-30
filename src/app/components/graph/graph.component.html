@@ -17,6 +17,30 @@
         (fileDropped)="dataService.setFiles($event)"
         #d3Root
       ></div>
+      <div class="action-buttons">
+        <button
+          mat-icon-button
+          aria-label="Zoom to fit"
+          (click)="zoomToFit()"
+          matTooltip="Zoom to fit"
+        >
+          <mat-icon>all_out</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          aria-label="Toggle fullscreen"
+          (click)="
+            settingsService.setSettings({ fullScreen: !settings.fullScreen })
+          "
+          [matTooltip]="
+            settings.fullScreen ? 'Exit fullscreen' : 'Enter fullscreen'
+          "
+        >
+          <mat-icon>{{
+            settings.fullScreen ? 'fullscreen_exit' : 'fullscreen'
+          }}</mat-icon>
+        </button>
+      </div>
     </div>
   </rsz-layout>
   <rsz-layout class="row right" [directions]="['left']" [rFlex]="true">

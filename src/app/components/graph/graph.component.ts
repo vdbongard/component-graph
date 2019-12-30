@@ -1,4 +1,5 @@
 import {
+  ChangeDetectorRef,
   Component,
   ElementRef,
   OnDestroy,
@@ -56,36 +57,44 @@ export class GraphComponent implements OnInit, OnDestroy {
     public dataService: DataService,
     private router: Router,
     private activatedRoute: ActivatedRoute,
-    private settingsService: SettingsService
+    private settingsService: SettingsService,
+    private ref: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
     this.settingsService.settings$.subscribe(settings => {
       const firstLoad = !this.settings;
-      this.settings = settings;
+      this.settings = { ...this.settings, ...settings };
 
       // layout settings
-      if (this.settings.textCenter) {
-        this.normalTextSize = 14;
-        this.maxTextSize = 20;
-        this.circleRadius = 24;
-        this.circleFillBrightness = 0.8;
-        this.circleStrokeWidth = 1;
-        this.minChargeForce = -200;
-        this.linkDistance = 100;
-      } else {
-        this.normalTextSize = 12;
-        this.maxTextSize = 18;
-        this.circleRadius = 8;
-        this.circleFillBrightness = 0;
-        this.circleStrokeWidth = 0;
-        this.minChargeForce = -100;
-        this.linkDistance = 30;
+      if ('textCenter' in settings) {
+        if (settings.textCenter) {
+          this.normalTextSize = 14;
+          this.maxTextSize = 20;
+          this.circleRadius = 24;
+          this.circleFillBrightness = 0.8;
+          this.circleStrokeWidth = 1;
+          this.minChargeForce = -200;
+          this.linkDistance = 100;
+        } else {
+          this.normalTextSize = 12;
+          this.maxTextSize = 18;
+          this.circleRadius = 8;
+          this.circleFillBrightness = 0;
+          this.circleStrokeWidth = 0;
+          this.minChargeForce = -100;
+          this.linkDistance = 30;
+        }
       }
 
       if (firstLoad) {
         this.initGraph();
       } else {
+        if (Object.keys(settings).length === 1 && 'fullScreen' in settings) {
+          this.ref.detectChanges();
+          this.zoomToFit();
+          return;
+        }
         setTimeout(this.restartGraph.bind(this), 0);
       }
     });

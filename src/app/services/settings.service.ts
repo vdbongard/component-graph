@@ -12,20 +12,23 @@ export class SettingsService {
     fade: true,
     fullScreen: false
   };
-
+  fullSettings: Settings = this.defaultSettings;
   settings$ = new BehaviorSubject(this.defaultSettings);
 
   constructor() {}
 
   restoreSettings() {
-    const settings: string = window.localStorage.getItem('settings');
-    if (settings && settings.startsWith('{')) {
-      this.settings$.next(JSON.parse(settings));
+    const rawSettings: string = window.localStorage.getItem('settings');
+    if (rawSettings && rawSettings.startsWith('{')) {
+      const settings = JSON.parse(rawSettings);
+      this.settings$.next(settings);
+      this.fullSettings = settings;
     }
   }
 
   setSettings(settings: Settings) {
-    window.localStorage.setItem('settings', JSON.stringify(settings));
+    this.fullSettings = { ...this.fullSettings, ...settings };
+    window.localStorage.setItem('settings', JSON.stringify(this.fullSettings));
     this.settings$.next(settings);
   }
 }
