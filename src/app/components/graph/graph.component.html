@@ -1,21 +1,17 @@
-<ng-template #d3RootTemplate>
-  <div
-    id="d3-root"
-    appDropTarget
-    (fileDropped)="dataService.setFiles($event)"
-    #d3Root
-  ></div>
-</ng-template>
-
-<div *ngIf="!settings.fullScreen" class="content cols">
+<div class="content cols">
   <rsz-layout class="row left" [directions]="['right']" [rFlex]="true">
     <div class="cell">
       <h1 class="mat-h3">Files</h1>
     </div>
   </rsz-layout>
   <rsz-layout class="row" [directions]="['left', 'right']" [rFlex]="false">
-    <div class="cell main">
-      <ng-container *ngTemplateOutlet="d3RootTemplate"></ng-container>
+    <div class="cell main" [class.full-screen]="settings.fullScreen">
+      <div
+        id="d3-root"
+        appDropTarget
+        (fileDropped)="dataService.setFiles($event)"
+        #d3Root
+      ></div>
     </div>
   </rsz-layout>
   <rsz-layout class="row right" [directions]="['left']" [rFlex]="true">
@@ -26,8 +22,4 @@
       <h1 class="mat-h3">Source Code</h1>
     </rsz-layout>
   </rsz-layout>
-</div>
-
-<div *ngIf="settings.fullScreen">
-  <ng-container *ngTemplateOutlet="d3RootTemplate"></ng-container>
 </div>
