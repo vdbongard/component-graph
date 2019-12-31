@@ -15,9 +15,14 @@
     >
   </form>
 </div>
-<div mat-dialog-actions>
+<div mat-dialog-actions class="dialog-actions">
   <button mat-button (click)="onNoClick()">Cancel</button>
-  <button mat-button [mat-dialog-close]="settingsForm.value" cdkFocusInitial>
+  <button
+    mat-raised-button
+    color="primary"
+    [mat-dialog-close]="settingsForm.value"
+    cdkFocusInitial
+  >
     Save
   </button>
 </div>
