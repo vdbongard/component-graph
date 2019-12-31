@@ -426,7 +426,7 @@ export class DataService {
   }
 
   setComponent(id: string) {
-    if (id) {
+    if (id && this.componentMap[id]) {
       this.graphData$.next(this.componentMap[id].graph);
     } else {
       this.graphData$.next(this.appGraph);
