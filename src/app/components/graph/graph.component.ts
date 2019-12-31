@@ -55,9 +55,9 @@ export class GraphComponent implements OnInit, OnDestroy {
 
   constructor(
     public dataService: DataService,
+    public settingsService: SettingsService,
     private router: Router,
     private activatedRoute: ActivatedRoute,
-    private settingsService: SettingsService,
     private ref: ChangeDetectorRef
   ) {}
 
