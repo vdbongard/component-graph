@@ -53,3 +53,9 @@ export interface Settings {
   fullScreen?: boolean;
   colaLayout?: boolean;
 }
+
+export interface NodeSelection {
+  id: string;
+  label?: string;
+  report?: any;
+}

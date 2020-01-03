@@ -3,7 +3,7 @@ import traverse from '@babel/traverse';
 import { parse, ParserOptions } from '@babel/parser';
 import * as Babel from '@babel/types';
 import { BehaviorSubject } from 'rxjs';
-import { Import, Node, Graph, Link } from '../interfaces';
+import { Import, Node, Graph, Link, NodeSelection } from '../interfaces';
 import { reactMethods } from '../constants/special-methods';
 import { FileWithPath } from '../helper/getFilesAsync';
 import { excludedFolders, supportedExtensions } from '../constants/files';
@@ -36,6 +36,7 @@ export class DataService {
   report;
 
   graphData$ = new BehaviorSubject<Graph>(undefined);
+  selectedNode$ = new BehaviorSubject<NodeSelection>(undefined);
 
   constructor() {}
 
@@ -448,5 +449,17 @@ export class DataService {
     } else {
       this.graphData$.next(this.appGraph);
     }
+  }
+
+  select(node: Node) {
+    const selectedNode = {
+      id: node.id,
+      label: node.label,
+      report: this.report.modules.find(module => module.srcPath === node.id)
+    };
+
+    console.log('Select node: ', selectedNode);
+
+    this.selectedNode$.next(selectedNode);
   }
 }

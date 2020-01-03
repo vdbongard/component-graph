@@ -7,7 +7,7 @@ import {
   ViewChild
 } from '@angular/core';
 import * as d3 from 'd3';
-import { RefLink, Node, Settings } from '../../interfaces';
+import { RefLink, Node, Settings, NodeSelection } from '../../interfaces';
 import { DataService } from '../../services/data.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SettingsService } from '../../services/settings.service';
@@ -37,11 +37,14 @@ export class GraphComponent implements OnInit, OnDestroy {
   scale = d3.scaleOrdinal(d3.schemeCategory10);
   dragging = false;
   firstSimulation = true;
+  selectedNode: NodeSelection;
 
   // Settings
   settings: Settings;
   fadeOpacity = 0.1;
   zoomTransition = '0.1s ease-out';
+  selectedCircleStrokeWidth = 2;
+  selectedCircleFillBrightness = 0.8;
   linkColor = '#999';
   linkOpacity = 0.6;
   linkStrokeWidth = 0.8;
@@ -113,6 +116,14 @@ export class GraphComponent implements OnInit, OnDestroy {
     this.activatedRoute.queryParams.subscribe(queryParams => {
       this.dataService.setComponent(queryParams.id);
     });
+
+    this.dataService.selectedNode$.subscribe(node => {
+      if (!node) {
+        return;
+      }
+      this.selectedNode = node;
+      this.updateGraph();
+    });
   }
 
   private initGraph() {
@@ -155,6 +166,26 @@ export class GraphComponent implements OnInit, OnDestroy {
   private restartGraph(force?: number) {
     this.stopGraph();
     this.startGraph(force);
+  }
+
+  private updateGraph() {
+    this.svgZoomGroup
+      .selectAll('.node circle')
+      .attr('stroke-width', (d: Node) => {
+        return d.id === this.selectedNode.id
+          ? this.selectedCircleStrokeWidth
+          : this.circleStrokeWidth;
+      })
+      .attr('fill', (d: Node) => {
+        const brightness =
+          d.id === this.selectedNode.id
+            ? this.selectedCircleFillBrightness
+            : this.circleFillBrightness;
+
+        const color = d3.hsl(this.scale(d.group ? d.group.toString() : '1'));
+        color.l += (1 - color.l) * brightness;
+        return color.toString();
+      });
   }
 
   generateNodeSizes(nodes: Node[]) {
@@ -323,14 +354,18 @@ export class GraphComponent implements OnInit, OnDestroy {
       .join('g')
       .attr('class', 'node')
       .attr('style', 'cursor: pointer; outline: none; opacity: 1;')
-      .on('click', event => {
-        if (d3.event.ctrlKey) {
-          this.nodeData = this.nodeData.filter(node => node.id !== event.id);
-          this.linkData = this.linkData.filter(
-            // @ts-ignore
-            link => link.source.id !== event.id && link.target.id !== event.id
-          );
+      .on('click', d => {
+        if (d3.event.shiftKey && d.id.startsWith('/')) {
+          this.router.navigate([], {
+            relativeTo: this.activatedRoute,
+            queryParams: { id: d.id },
+            queryParamsHandling: 'merge'
+          });
+        } else if (d3.event.ctrlKey) {
+          this.removeNode(d);
           this.restartGraph();
+        } else {
+          this.dataService.select(d);
         }
       });
 
@@ -343,15 +378,7 @@ export class GraphComponent implements OnInit, OnDestroy {
     if (this.settings.fade) {
       nodes
         .on('click.fade', d => {
-          if (d.id.startsWith('/')) {
-            this.router.navigate([], {
-              relativeTo: this.activatedRoute,
-              queryParams: { id: d.id },
-              queryParamsHandling: 'merge'
-            });
-          } else {
-            fade(d, this.fadeOpacity);
-          }
+          fade(d, this.fadeOpacity);
         })
         .on('blur', d => fade(d, 1))
         .on('mouseover.fade', d => {
@@ -430,6 +457,14 @@ export class GraphComponent implements OnInit, OnDestroy {
     }
 
     return nodes;
+  }
+
+  private removeNode(d: Node) {
+    this.nodeData = this.nodeData.filter(node => node.id !== d.id);
+    this.linkData = this.linkData.filter(
+      // @ts-ignore
+      link => link.source.id !== d.id && link.target.id !== d.id
+    );
   }
 
   zoomToFit(paddingPercent = 0.95) {
