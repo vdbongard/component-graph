@@ -182,10 +182,14 @@ export class GraphComponent implements OnInit, OnDestroy {
             ? this.selectedCircleFillBrightness
             : this.circleFillBrightness;
 
-        const color = d3.hsl(this.scale(d.group ? d.group.toString() : '1'));
-        color.l += (1 - color.l) * brightness;
-        return color.toString();
+        return this.calculateBrightenedColor(d, brightness);
       });
+  }
+
+  private calculateBrightenedColor(d: Node, brightness: number) {
+    const color = d3.hsl(this.scale(d.group ? d.group.toString() : '1'));
+    color.l += (1 - color.l) * brightness;
+    return color.toString();
   }
 
   generateNodeSizes(nodes: Node[]) {
@@ -396,11 +400,9 @@ export class GraphComponent implements OnInit, OnDestroy {
     nodes
       .append('circle')
       .attr('r', this.circleRadius)
-      .attr('fill', d => {
-        const color = d3.hsl(this.scale(d.group ? d.group.toString() : '1'));
-        color.l += (1 - color.l) * this.circleFillBrightness;
-        return color.toString();
-      })
+      .attr('fill', d =>
+        this.calculateBrightenedColor(d, this.circleFillBrightness)
+      )
       .attr('stroke', d => this.scale(d.group ? d.group.toString() : '1'))
       .attr('stroke-width', this.circleStrokeWidth);
 
