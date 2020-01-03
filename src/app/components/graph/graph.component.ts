@@ -350,18 +350,18 @@ export class GraphComponent implements OnInit, OnDestroy {
               queryParamsHandling: 'merge'
             });
           } else {
-            fade(this.fadeOpacity).call(this, d);
+            fade(d, this.fadeOpacity);
           }
         })
-        .on('blur', fade(1))
+        .on('blur', d => fade(d, 1))
         .on('mouseover.fade', d => {
           if (d3.event.ctrlKey) {
-            _fade(d, this.fadeOpacity);
+            fade(d, this.fadeOpacity);
           }
         })
         .on('mouseout.fade', d => {
           if (d3.event.ctrlKey) {
-            _fade(d, 1);
+            fade(d, 1);
           }
         });
     }
@@ -411,13 +411,7 @@ export class GraphComponent implements OnInit, OnDestroy {
     const links = this.links;
     const self = this;
 
-    function fade(opacity: number) {
-      return d => {
-        _fade(d, opacity);
-      };
-    }
-
-    function _fade(d: Node, opacity: number) {
+    function fade(d: Node, opacity: number) {
       if (self.dragging) {
         return;
       }
