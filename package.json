@@ -30,7 +30,7 @@
     "hammerjs": "^2.0.8",
     "rxjs": "~6.4.0",
     "tslib": "^1.10.0",
-    "typhonjs-escomplex": "^0.1.0",
+    "typhonjs-escomplex-project": "^0.1.0",
     "webcola": "^3.4.0",
     "zone.js": "~0.9.1"
   },

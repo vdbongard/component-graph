@@ -8,7 +8,7 @@ import { reactMethods } from '../constants/special-methods';
 import { FileWithPath } from '../helper/getFilesAsync';
 import { excludedFolders, supportedExtensions } from '../constants/files';
 import { JSONToSet, SetToJSON } from '../helper/SetToJson';
-import escomplex from 'typhonjs-escomplex';
+import escomplexProject from 'typhonjs-escomplex-project';
 
 @Injectable({
   providedIn: 'root'
@@ -83,7 +83,7 @@ export class DataService {
     console.log('ComponentMap:', this.componentMap);
     console.log('ASTs:', this.asts);
 
-    this.report = escomplex.analyzeProjectAST(this.asts);
+    this.report = escomplexProject.analyze(this.asts);
     console.log('Report:', this.report);
 
     for (const [path, value] of Object.entries(this.componentMap)) {

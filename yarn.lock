@@ -455,11 +455,6 @@
     esutils "^2.0.2"
     js-tokens "^4.0.0"
 
-"@babel/parser@^7.0.0":
-  version "7.7.7"
-  resolved "https://registry.yarnpkg.com/@babel/parser/-/parser-7.7.7.tgz#1b886595419cf92d811316d5b715a53ff38b4937"
-  integrity sha512-WtTZMZAZLbeymhkd/sEaPD8IQyGAhmuTuvTzLiCFM7iXiVdY0gc0IaI+cW0fh1BnSMbJSzXX6/fHllgHKwHhXw==
-
 "@babel/parser@^7.4.3", "@babel/parser@^7.5.5", "@babel/parser@^7.7.4":
   version "7.7.4"
   resolved "https://registry.yarnpkg.com/@babel/parser/-/parser-7.7.4.tgz#75ab2d7110c2cf2fa949959afb05fa346d2231bb"
@@ -1210,14 +1205,6 @@
     "@types/node" "*"
     "@types/source-list-map" "*"
     source-map "^0.6.1"
-
-"@typhonjs/babel-parser@^0.2.0":
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/@typhonjs/babel-parser/-/babel-parser-0.2.0.tgz#30a9bdbb843dd645188fae6a816db2ba2dcb5305"
-  integrity sha512-YKqLZaQAVtOjMiqcJIqex1ezduMefBitoQZjsOqr4US+Yq+cOY/obyloOJ7Ee+XDPaaraVrxWkA3VZjOohtVjQ==
-  dependencies:
-    "@babel/parser" "^7.0.0"
-    babel-runtime "^6.0.0"
 
 "@webassemblyjs/ast@1.8.5":
   version "1.8.5"
@@ -2470,7 +2457,7 @@ combined-stream@^1.0.6, combined-stream@~1.0.6:
   dependencies:
     delayed-stream "~1.0.0"
 
-commander@2, commander@^2.0.0, commander@^2.11.0, commander@^2.12.1, commander@^2.18.0, commander@^2.20.0, commander@~2.20.3:
+commander@2, commander@^2.11.0, commander@^2.12.1, commander@^2.18.0, commander@^2.20.0, commander@~2.20.3:
   version "2.20.3"
   resolved "https://registry.yarnpkg.com/commander/-/commander-2.20.3.tgz#fd485e84c03eb4881c20722ba48035e8531aeb33"
   integrity sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ==
@@ -8091,16 +8078,6 @@ typhonjs-escomplex-project@^0.1.0:
     typhonjs-escomplex-commons "^0.1.0"
     typhonjs-escomplex-module "^0.1.0"
     typhonjs-plugin-manager "^0.2.0"
-
-typhonjs-escomplex@^0.1.0:
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/typhonjs-escomplex/-/typhonjs-escomplex-0.1.0.tgz#4e21101955ef91c993b617af41eb02c1123a1d75"
-  integrity sha512-B2r31mRH/ZuuogZADqOBP4NPnqBH2mzEP+Pjm+5R8/z0iHLwUTRadkDQL4yv33qsHdIHlvnpOHh6iUo69v2mPA==
-  dependencies:
-    "@typhonjs/babel-parser" "^0.2.0"
-    commander "^2.0.0"
-    typhonjs-escomplex-module "^0.1.0"
-    typhonjs-escomplex-project "^0.1.0"
 
 typhonjs-object-util@^0.4.0:
   version "0.4.2"
