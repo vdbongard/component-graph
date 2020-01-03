@@ -11,6 +11,8 @@ export interface Node extends SimulationNodeDatum {
   id: string;
   label?: string;
   group?: number;
+  width?: number;
+  height?: number;
 }
 
 export interface Graph {

@@ -163,6 +163,14 @@ export class GraphComponent implements OnInit, OnDestroy {
     });
   }
 
+  generateNodeSizes(nodes: Node[]) {
+    return nodes.map(node => {
+      node.width = this.circleRadius * 2;
+      node.height = this.circleRadius * 2;
+      return node;
+    });
+  }
+
   private createSVG() {
     this.zoom = d3.zoom().on('zoom', () => {
       this.svgZoomGroup.attr('transform', d3.event.transform);
@@ -222,6 +230,7 @@ export class GraphComponent implements OnInit, OnDestroy {
     let simulation;
 
     if (this.settings.colaLayout) {
+      this.nodeData = this.generateNodeSizes(this.nodeData);
       simulation = d3adaptor(d3)
         .size([
           this.d3Root.nativeElement.clientWidth,
@@ -229,9 +238,9 @@ export class GraphComponent implements OnInit, OnDestroy {
         ])
         .nodes(this.nodeData)
         .links(this.linkData as ColaLink<ColaNode>[])
-        .jaccardLinkLengths(40, 0.7)
-        // .flowLayout('y', 30)
-        // .symmetricDiffLinkLengths(6)
+        .avoidOverlaps(true)
+        .flowLayout('y', 100)
+        .symmetricDiffLinkLengths(40, 0.7)
         .start(10, 20, 20);
     } else {
       const chargeForce =
