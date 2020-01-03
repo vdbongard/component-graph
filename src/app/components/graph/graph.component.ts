@@ -7,13 +7,14 @@ import {
   ViewChild
 } from '@angular/core';
 import * as d3 from 'd3';
-import { Link, Node, Settings } from '../../interfaces';
+import { RefLink, Node, Settings } from '../../interfaces';
 import { DataService } from '../../services/data.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SettingsService } from '../../services/settings.service';
 import { d3adaptor, Layout, Link as ColaLink, Node as ColaNode } from 'webcola';
 import { ID3StyleLayoutAdaptor } from 'webcola/dist/src/d3adaptor';
 import data from '../../constants/data';
+import { generateLinkReferences } from '../../helper/generateLinkReferences';
 
 @Component({
   selector: 'app-graph',
@@ -22,7 +23,7 @@ import data from '../../constants/data';
 })
 export class GraphComponent implements OnInit, OnDestroy {
   nodeData: Node[] = data.nodes;
-  linkData: Link[] = this.generateLinkReferences(data.links);
+  linkData: RefLink[] = generateLinkReferences(data.links, data.nodes);
 
   @ViewChild('d3Root', { static: false }) d3Root: ElementRef;
 
@@ -121,8 +122,9 @@ export class GraphComponent implements OnInit, OnDestroy {
 
         this.nodeData = JSON.parse(JSON.stringify(graph.nodes));
         // clone data to prevent simulation changes from getting saved to localStorage
-        this.linkData = this.generateLinkReferences(
-          JSON.parse(JSON.stringify(graph.links))
+        this.linkData = generateLinkReferences(
+          JSON.parse(JSON.stringify(graph.links)),
+          this.nodeData
         );
       }
 
@@ -153,14 +155,6 @@ export class GraphComponent implements OnInit, OnDestroy {
   private restartGraph(force?: number) {
     this.stopGraph();
     this.startGraph(force);
-  }
-
-  generateLinkReferences(links: { source: string; target: string }[]): Link[] {
-    return links.map(link => {
-      const source = this.nodeData.find(node => node.id === link.source);
-      const target = this.nodeData.find(node => node.id === link.target);
-      return { ...link, source, target };
-    });
   }
 
   generateNodeSizes(nodes: Node[]) {

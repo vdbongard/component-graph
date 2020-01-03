@@ -1,6 +1,6 @@
 import { SimulationNodeDatum } from 'd3-force';
 
-export interface Link extends SimulationNodeDatum {
+export interface RefLink extends SimulationNodeDatum {
   source: number | Node;
   target: number | Node;
   value?: number;
@@ -13,6 +13,13 @@ export interface Node extends SimulationNodeDatum {
   group?: number;
   width?: number;
   height?: number;
+}
+
+export interface Link {
+  source: string;
+  target: string;
+  value?: number;
+  id?: string;
 }
 
 export interface Graph {

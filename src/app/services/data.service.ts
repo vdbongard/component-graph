@@ -3,7 +3,7 @@ import traverse from '@babel/traverse';
 import { parse, ParserOptions } from '@babel/parser';
 import * as Babel from '@babel/types';
 import { BehaviorSubject } from 'rxjs';
-import { Graph, Import, Link, Node } from '../interfaces';
+import { Import, Node, Graph, Link } from '../interfaces';
 import { reactMethods } from '../constants/special-methods';
 import { FileWithPath } from '../helper/getFilesAsync';
 import { excludedFolders, supportedExtensions } from '../constants/files';
