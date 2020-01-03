@@ -20,7 +20,7 @@ export class SettingsService {
   restoreSettings() {
     const rawSettings: string = window.localStorage.getItem('settings');
     if (rawSettings && rawSettings.startsWith('{')) {
-      const settings = JSON.parse(rawSettings);
+      const settings = { ...this.defaultSettings, ...JSON.parse(rawSettings) };
       this.settings$.next(settings);
       this.fullSettings = settings;
     }
