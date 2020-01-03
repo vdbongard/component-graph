@@ -10,7 +10,8 @@ export class SettingsService {
     textCenter: true,
     text: true,
     fade: true,
-    fullScreen: false
+    fullScreen: false,
+    colaLayout: false
   };
   fullSettings: Settings = this.defaultSettings;
   settings$ = new BehaviorSubject(this.defaultSettings);

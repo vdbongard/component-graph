@@ -12,6 +12,8 @@ import { Link, Node, Settings } from '../../interfaces';
 import { DataService } from '../../services/data.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SettingsService } from '../../services/settings.service';
+import { d3adaptor, Layout } from 'webcola';
+import { ID3StyleLayoutAdaptor } from 'webcola/dist/src/d3adaptor';
 
 @Component({
   selector: 'app-graph',
@@ -19,14 +21,25 @@ import { SettingsService } from '../../services/settings.service';
   styleUrls: ['./graph.component.scss']
 })
 export class GraphComponent implements OnInit, OnDestroy {
-  linkData: Link[] = data.links;
-  nodeData: Node[] = data.nodes;
+  linkData = [
+    { source: 0, target: 1 },
+    { source: 1, target: 2 },
+    { source: 2, target: 3 },
+    { source: 1, target: 3 }
+  ];
+  nodeData: Node[] = [
+    { id: 'a' },
+    { id: 'b' },
+    { id: 'c' },
+    { id: 'd' },
+    { id: 'e' }
+  ];
 
   @ViewChild('d3Root', { static: false }) d3Root: ElementRef;
 
   svg: d3.Selection<SVGElement, any, any, any>;
   svgZoomGroup: d3.Selection<SVGGElement, any, any, any>;
-  simulation: d3.Simulation<any, any>;
+  simulation: d3.Simulation<any, any> | (Layout & ID3StyleLayoutAdaptor);
   links: d3.Selection<any, any, any, any>;
   nodes: d3.Selection<any, any, any, any>;
   zoom: d3.ZoomBehavior<any, any>;
@@ -207,30 +220,46 @@ export class GraphComponent implements OnInit, OnDestroy {
   }
 
   private createSimulation(force?: number) {
-    const chargeForce =
-      force !== undefined
-        ? force
-        : Math.min(-4000 + this.nodeData.length * 200, this.minChargeForce);
-    console.log('Charge force:', chargeForce);
+    let simulation;
 
-    const simulation = d3
-      .forceSimulation(this.nodeData)
-      .force(
-        'link',
-        d3
-          .forceLink(this.linkData)
-          .id((d: any) => d.id)
-          .distance(this.linkDistance)
-      )
-      .force('charge', d3.forceManyBody().strength(chargeForce))
-      .force(
-        'center',
-        d3.forceCenter(
-          this.d3Root.nativeElement.clientWidth / 2,
-          this.d3Root.nativeElement.clientHeight / 2
+    if (this.settings.colaLayout) {
+      simulation = d3adaptor(d3)
+        .size([
+          this.d3Root.nativeElement.clientWidth,
+          this.d3Root.nativeElement.clientHeight
+        ])
+        .nodes(this.nodeData)
+        .links(this.linkData)
+        .jaccardLinkLengths(40, 0.7)
+        // .flowLayout('y', 30)
+        // .symmetricDiffLinkLengths(6)
+        .start(10, 20, 20);
+    } else {
+      const chargeForce =
+        force !== undefined
+          ? force
+          : Math.min(-4000 + this.nodeData.length * 200, this.minChargeForce);
+      console.log('Charge force:', chargeForce);
+
+      simulation = d3
+        .forceSimulation(this.nodeData)
+        .force(
+          'link',
+          d3
+            .forceLink(this.linkData)
+            // .id((d: any) => d.id)
+            .distance(this.linkDistance)
         )
-      )
-      .force('collide', d3.forceCollide().radius(this.circleRadius * 1.2));
+        .force('charge', d3.forceManyBody().strength(chargeForce))
+        .force(
+          'center',
+          d3.forceCenter(
+            this.d3Root.nativeElement.clientWidth / 2,
+            this.d3Root.nativeElement.clientHeight / 2
+          )
+        )
+        .force('collide', d3.forceCollide().radius(this.circleRadius * 1.2));
+    }
 
     simulation
       .on('tick', () => {
@@ -261,7 +290,7 @@ export class GraphComponent implements OnInit, OnDestroy {
         this.nodes.attr('transform', d => `translate(${d.x}, ${d.y})`);
       })
       .on('end', () => {
-        if (this.firstSimulation) {
+        if (this.firstSimulation && !this.settings.colaLayout) {
           this.firstSimulation = false;
           this.zoomToFit();
         }
@@ -292,7 +321,6 @@ export class GraphComponent implements OnInit, OnDestroy {
       .join('g')
       .attr('class', 'node')
       .attr('style', 'cursor: pointer; outline: none; opacity: 1;')
-      .call(this.drag(this.simulation))
       .on('click', event => {
         if (d3.event.ctrlKey) {
           this.nodeData = this.nodeData.filter(node => node.id !== event.id);
@@ -303,6 +331,12 @@ export class GraphComponent implements OnInit, OnDestroy {
           this.restartGraph();
         }
       });
+
+    if (this.settings.colaLayout) {
+      nodes.call((this.simulation as Layout & ID3StyleLayoutAdaptor).drag);
+    } else {
+      nodes.call(this.drag(this.simulation as d3.Simulation<any, any>));
+    }
 
     if (this.settings.fade) {
       nodes

@@ -42,4 +42,5 @@ export interface Settings {
   text?: boolean;
   fade?: boolean;
   fullScreen?: boolean;
+  colaLayout?: boolean;
 }
