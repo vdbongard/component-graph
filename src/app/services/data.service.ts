@@ -33,6 +33,7 @@ export class DataService {
     links: []
   };
   componentFiles: FileWithPath[];
+  report;
 
   graphData$ = new BehaviorSubject<Graph>(undefined);
 
@@ -46,6 +47,7 @@ export class DataService {
         'components',
         JSON.stringify(this.componentMap, SetToJSON)
       );
+      window.localStorage.setItem('report', JSON.stringify(this.report));
     }
   }
 
@@ -58,6 +60,9 @@ export class DataService {
       this.componentMap =
         JSON.parse(window.localStorage.getItem('components'), JSONToSet) || {};
       console.log('ComponentMap: ', this.componentMap);
+
+      this.report = JSON.parse(window.localStorage.getItem('report'));
+      console.log('Report: ', this.report);
     }
   }
 
@@ -77,8 +82,8 @@ export class DataService {
     console.log('ComponentMap:', this.componentMap);
     console.log('ASTs:', this.asts);
 
-    const report = escomplex.analyzeProjectAST(this.asts);
-    console.log('Report:', report);
+    this.report = escomplex.analyzeProjectAST(this.asts);
+    console.log('Report:', this.report);
 
     for (const [path, value] of Object.entries(this.componentMap)) {
       value.dependencies.forEach(dependency => {
