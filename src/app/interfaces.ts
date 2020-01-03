@@ -1,8 +1,8 @@
 import { SimulationNodeDatum } from 'd3-force';
 
 export interface Link extends SimulationNodeDatum {
-  source: string;
-  target: string;
+  source: number | Node;
+  target: number | Node;
   value?: number;
   id?: string;
 }
