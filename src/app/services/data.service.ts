@@ -451,11 +451,28 @@ export class DataService {
     }
   }
 
-  select(node: Node) {
+  select(node: Node, id: string) {
+    let report;
+
+    if (id) {
+      const moduleReport = this.report.modules.find(
+        module => module.srcPath === id
+      );
+      report = moduleReport.classes[0].methods.find(
+        method => method.name === node.id
+      );
+
+      if (!report) {
+        report = moduleReport;
+      }
+    } else {
+      report = this.report.modules.find(module => module.srcPath === node.id);
+    }
+
     const selectedNode = {
       id: node.id,
       label: node.label,
-      report: this.report.modules.find(module => module.srcPath === node.id)
+      report
     };
 
     console.log('Select node: ', selectedNode);

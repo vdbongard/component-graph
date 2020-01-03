@@ -57,5 +57,5 @@ export interface Settings {
 export interface NodeSelection {
   id: string;
   label?: string;
-  report?: any;
+  report: any;
 }

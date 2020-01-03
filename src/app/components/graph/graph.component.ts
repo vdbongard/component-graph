@@ -38,6 +38,7 @@ export class GraphComponent implements OnInit, OnDestroy {
   dragging = false;
   firstSimulation = true;
   selectedNode: NodeSelection;
+  id: string;
 
   // Settings
   settings: Settings;
@@ -114,6 +115,7 @@ export class GraphComponent implements OnInit, OnDestroy {
     window.onbeforeunload = () => this.dataService.saveToLocalStorage();
 
     this.activatedRoute.queryParams.subscribe(queryParams => {
+      this.id = queryParams.id;
       this.dataService.setComponent(queryParams.id);
     });
 
@@ -121,8 +123,10 @@ export class GraphComponent implements OnInit, OnDestroy {
       if (!node) {
         return;
       }
-      node.report.aggregate.halstead.operands.identifiers = ['...'];
-      node.report.aggregate.halstead.operators.identifiers = ['...'];
+      if (node.report.aggregate) {
+        node.report.aggregate.halstead.operands.identifiers = ['...'];
+        node.report.aggregate.halstead.operators.identifiers = ['...'];
+      }
       this.selectedNode = node;
       this.updateGraph();
     });
@@ -371,7 +375,7 @@ export class GraphComponent implements OnInit, OnDestroy {
           this.removeNode(d);
           this.restartGraph();
         } else {
-          this.dataService.select(d);
+          this.dataService.select(d, this.id);
         }
       });
 

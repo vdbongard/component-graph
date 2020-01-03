@@ -53,13 +53,26 @@
     >
       <div class="cell-inner">
         <h2 class="mat-h3 cell-header">
-          Code Quality<span *ngIf="selectedNode" class="mat-h4">
-            {{ selectedNode.label }}</span
+          Code Quality
+          <span *ngIf="selectedNode?.label" class="mat-h4">
+            {{ selectedNode.label }} (aggregate)</span
+          >
+          <span *ngIf="selectedNode && !selectedNode.label" class="mat-h4">
+            {{ selectedNode.id }}</span
           >
         </h2>
         <div *ngIf="selectedNode" class="content-inner">
-          <pre style="margin: 0;">{{
-            selectedNode.report.aggregate | json
+          <ng-container *ngIf="selectedNode.report.aggregate">
+            <small style="display: block; margin-bottom: 4px;">
+              Maintainability: {{ selectedNode.report.maintainability }}
+            </small>
+            <pre style="margin: 0;">{{
+              selectedNode.report.aggregate | json
+            }}</pre>
+          </ng-container>
+
+          <pre *ngIf="!selectedNode.report.aggregate" style="margin: 0;">{{
+            selectedNode.report | json
           }}</pre>
         </div>
       </div>
