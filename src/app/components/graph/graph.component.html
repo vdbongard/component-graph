@@ -1,7 +1,9 @@
 <div class="content cols">
   <rsz-layout class="row left" [directions]="['right']" [rFlex]="true">
     <div class="cell">
-      <h1 class="mat-h3">Files</h1>
+      <div class="cell-inner">
+        <h2 class="mat-h3 cell-header">Files</h2>
+      </div>
     </div>
   </rsz-layout>
   <rsz-layout
@@ -44,11 +46,28 @@
     </div>
   </rsz-layout>
   <rsz-layout class="row right" [directions]="['left']" [rFlex]="true">
-    <rsz-layout class="cell" [directions]="['bottom']" [rFlex]="true">
-      <h1 class="mat-h3">Code Quality</h1>
+    <rsz-layout
+      class="cell code-quality"
+      [directions]="['bottom']"
+      [rFlex]="true"
+    >
+      <div class="cell-inner">
+        <h2 class="mat-h3 cell-header">
+          Code Quality<span *ngIf="selectedNode" class="mat-h4">
+            {{ selectedNode.label }}</span
+          >
+        </h2>
+        <div *ngIf="selectedNode" class="content-inner">
+          <pre style="margin: 0;">{{
+            selectedNode.report.aggregate | json
+          }}</pre>
+        </div>
+      </div>
     </rsz-layout>
     <rsz-layout class="cell" [directions]="['none']" [rFlex]="false">
-      <h1 class="mat-h3">Source Code</h1>
+      <div class="cell-inner">
+        <h2 class="mat-h3 cell-header">Source Code</h2>
+      </div>
     </rsz-layout>
   </rsz-layout>
 </div>

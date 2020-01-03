@@ -13,6 +13,10 @@
   flex: 0 0 360px;
 }
 
+.cell.code-quality {
+  flex-basis: 400px;
+}
+
 ::ng-deep .row.main [rszdraghandle] {
   display: none;
 }
@@ -29,10 +33,6 @@
 .cell.main {
   background-color: #fafafa;
   position: relative;
-}
-
-.cell:not(.main) {
-  padding: 8px;
 }
 
 .action-buttons {
@@ -61,5 +61,21 @@
     pointer-events: none;
     font-size: 32px;
     color: white;
+  }
+}
+
+.cell-inner {
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  height: 100%;
+
+  .cell-header {
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+
+  .content-inner {
+    overflow-y: auto;
   }
 }

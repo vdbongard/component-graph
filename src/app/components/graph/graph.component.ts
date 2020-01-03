@@ -121,6 +121,8 @@ export class GraphComponent implements OnInit, OnDestroy {
       if (!node) {
         return;
       }
+      node.report.aggregate.halstead.operands.identifiers = ['...'];
+      node.report.aggregate.halstead.operators.identifiers = ['...'];
       this.selectedNode = node;
       this.updateGraph();
     });
