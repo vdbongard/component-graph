@@ -8,6 +8,7 @@ import { reactMethods } from '../constants/special-methods';
 import { FileWithPath } from '../helper/getFilesAsync';
 import { excludedFolders, supportedExtensions } from '../constants/files';
 import { JSONToSet, SetToJSON } from '../helper/SetToJson';
+import escomplex from 'typhonjs-escomplex';
 
 @Injectable({
   providedIn: 'root'
@@ -23,6 +24,10 @@ export class DataService {
       dependencies?: Set<string>;
     };
   } = {};
+  asts: {
+    ast: Babel.File;
+    srcPath: string;
+  }[] = [];
   appGraph: Graph = {
     nodes: [],
     links: []
@@ -70,6 +75,10 @@ export class DataService {
     }
 
     console.log('ComponentMap:', this.componentMap);
+    console.log('ASTs:', this.asts);
+
+    const report = escomplex.analyzeProjectAST(this.asts);
+    console.log('Report:', report);
 
     for (const [path, value] of Object.entries(this.componentMap)) {
       value.dependencies.forEach(dependency => {
@@ -106,6 +115,7 @@ export class DataService {
   private resetData() {
     this.componentFiles = [];
     this.componentMap = {};
+    this.asts = [];
     this.appGraph = {
       nodes: [],
       links: []
@@ -149,6 +159,8 @@ export class DataService {
     }
 
     this.ast = parse(code, options);
+
+    this.asts.push({ ast: this.ast, srcPath: fileName });
 
     // console.log('AST:', this.ast);
 

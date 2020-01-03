@@ -455,6 +455,11 @@
     esutils "^2.0.2"
     js-tokens "^4.0.0"
 
+"@babel/parser@^7.0.0":
+  version "7.7.7"
+  resolved "https://registry.yarnpkg.com/@babel/parser/-/parser-7.7.7.tgz#1b886595419cf92d811316d5b715a53ff38b4937"
+  integrity sha512-WtTZMZAZLbeymhkd/sEaPD8IQyGAhmuTuvTzLiCFM7iXiVdY0gc0IaI+cW0fh1BnSMbJSzXX6/fHllgHKwHhXw==
+
 "@babel/parser@^7.4.3", "@babel/parser@^7.5.5", "@babel/parser@^7.7.4":
   version "7.7.4"
   resolved "https://registry.yarnpkg.com/@babel/parser/-/parser-7.7.4.tgz#75ab2d7110c2cf2fa949959afb05fa346d2231bb"
@@ -1206,6 +1211,14 @@
     "@types/source-list-map" "*"
     source-map "^0.6.1"
 
+"@typhonjs/babel-parser@^0.2.0":
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/@typhonjs/babel-parser/-/babel-parser-0.2.0.tgz#30a9bdbb843dd645188fae6a816db2ba2dcb5305"
+  integrity sha512-YKqLZaQAVtOjMiqcJIqex1ezduMefBitoQZjsOqr4US+Yq+cOY/obyloOJ7Ee+XDPaaraVrxWkA3VZjOohtVjQ==
+  dependencies:
+    "@babel/parser" "^7.0.0"
+    babel-runtime "^6.0.0"
+
 "@webassemblyjs/ast@1.8.5":
   version "1.8.5"
   resolved "https://registry.yarnpkg.com/@webassemblyjs/ast/-/ast-1.8.5.tgz#51b1c5fe6576a34953bf4b253df9f0d490d9e359"
@@ -1768,7 +1781,7 @@ babel-plugin-dynamic-import-node@^2.3.0:
   dependencies:
     object.assign "^4.1.0"
 
-babel-runtime@^6.22.0, babel-runtime@^6.26.0:
+babel-runtime@^6.0.0, babel-runtime@^6.22.0, babel-runtime@^6.26.0:
   version "6.26.0"
   resolved "https://registry.yarnpkg.com/babel-runtime/-/babel-runtime-6.26.0.tgz#965c7058668e82b55d7bfe04ff2337bc8b5647fe"
   integrity sha1-llxwWGaOgrVde/4E/yM3vItWR/4=
@@ -1816,6 +1829,13 @@ babylon@^6.18.0:
   version "6.18.0"
   resolved "https://registry.yarnpkg.com/babylon/-/babylon-6.18.0.tgz#af2f3b88fa6f5c1e4c634d1a0f8eac4f55b395e3"
   integrity sha512-q/UEjfGJ2Cm3oKV71DJz9d25TPnq5rhBVL2Q4fA5wcC3jcrdn7+SssEybFIxwAvvP+YCsCYNKughoF33GxgycQ==
+
+backbone-esnext-events@<1.0.0:
+  version "0.3.5"
+  resolved "https://registry.yarnpkg.com/backbone-esnext-events/-/backbone-esnext-events-0.3.5.tgz#9a0a068ec7502bd3bd892b1797934780b0b7c5b9"
+  integrity sha1-mgoGjsdQK9O9iSsXl5NHgLC3xbk=
+  dependencies:
+    babel-runtime "^6.0.0"
 
 backo2@1.0.2:
   version "1.0.2"
@@ -2450,7 +2470,7 @@ combined-stream@^1.0.6, combined-stream@~1.0.6:
   dependencies:
     delayed-stream "~1.0.0"
 
-commander@2, commander@^2.11.0, commander@^2.12.1, commander@^2.18.0, commander@^2.20.0, commander@~2.20.3:
+commander@2, commander@^2.0.0, commander@^2.11.0, commander@^2.12.1, commander@^2.18.0, commander@^2.20.0, commander@~2.20.3:
   version "2.20.3"
   resolved "https://registry.yarnpkg.com/commander/-/commander-2.20.3.tgz#fd485e84c03eb4881c20722ba48035e8531aeb33"
   integrity sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ==
@@ -3474,6 +3494,35 @@ escape-string-regexp@^1.0.2, escape-string-regexp@^1.0.5:
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/escape-string-regexp/-/escape-string-regexp-1.0.5.tgz#1b61c0562190a8dff6ae3bb2cf0200ca130b86d4"
   integrity sha1-G2HAViGQqN/2rjuyzwIAyhMLhtQ=
+
+escomplex-plugin-metrics-module@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/escomplex-plugin-metrics-module/-/escomplex-plugin-metrics-module-0.1.0.tgz#7dec0130bd481be13f9c4655b541516495eac1f2"
+  integrity sha512-lEHGInx1gAfgIRJeSTXggTvfEtIG061G0Kzk4hIq0qN6nd2prXZihAPRuLB9DdxCmxXvLVFqi+Bnun9rDw1/zg==
+  dependencies:
+    typhonjs-escomplex-commons "^0.1.0"
+
+escomplex-plugin-metrics-project@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/escomplex-plugin-metrics-project/-/escomplex-plugin-metrics-project-0.1.0.tgz#9d5a72207073d2d8cddc4924519dac15f1a110ea"
+  integrity sha512-/9Nf2UJ77qo3TBuWwvFnuNPziHC50nPOxldTZvCEzvwePp+BdI5whlDnJHV9rh3gT75CFODJDM80mBJI+px6/g==
+  dependencies:
+    typhonjs-escomplex-commons "^0.1.0"
+
+escomplex-plugin-syntax-babylon@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/escomplex-plugin-syntax-babylon/-/escomplex-plugin-syntax-babylon-0.1.0.tgz#7c8d304d74010bcd6f6aeb9d010f916bc7230655"
+  integrity sha512-KNjE0Rf1jNteb7zwFyv4G3+TIuHqUfnmXpRf5u9iJkrbVXjmbC7Fg5UEA1Net8gvoV9RLVImFFaLZxclaagqAA==
+  dependencies:
+    escomplex-plugin-syntax-estree "^0.1.0"
+    typhonjs-escomplex-commons "^0.1.0"
+
+escomplex-plugin-syntax-estree@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/escomplex-plugin-syntax-estree/-/escomplex-plugin-syntax-estree-0.1.0.tgz#b5adf0ccd5f3bacbe60d2720b7c4cbf509259809"
+  integrity sha512-uhgBgEhq91rq+1OStjDwpxpS5ehQdq1X/Y7DYCQHplczJN9ZzyoiHostZ4CqywLgDkyicvIyt/8LBYjBaNFc7w==
+  dependencies:
+    typhonjs-escomplex-commons "^0.1.0"
 
 eslint-scope@^4.0.3:
   version "4.0.3"
@@ -8011,6 +8060,63 @@ typescript@3.5.3, typescript@~3.5.3:
   version "3.5.3"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.5.3.tgz#c830f657f93f1ea846819e929092f5fe5983e977"
   integrity sha512-ACzBtm/PhXBDId6a6sDJfroT2pOWt/oOnk4/dElG5G33ZL776N3Y6/6bKZJBFpd+b05F3Ct9qDjMeJmRWtE2/g==
+
+typhonjs-ast-walker@^0.2.0:
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/typhonjs-ast-walker/-/typhonjs-ast-walker-0.2.1.tgz#6beb8db8cc45b5bc438c8c95853f8d385413cb3e"
+  integrity sha1-a+uNuMxFtbxDjIyVhT+NOFQTyz4=
+
+typhonjs-escomplex-commons@^0.1.0:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/typhonjs-escomplex-commons/-/typhonjs-escomplex-commons-0.1.1.tgz#223ed421787b92c27ec0e81945b5de35f1507c41"
+  integrity sha512-nIeiokmcupP3t34KVhynHi0LrjMM6QzbHiwK8+Kl/GnAq4o/jK+cCiu4Zt9mZgJKUzUGRtW1kqoZI2RlAchkgg==
+
+typhonjs-escomplex-module@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/typhonjs-escomplex-module/-/typhonjs-escomplex-module-0.1.0.tgz#04d6719b9a176015b499270f747c56e37b99b1c1"
+  integrity sha512-ViviuBg7Etrl8HeQcwQ9gui9s0rpnFPXltXUFAvOzeQScb+xrLijBq7Z0cveriKQegne/tGTn4ljZg0prwDyTw==
+  dependencies:
+    escomplex-plugin-metrics-module "^0.1.0"
+    escomplex-plugin-syntax-babylon "^0.1.0"
+    typhonjs-ast-walker "^0.2.0"
+    typhonjs-escomplex-commons "^0.1.0"
+    typhonjs-plugin-manager "^0.2.0"
+
+typhonjs-escomplex-project@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/typhonjs-escomplex-project/-/typhonjs-escomplex-project-0.1.0.tgz#ac3fecc6c65b1d1a4f435fab4edd6a659efc319f"
+  integrity sha512-2NdkUsDmxcgsNFqn14CYl5Xfzlig7kKtU/ACOLRN6/nP9c3rlHizVr8YdBYRf2H1sOjmjfNmbC6i1RVnnJZxZQ==
+  dependencies:
+    escomplex-plugin-metrics-project "^0.1.0"
+    typhonjs-escomplex-commons "^0.1.0"
+    typhonjs-escomplex-module "^0.1.0"
+    typhonjs-plugin-manager "^0.2.0"
+
+typhonjs-escomplex@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/typhonjs-escomplex/-/typhonjs-escomplex-0.1.0.tgz#4e21101955ef91c993b617af41eb02c1123a1d75"
+  integrity sha512-B2r31mRH/ZuuogZADqOBP4NPnqBH2mzEP+Pjm+5R8/z0iHLwUTRadkDQL4yv33qsHdIHlvnpOHh6iUo69v2mPA==
+  dependencies:
+    "@typhonjs/babel-parser" "^0.2.0"
+    commander "^2.0.0"
+    typhonjs-escomplex-module "^0.1.0"
+    typhonjs-escomplex-project "^0.1.0"
+
+typhonjs-object-util@^0.4.0:
+  version "0.4.2"
+  resolved "https://registry.yarnpkg.com/typhonjs-object-util/-/typhonjs-object-util-0.4.2.tgz#1c9c2a709e0478345d809879562731c309e1a554"
+  integrity sha1-HJwqcJ4EeDRdgJh5VicxwwnhpVQ=
+  dependencies:
+    babel-runtime "^6.0.0"
+
+typhonjs-plugin-manager@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/typhonjs-plugin-manager/-/typhonjs-plugin-manager-0.2.0.tgz#260c4acdf6abbe94fd35ca0a25251839ad9e14d3"
+  integrity sha1-JgxKzfarvpT9NcoKJSUYOa2eFNM=
+  dependencies:
+    babel-runtime "^6.0.0"
+    backbone-esnext-events "<1.0.0"
+    typhonjs-object-util "^0.4.0"
 
 uglify-js@^3.1.4:
   version "3.7.0"
