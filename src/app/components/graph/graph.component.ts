@@ -164,6 +164,7 @@ export class GraphComponent implements OnInit, OnDestroy {
     }
     this.links = null;
     this.nodes = null;
+    this.svgZoomGroup = null;
     d3.select('#d3-root')
       .selectAll('*')
       .remove();
