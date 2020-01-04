@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material';
 import { SettingsModalComponent } from './components/settings-modal/settings-modal.component';
 import { SettingsService } from './services/settings.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -13,11 +14,16 @@ export class AppComponent implements OnInit {
 
   constructor(
     public dialog: MatDialog,
-    private settingsService: SettingsService
+    private settingsService: SettingsService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
     this.settingsService.restoreSettings();
+
+    if (window.localStorage.getItem('graph')) {
+      this.router.navigateByUrl('/graph');
+    }
   }
 
   openDialog(): void {
