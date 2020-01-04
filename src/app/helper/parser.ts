@@ -28,7 +28,8 @@ export function parse(code: string, fileName?: string) {
       'optionalChaining',
       ['pipelineOperator', { proposal: 'minimal' }],
       'throwExpressions'
-    ]
+    ],
+    sourceFilename: fileName
   };
 
   if (fileExtension === 'tsx' || fileExtension === 'ts') {
