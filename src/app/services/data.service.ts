@@ -114,13 +114,11 @@ export class DataService {
   }
 
   private generateAppGraph(componentMap: ComponentMap): Graph {
-    const appGraph: Graph = {
-      nodes: [],
-      links: []
-    };
+    const nodes = [];
+    const links = [];
 
     for (const [path, component] of Object.entries(componentMap)) {
-      appGraph.nodes.push({
+      nodes.push({
         id: path,
         label: path
           .split('/')
@@ -145,12 +143,12 @@ export class DataService {
             source: path,
             target: dependency
           },
-          appGraph.links
+          links
         );
       });
 
       if (component.extends) {
-        if (!appGraph.nodes.find(node => node.id === component.extends)) {
+        if (!nodes.find(node => node.id === component.extends)) {
           console.log('Found a wrong super class path: ', component.extends);
         } else {
           pushUniqueLink(
@@ -158,13 +156,13 @@ export class DataService {
               source: component.extends,
               target: path
             },
-            appGraph.links
+            links
           );
         }
       }
     }
 
-    return appGraph;
+    return { nodes, links };
   }
 
   private resetData(): void {
