@@ -155,7 +155,30 @@ export class DataService {
 
     const options: ParserOptions = {
       sourceType: 'module',
-      plugins: ['jsx', 'classProperties']
+      plugins: [
+        'asyncGenerators',
+        'bigInt',
+        'classProperties',
+        'classPrivateProperties',
+        'classPrivateMethods',
+        ['decorators', { decoratorsBeforeExport: false }],
+        'doExpressions',
+        'dynamicImport',
+        'exportDefaultFrom',
+        'exportNamespaceFrom',
+        'functionBind',
+        'functionSent',
+        'importMeta',
+        'jsx',
+        'logicalAssignment',
+        'nullishCoalescingOperator',
+        'numericSeparator',
+        'objectRestSpread',
+        'optionalCatchBinding',
+        'optionalChaining',
+        ['pipelineOperator', { proposal: 'minimal' }],
+        'throwExpressions'
+      ]
     };
 
     if (fileExtension === 'tsx' || fileExtension === 'ts') {
