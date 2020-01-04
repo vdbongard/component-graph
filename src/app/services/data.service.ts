@@ -279,8 +279,8 @@ export class DataService {
           aliases[aliasName] = regularName;
         }
       },
-      ImportSpecifier: path => this.handleImport(path, fileName),
-      ImportDefaultSpecifier: path => this.handleImport(path, fileName)
+      'ImportSpecifier|ImportDefaultSpecifier': path =>
+        this.handleImport(path, fileName)
     });
 
     traverse(ast, {
