@@ -376,7 +376,7 @@ export class GraphComponent implements OnInit, OnDestroy {
           this.removeNode(d);
           this.restartGraph();
         } else {
-          this.dataService.select(d, this.id);
+          this.dataService.selectNode(d, this.id);
         }
       });
 

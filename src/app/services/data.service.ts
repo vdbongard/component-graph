@@ -191,40 +191,38 @@ export class DataService {
     return file ? file.path : absoluteImportPath;
   }
 
-  setComponent(id: string) {
-    if (id && this.componentMap[id]) {
-      this.graphData$.next(this.componentMap[id].graph);
+  setComponent(componentId: string) {
+    if (componentId && this.componentMap[componentId]) {
+      this.graphData$.next(this.componentMap[componentId].graph);
     } else {
       this.graphData$.next(this.appGraph);
     }
   }
 
-  select(node: Node, id: string) {
-    let report;
-
-    if (id) {
-      const moduleReport = this.report.modules.find(
-        module => module.srcPath === id
-      );
-      report = moduleReport.classes[0].methods.find(
-        method => method.name === node.id
-      );
-
-      if (!report) {
-        report = moduleReport;
-      }
-    } else {
-      report = this.report.modules.find(module => module.srcPath === node.id);
-    }
-
+  selectNode(node: Node, componentId: string) {
     const selectedNode = {
       id: node.id,
       label: node.label,
-      report
+      report: this.findReport(node.id, componentId)
     };
 
     console.log('Select node: ', selectedNode);
 
     this.selectedNode$.next(selectedNode);
+  }
+
+  private findReport(nodeId: string, componentId: string) {
+    if (componentId) {
+      const moduleReport = this.report.modules.find(
+        module => module.srcPath === componentId
+      );
+      const report = moduleReport.classes[0].methods.find(
+        method => method.name === nodeId
+      );
+
+      return report || moduleReport;
+    } else {
+      return this.report.modules.find(module => module.srcPath === nodeId);
+    }
   }
 }
