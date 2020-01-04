@@ -39,6 +39,7 @@ export class GraphComponent implements OnInit, OnDestroy {
   firstSimulation = true;
   selectedNode: NodeSelection;
   id: string;
+  progress: number;
 
   // Settings
   settings: Settings;
@@ -130,6 +131,10 @@ export class GraphComponent implements OnInit, OnDestroy {
       this.selectedNode = node;
       this.updateGraph();
     });
+
+    this.dataService.progress$.subscribe(
+      progress => (this.progress = progress)
+    );
   }
 
   private initGraph() {

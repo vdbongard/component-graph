@@ -30,6 +30,7 @@ export class DataService {
 
   graphData$ = new BehaviorSubject<Graph>(undefined);
   selectedNode$ = new BehaviorSubject<NodeSelection>(undefined);
+  progress$ = new BehaviorSubject<number>(undefined);
 
   constructor() {}
 
@@ -73,7 +74,7 @@ export class DataService {
       const { ast, component } = await this.setFile(file);
       asts.push({ ast, srcPath: file.path });
       this.componentMap[file.path] = component;
-      console.log(`Analyzing [${index + 1}/${this.componentFiles.length}]...`);
+      this.progress$.next(((index + 1) / this.componentFiles.length) * 100);
     }
 
     console.log('ComponentMap:', this.componentMap);
@@ -84,6 +85,7 @@ export class DataService {
     this.appGraph = this.generateAppGraph(this.componentMap);
 
     this.setComponentGraph();
+    this.progress$.next(undefined);
   }
 
   async setFile(file: FileWithPath) {

@@ -13,6 +13,7 @@ import {
   MatDialogModule,
   MatIconModule,
   MatInputModule,
+  MatProgressBarModule,
   MatSlideToggleModule,
   MatTooltipModule
 } from '@angular/material';
@@ -44,7 +45,8 @@ import { A11yModule } from '@angular/cdk/a11y';
     MatInputModule,
     A11yModule,
     ReactiveFormsModule,
-    MatSlideToggleModule
+    MatSlideToggleModule,
+    MatProgressBarModule
   ],
   entryComponents: [SettingsModalComponent],
   providers: [],
