@@ -1,4 +1,8 @@
-<div class="content cols">
+<div
+  class="content cols"
+  appDropTarget
+  (fileDropped)="dataService.setFiles($event)"
+>
   <mat-progress-bar
     *ngIf="progress !== undefined"
     class="progress-bar"
@@ -20,12 +24,7 @@
     [class.full-screen]="settings.fullScreen"
   >
     <div class="cell main">
-      <div
-        id="d3-root"
-        appDropTarget
-        (fileDropped)="dataService.setFiles($event)"
-        #d3Root
-      ></div>
+      <div id="d3-root" #d3Root></div>
       <div class="action-buttons">
         <button
           mat-icon-button
