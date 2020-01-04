@@ -13,7 +13,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { SettingsService } from '../../services/settings.service';
 import { d3adaptor, Layout, Link as ColaLink, Node as ColaNode } from 'webcola';
 import { ID3StyleLayoutAdaptor } from 'webcola/dist/src/d3adaptor';
-import data from '../../constants/data';
 import { generateLinkReferences } from '../../helper/generateLinkReferences';
 import { Subscription } from 'rxjs';
 
@@ -23,8 +22,8 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./graph.component.scss']
 })
 export class GraphComponent implements OnInit, OnDestroy {
-  nodeData: Node[] = data.nodes;
-  linkData: RefLink[] = generateLinkReferences(data.links, data.nodes);
+  nodeData: Node[];
+  linkData: RefLink[];
 
   @ViewChild('d3Root', { static: false }) d3Root: ElementRef;
 
@@ -152,7 +151,7 @@ export class GraphComponent implements OnInit, OnDestroy {
       if (!node) {
         return;
       }
-      if (node.report.aggregate) {
+      if (node.report && node.report.aggregate) {
         node.report.aggregate.halstead.operands.identifiers = ['...'];
         node.report.aggregate.halstead.operators.identifiers = ['...'];
       }

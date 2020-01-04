@@ -13,6 +13,7 @@ import { JSONToSet, SetToJSON } from '../helper/SetToJson';
 import escomplexProject from 'typhonjs-escomplex-project';
 import { parse } from '../helper/parser';
 import { pushUniqueLink, traverse } from '../helper/traverser';
+import data from '../constants/data';
 
 @Injectable({
   providedIn: 'root'
@@ -58,6 +59,11 @@ export class DataService {
 
       this.report = JSON.parse(window.localStorage.getItem('report'));
       console.log('Report: ', this.report);
+    } else {
+      this.appGraph = {
+        nodes: data.nodes,
+        links: data.links
+      };
     }
   }
 
@@ -193,6 +199,10 @@ export class DataService {
   }
 
   private findReport(nodeId: string, componentId: string) {
+    if (!this.report) {
+      return;
+    }
+
     if (componentId) {
       const moduleReport = this.report.modules.find(
         module => module.srcPath === componentId

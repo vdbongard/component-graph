@@ -65,23 +65,23 @@
             {{ selectedNode.label || selectedNode.id }} (aggregate)</span
           >
           <span
-            *ngIf="selectedNode && !selectedNode.report.aggregate"
+            *ngIf="selectedNode && !selectedNode.report?.aggregate"
             class="mat-h4"
           >
             {{ selectedNode.id }}</span
           >
         </h2>
         <div *ngIf="selectedNode" class="content-inner">
-          <ng-container *ngIf="selectedNode.report.aggregate">
+          <ng-container *ngIf="selectedNode.report?.aggregate">
             <small style="display: block; margin-bottom: 4px;">
               Maintainability: {{ selectedNode.report.maintainability }}
             </small>
             <pre style="margin: 0;">{{
-              selectedNode.report.aggregate | json
+              selectedNode.report?.aggregate | json
             }}</pre>
           </ng-container>
 
-          <pre *ngIf="!selectedNode.report.aggregate" style="margin: 0;">{{
+          <pre *ngIf="!selectedNode.report?.aggregate" style="margin: 0;">{{
             selectedNode.report | json
           }}</pre>
         </div>
