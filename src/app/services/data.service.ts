@@ -83,7 +83,34 @@ export class DataService {
 
     this.appGraph = this.generateAppGraph(this.componentMap);
 
-    this.graphData$.next(this.appGraph);
+    this.setComponentGraph();
+  }
+
+  async setFile(file: FileWithPath) {
+    const code = await file.file.text();
+    const ast = parse(code, file.path);
+    const component = traverse(ast, file.path);
+    return { ast, component };
+  }
+
+  setComponentGraph(componentId?: string) {
+    if (this.componentMap[componentId]) {
+      this.graphData$.next(this.componentMap[componentId].graph);
+    } else if (Object.values(this.componentMap).length === 1) {
+      this.graphData$.next(Object.values(this.componentMap)[0].graph);
+    } else {
+      this.graphData$.next(this.appGraph);
+    }
+  }
+
+  selectNode(node: Node, componentId: string) {
+    const selectedNode = {
+      id: node.id,
+      label: node.label,
+      report: this.findReport(node.id, componentId)
+    };
+    console.log('Select node: ', selectedNode);
+    this.selectedNode$.next(selectedNode);
   }
 
   private generateAppGraph(componentMap: ComponentMap): Graph {
@@ -162,37 +189,12 @@ export class DataService {
     );
   }
 
-  async setFile(file: FileWithPath) {
-    const code = await file.file.text();
-    const ast = parse(code, file.path);
-    const component = traverse(ast, file.path);
-    return { ast, component };
-  }
-
-  getCompleteFilePath(importPath: string) {
+  private getCompleteFilePath(importPath: string) {
     const file = this.componentFiles.find(componentFile =>
       componentFile.path.startsWith(importPath)
     );
 
     return file ? file.path : importPath;
-  }
-
-  setComponent(componentId: string) {
-    if (this.componentMap[componentId]) {
-      this.graphData$.next(this.componentMap[componentId].graph);
-    } else {
-      this.graphData$.next(this.appGraph);
-    }
-  }
-
-  selectNode(node: Node, componentId: string) {
-    const selectedNode = {
-      id: node.id,
-      label: node.label,
-      report: this.findReport(node.id, componentId)
-    };
-    console.log('Select node: ', selectedNode);
-    this.selectedNode$.next(selectedNode);
   }
 
   private findReport(nodeId: string, componentId: string) {

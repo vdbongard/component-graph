@@ -116,7 +116,7 @@ export class GraphComponent implements OnInit, OnDestroy {
 
     this.activatedRoute.queryParams.subscribe(queryParams => {
       this.id = queryParams.id;
-      this.dataService.setComponent(queryParams.id);
+      this.dataService.setComponentGraph(queryParams.id);
     });
 
     this.dataService.selectedNode$.subscribe(node => {
