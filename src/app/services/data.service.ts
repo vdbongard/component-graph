@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import {
   AstWithPath,
   ComponentMap,
@@ -28,14 +28,14 @@ export class DataService {
   };
   report;
 
-  graphData$ = new BehaviorSubject<Graph>(undefined);
+  graphData$ = new Subject<Graph>();
   selectedNode$ = new BehaviorSubject<NodeSelection>(undefined);
   progress$ = new BehaviorSubject<number>(undefined);
 
   constructor() {}
 
   saveToLocalStorage() {
-    if (this.graphData$.value) {
+    if (this.report) {
       console.log('Saving to local storage...');
       window.localStorage.setItem('graph', JSON.stringify(this.appGraph));
       window.localStorage.setItem(
@@ -63,11 +63,9 @@ export class DataService {
 
   async setFiles(files: FileWithPath[]) {
     console.log('Loaded files count:', files.length);
-
     this.resetData();
     this.componentFiles = files.filter(this.isComponentFile);
     console.log('Component files:', this.componentFiles);
-
     const asts: AstWithPath[] = [];
 
     for (const [index, file] of this.componentFiles.entries()) {
@@ -78,14 +76,11 @@ export class DataService {
     }
 
     console.log('ComponentMap:', this.componentMap);
-
     this.report = escomplexProject.analyze(asts);
     console.log('Report:', this.report);
-
     this.appGraph = this.generateAppGraph(this.componentMap);
-
-    this.setComponentGraph();
     this.progress$.next(undefined);
+    this.setComponentGraph();
   }
 
   async setFile(file: FileWithPath) {

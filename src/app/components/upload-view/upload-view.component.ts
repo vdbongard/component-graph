@@ -25,6 +25,6 @@ export class UploadViewComponent implements OnInit {
     }
 
     this.dataService.setFiles(files);
-    this.router.navigate(['graph'], { queryParams: { text: 1, fade: 1 } });
+    this.router.navigate(['graph'], { queryParams: { upload: 1 } });
   }
 }

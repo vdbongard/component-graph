@@ -15,6 +15,7 @@ import { d3adaptor, Layout, Link as ColaLink, Node as ColaNode } from 'webcola';
 import { ID3StyleLayoutAdaptor } from 'webcola/dist/src/d3adaptor';
 import data from '../../constants/data';
 import { generateLinkReferences } from '../../helper/generateLinkReferences';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-graph',
@@ -40,6 +41,14 @@ export class GraphComponent implements OnInit, OnDestroy {
   selectedNode: NodeSelection;
   id: string;
   progress: number;
+  queryParamWasUpload = false;
+  queryParamIsInitial = true;
+
+  private graphDataSub: Subscription;
+  private settingsSub: Subscription;
+  private queryParamsSub: Subscription;
+  private selectedNodeSub: Subscription;
+  private progressSub: Subscription;
 
   // Settings
   settings: Settings;
@@ -70,7 +79,7 @@ export class GraphComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.settingsService.settings$.subscribe(settings => {
+    this.settingsSub = this.settingsService.settings$.subscribe(settings => {
       const firstLoad = !this.settings;
       this.settings = { ...this.settings, ...settings };
 
@@ -112,15 +121,34 @@ export class GraphComponent implements OnInit, OnDestroy {
     // @ts-ignore
     window.zoomFit = this.zoomToFit.bind(this);
 
-    this.dataService.restoreFromLocalStorage();
     window.onbeforeunload = () => this.dataService.saveToLocalStorage();
 
-    this.activatedRoute.queryParams.subscribe(queryParams => {
-      this.id = queryParams.id;
-      this.dataService.setComponentGraph(queryParams.id);
-    });
+    this.queryParamsSub = this.activatedRoute.queryParams.subscribe(
+      queryParams => {
+        if (queryParams.upload) {
+          this.router.navigate([], {
+            relativeTo: this.activatedRoute
+          });
+          this.queryParamWasUpload = true;
+          this.queryParamIsInitial = false;
+          return;
+        }
+        // skip graph update, wait for uploaded files being analyzed
+        if (this.queryParamWasUpload) {
+          this.queryParamWasUpload = false;
+          return;
+        }
+        if (this.queryParamIsInitial) {
+          this.queryParamIsInitial = false;
+          this.dataService.restoreFromLocalStorage();
+        }
 
-    this.dataService.selectedNode$.subscribe(node => {
+        this.id = queryParams.id;
+        this.dataService.setComponentGraph(queryParams.id);
+      }
+    );
+
+    this.selectedNodeSub = this.dataService.selectedNode$.subscribe(node => {
       if (!node) {
         return;
       }
@@ -132,13 +160,13 @@ export class GraphComponent implements OnInit, OnDestroy {
       this.updateGraph();
     });
 
-    this.dataService.progress$.subscribe(
+    this.progressSub = this.dataService.progress$.subscribe(
       progress => (this.progress = progress)
     );
   }
 
   private initGraph() {
-    this.dataService.graphData$.subscribe(graph => {
+    this.graphDataSub = this.dataService.graphData$.subscribe(graph => {
       if (graph) {
         console.log('Graph:', graph);
 
@@ -148,9 +176,9 @@ export class GraphComponent implements OnInit, OnDestroy {
           JSON.parse(JSON.stringify(graph.links)),
           this.nodeData
         );
-      }
 
-      setTimeout(this.restartGraph.bind(this), 0);
+        setTimeout(this.restartGraph.bind(this), 0);
+      }
     });
   }
 
@@ -544,5 +572,12 @@ export class GraphComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.stopGraph();
+    this.settingsSub.unsubscribe();
+    this.queryParamsSub.unsubscribe();
+    this.selectedNodeSub.unsubscribe();
+    this.progressSub.unsubscribe();
+    if (this.graphDataSub) {
+      this.graphDataSub.unsubscribe();
+    }
   }
 }
