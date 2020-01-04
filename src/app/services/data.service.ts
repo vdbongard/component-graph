@@ -1,37 +1,31 @@
 import { Injectable } from '@angular/core';
-import * as Babel from '@babel/types';
 import { BehaviorSubject } from 'rxjs';
-import { Graph, Node, NodeSelection } from '../interfaces';
+import {
+  AstWithPath,
+  ComponentMap,
+  Graph,
+  Node,
+  NodeSelection
+} from '../interfaces';
 import { FileWithPath } from '../helper/getFilesAsync';
 import { excludedFolders, supportedExtensions } from '../constants/files';
 import { JSONToSet, SetToJSON } from '../helper/SetToJson';
 import escomplexProject from 'typhonjs-escomplex-project';
 import { parse } from '../helper/parser';
-import { pushUniqueLink, pushUniqueNode, traverse } from '../helper/traverser';
+import { pushUniqueLink, traverse } from '../helper/traverser';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DataService {
-  ast: Babel.File;
   files: FileWithPath[] = [];
-  componentMap: {
-    [componentName: string]: {
-      graph?: Graph;
-      imports?: { name: string; source: string }[];
-      extends?: string;
-      dependencies?: Set<string>;
-    };
-  } = {};
-  asts: {
-    ast: Babel.File;
-    srcPath: string;
-  }[] = [];
+  componentFiles: FileWithPath[];
+
+  componentMap: ComponentMap = {};
   appGraph: Graph = {
     nodes: [],
     links: []
   };
-  componentFiles: FileWithPath[];
   report;
 
   graphData$ = new BehaviorSubject<Graph>(undefined);
@@ -67,26 +61,55 @@ export class DataService {
   }
 
   async setFiles(files: FileWithPath[]) {
+    console.log('Loaded files count:', files.length);
+
     this.resetData();
+    this.componentFiles = files.filter(this.isComponentFile);
+    console.log('Component files:', this.componentFiles);
 
-    console.log('loaded files count:', files.length);
-
-    this.componentFiles = this.getComponentFiles(files);
-    console.log('component files:', this.componentFiles);
+    const asts: AstWithPath[] = [];
 
     for (const [index, file] of this.componentFiles.entries()) {
-      await this.setFile(file);
+      const { ast, component } = await this.setFile(file);
+      asts.push({ ast, srcPath: file.path });
+      this.componentMap[file.path] = component;
       console.log(`Analyzing [${index + 1}/${this.componentFiles.length}]...`);
     }
 
     console.log('ComponentMap:', this.componentMap);
-    console.log('ASTs:', this.asts);
 
-    this.report = escomplexProject.analyze(this.asts);
+    this.report = escomplexProject.analyze(asts);
     console.log('Report:', this.report);
 
-    for (const [path, value] of Object.entries(this.componentMap)) {
-      value.dependencies.forEach(dependency => {
+    this.appGraph = this.generateAppGraph(this.componentMap);
+
+    this.graphData$.next(this.appGraph);
+  }
+
+  private generateAppGraph(componentMap: ComponentMap): Graph {
+    const appGraph: Graph = {
+      nodes: [],
+      links: []
+    };
+
+    for (const [path, component] of Object.entries(componentMap)) {
+      appGraph.nodes.push({
+        id: path,
+        label: path
+          .split('/')
+          .pop()
+          .split('.')[0]
+      });
+
+      if (component.extends) {
+        component.extends = this.getCompleteFilePath(component.extends);
+      }
+
+      component.dependencies = new Set<string>(
+        [...component.dependencies].map(this.getCompleteFilePath.bind(this))
+      );
+
+      component.dependencies.forEach(dependency => {
         if (!dependency.startsWith('/')) {
           return;
         }
@@ -95,104 +118,67 @@ export class DataService {
             source: path,
             target: dependency
           },
-          this.appGraph.links
+          appGraph.links
         );
       });
 
-      if (value.extends) {
-        if (!this.appGraph.nodes.find(node => node.id === value.extends)) {
-          console.log('Found a wrong super class path: ', value.extends);
+      if (component.extends) {
+        if (!appGraph.nodes.find(node => node.id === component.extends)) {
+          console.log('Found a wrong super class path: ', component.extends);
         } else {
           pushUniqueLink(
             {
-              source: value.extends,
+              source: component.extends,
               target: path
             },
-            this.appGraph.links
+            appGraph.links
           );
         }
       }
     }
 
-    this.graphData$.next(this.appGraph);
+    return appGraph;
   }
 
-  private resetData() {
+  private resetData(): void {
     this.componentFiles = [];
     this.componentMap = {};
-    this.asts = [];
     this.appGraph = {
       nodes: [],
       links: []
     };
   }
 
-  private getComponentFiles(files: FileWithPath[]) {
-    return files.filter(file => {
-      if (excludedFolders.some(folder => file.path.includes(folder))) {
-        return;
-      }
+  private isComponentFile(file: FileWithPath): boolean {
+    if (excludedFolders.some(folder => file.path.includes(folder))) {
+      return;
+    }
 
-      const fileParts = file.path.split('.');
-      return (
-        fileParts.length >= 2 &&
-        fileParts[fileParts.length - 2] !== 'test' &&
-        supportedExtensions.includes(fileParts[fileParts.length - 1])
-      );
-    });
+    const fileParts = file.path.split('.');
+    return (
+      fileParts.length >= 2 &&
+      fileParts[fileParts.length - 2] !== 'test' &&
+      supportedExtensions.includes(fileParts[fileParts.length - 1])
+    );
   }
 
   async setFile(file: FileWithPath) {
-    // @ts-ignore
     const code = await file.file.text();
-
     const ast = parse(code, file.path);
-    this.asts.push({ ast, srcPath: file.path });
-
-    this.componentMap[file.path] = {
-      imports: [],
-      graph: {
-        nodes: [],
-        links: []
-      },
-      dependencies: new Set<string>()
-    };
-
-    this.componentMap[file.path] = traverse(ast, file.path);
-
-    pushUniqueNode(
-      {
-        id: file.path,
-        label: file.path
-          .split('/')
-          .pop()
-          .split('.')[0]
-      },
-      this.appGraph.nodes
-    );
-
-    for (const component of Object.values(this.componentMap)) {
-      if (component.extends) {
-        component.extends = this.getCompleteFilePath(component.extends);
-      }
-      if (component.dependencies) {
-        component.dependencies = new Set(
-          [...component.dependencies].map(this.getCompleteFilePath.bind(this))
-        );
-      }
-    }
+    const component = traverse(ast, file.path);
+    return { ast, component };
   }
 
-  getCompleteFilePath(absoluteImportPath: string) {
+  getCompleteFilePath(importPath: string) {
     const file = this.componentFiles.find(componentFile =>
-      componentFile.path.startsWith(absoluteImportPath)
+      componentFile.path.startsWith(importPath)
     );
 
-    return file ? file.path : absoluteImportPath;
+    return file ? file.path : importPath;
   }
 
   setComponent(componentId: string) {
-    if (componentId && this.componentMap[componentId]) {
+    if (this.componentMap[componentId]) {
       this.graphData$.next(this.componentMap[componentId].graph);
     } else {
       this.graphData$.next(this.appGraph);
@@ -205,9 +191,7 @@ export class DataService {
       label: node.label,
       report: this.findReport(node.id, componentId)
     };
-
     console.log('Select node: ', selectedNode);
-
     this.selectedNode$.next(selectedNode);
   }
 

@@ -1,4 +1,5 @@
 import { SimulationNodeDatum } from 'd3-force';
+import { File as BabelFile } from '@babel/types';
 
 export interface RefLink extends SimulationNodeDatum {
   source: number | Node;
@@ -58,4 +59,18 @@ export interface NodeSelection {
   id: string;
   label?: string;
   report: any;
+}
+
+export interface ComponentMap {
+  [componentName: string]: {
+    graph?: Graph;
+    imports?: { name: string; source: string }[];
+    extends?: string;
+    dependencies?: Set<string>;
+  };
+}
+
+export interface AstWithPath {
+  ast: BabelFile;
+  srcPath: string;
 }

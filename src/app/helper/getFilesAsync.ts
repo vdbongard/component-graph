@@ -22,7 +22,7 @@ export async function getFilesAsync(dataTransfer: DataTransfer) {
 }
 
 function readEntryContentAsync(entry: FileSystemEntry) {
-  return new Promise<FileWithPath[]>((resolve, reject) => {
+  return new Promise<FileWithPath[]>(resolve => {
     let reading = 0;
     const contents: FileWithPath[] = [];
 
@@ -96,10 +96,6 @@ interface FileSystemDirectoryEntry extends FileSystemEntry {
   getFile(): FileSystemFileEntry;
 }
 
-interface DataTransferItem {
-  webkitGetAsEntry?(): FileSystemEntry;
-}
-
 interface FileSystemDirectoryReader {
   readEntries(
     successCallback: (entries: FileSystemEntry[]) => void,
@@ -113,6 +109,10 @@ interface Metadata {
 }
 
 export interface FileWithPath {
-  file: File;
+  file: File2;
   path: string;
+}
+
+interface File2 extends File {
+  text?: () => Promise<string>;
 }
