@@ -55,9 +55,9 @@ export class DataService {
   restoreFromLocalStorage() {
     console.log('Restoring from local storage...');
 
-    this.appGraph = JSON.parse(window.localStorage.getItem('graph'));
+    if (window.localStorage.getItem('graph')) {
+      this.appGraph = JSON.parse(window.localStorage.getItem('graph'));
 
-    if (this.appGraph) {
       this.componentMap =
         JSON.parse(window.localStorage.getItem('components'), JSONToSet) || {};
       console.log('ComponentMap: ', this.componentMap);
