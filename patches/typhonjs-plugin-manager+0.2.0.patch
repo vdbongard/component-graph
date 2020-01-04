@@ -1,0 +1,32 @@
+diff --git a/node_modules/typhonjs-plugin-manager/dist/PluginManager.js b/node_modules/typhonjs-plugin-manager/dist/PluginManager.js
+index 8c476b3..8b143e1 100644
+--- a/node_modules/typhonjs-plugin-manager/dist/PluginManager.js
++++ b/node_modules/typhonjs-plugin-manager/dist/PluginManager.js
+@@ -380,11 +380,11 @@ var PluginManager = function () {
+             target = pluginConfig.target || pluginConfig.name;
+ 
+             if (target.match(/^[.\/\\]/)) {
+-               instance = require(_path2.default.resolve(target)); // eslint-disable global-require
++               // instance = require(_path2.default.resolve(target)); // eslint-disable global-require
+ 
+                type = 'require-path';
+             } else {
+-               instance = require(target); // eslint-disable global-require
++               // instance = require(target); // eslint-disable global-require
+ 
+                type = 'require-module';
+             }
+@@ -525,11 +525,11 @@ var PluginManager = function () {
+                            target = pluginConfig.target || pluginConfig.name;
+ 
+                            if (target.match(/^[.\/\\]/)) {
+-                              instance = require(_path2.default.resolve(target)); // eslint-disable global-require
++                              // instance = require(_path2.default.resolve(target)); // eslint-disable global-require
+ 
+                               type = 'require-path';
+                            } else {
+-                              instance = require(target); // eslint-disable global-require
++                              // instance = require(target); // eslint-disable global-require
+ 
+                               type = 'require-module';
+                            }
