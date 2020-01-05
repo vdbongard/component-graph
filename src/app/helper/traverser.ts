@@ -1,4 +1,4 @@
-import { Graph, Import, Link, Node } from '../interfaces';
+import { Graph, Import, Link } from '../interfaces';
 import { reactMethods } from '../constants/special-methods';
 import babelTraverse from '@babel/traverse';
 import * as t from '@babel/types';
@@ -164,12 +164,6 @@ function getClassMethodName(path) {
   }
 
   return currentPath.scope.block.key.name;
-}
-
-export function pushUniqueNode(node: Node, nodes: Node[]) {
-  if (!nodes.find(searchNode => searchNode.id === node.id)) {
-    nodes.push(node);
-  }
 }
 
 export function pushUniqueLink(link: Link, links: Link[]) {
