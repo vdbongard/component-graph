@@ -2,7 +2,6 @@ import { Graph, Import, Link, Node } from '../interfaces';
 import { reactMethods } from '../constants/special-methods';
 import babelTraverse from '@babel/traverse';
 import * as t from '@babel/types';
-import { NodePath } from 'babel-traverse';
 
 export function traverse(ast: t.File, fileName: string) {
   const graph: Graph = {
@@ -15,12 +14,12 @@ export function traverse(ast: t.File, fileName: string) {
   let superClass = null;
 
   babelTraverse(ast, {
-    ClassDeclaration: (path: NodePath<t.ClassDeclaration>) => {
+    ClassDeclaration: ({ node }) => {
       // Node: Class
-      graph.nodes.push({ id: path.node.id.name, group: 2 });
+      graph.nodes.push({ id: node.id.name, group: 2 });
 
       // SuperClass
-      superClass = getSuperClass(path, imports, fileName);
+      superClass = getSuperClass(node, imports, fileName);
     },
     ClassMethod: path => {
       const methodName = path.node.key.name;
@@ -34,17 +33,14 @@ export function traverse(ast: t.File, fileName: string) {
         graph.links.push({ source: getClassName(path), target: methodName });
       }
     },
-    ClassProperty: path => {
-      if (
-        path.node.value &&
-        path.node.value.type === 'CallExpression' &&
-        path.node.value.callee.property &&
-        path.node.value.callee.property.name === 'bind'
-      ) {
-        pushUniqueNode({ id: path.node.key.name }, graph.nodes);
-        const regularName = path.node.value.callee.object.property.name;
-        const aliasName = path.node.key.name;
-        aliases[aliasName] = regularName;
+    ClassProperty: ({ node }) => {
+      if (isFunctionBind(node)) {
+        const bindFunctionName = node.value.callee.object.property.name;
+        const classPropertyName = node.key.name;
+        // Node: ClassMethod
+        graph.nodes.push({ id: classPropertyName });
+        // Alias
+        aliases[classPropertyName] = bindFunctionName;
       }
     },
     'ImportSpecifier|ImportDefaultSpecifier': path => {
@@ -224,17 +220,17 @@ function getAbsolutePath(relativePath: string, basePath: string) {
 }
 
 function getSuperClass(
-  path,
+  node,
   imports: { name: string; source: string }[],
   fileName: string
 ) {
-  if (!path.node.superClass) {
+  if (!node.superClass) {
     return;
   }
 
   const superClassName =
-    path.node.superClass.name ||
-    (path.node.superClass.property && path.node.superClass.property.name);
+    node.superClass.name ||
+    (node.superClass.property && node.superClass.property.name);
   if (superClassName === 'Component') {
     return;
   }
@@ -249,4 +245,12 @@ function getSuperClass(
 
 function getClassName(path) {
   return path.findParent(p => p.isClassDeclaration()).node.id.name;
+}
+
+function isFunctionBind(node) {
+  return (
+    t.isCallExpression(node.value) &&
+    t.isMemberExpression(node.value.callee) &&
+    t.isIdentifier(node.value.callee.property, { name: 'bind' })
+  );
 }
