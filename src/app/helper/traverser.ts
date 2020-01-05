@@ -2,6 +2,7 @@ import { Graph, Import, Link, Node } from '../interfaces';
 import { reactMethods } from '../constants/special-methods';
 import babelTraverse from '@babel/traverse';
 import * as t from '@babel/types';
+import { NodePath } from 'babel-traverse';
 
 export function traverse(ast: t.File, fileName: string) {
   const graph: Graph = {
@@ -11,44 +12,26 @@ export function traverse(ast: t.File, fileName: string) {
   const aliases: { [alias: string]: string } = {};
   const imports = [];
   const dependencies = new Set<string>();
-  let superClass;
+  let superClass = null;
 
   babelTraverse(ast, {
-    ClassDeclaration: path => {
-      pushUniqueNode({ id: path.node.id.name, group: 2 }, graph.nodes);
-      if (path.node.superClass) {
-        const superClassName =
-          path.node.superClass.name ||
-          (path.node.superClass.property && path.node.superClass.property.name);
-        if (superClassName === 'Component') {
-          return;
-        }
-        const extendsImport = imports.find(
-          theImport => theImport.name === path.node.superClass.name
-        );
-        if (!extendsImport) {
-          return;
-        }
-        superClass = getImportPath(extendsImport, fileName);
-      }
+    ClassDeclaration: (path: NodePath<t.ClassDeclaration>) => {
+      // Node: Class
+      graph.nodes.push({ id: path.node.id.name, group: 2 });
+
+      // SuperClass
+      superClass = getSuperClass(path, imports, fileName);
     },
     ClassMethod: path => {
       const methodName = path.node.key.name;
       const isReactMethod = reactMethods.includes(methodName);
 
-      pushUniqueNode(
-        { id: methodName, group: isReactMethod ? 3 : 1 },
-        graph.nodes
-      );
+      // Node: ClassMethod
+      graph.nodes.push({ id: methodName, group: isReactMethod ? 3 : 1 });
 
+      // Link: Class -> ReactMethod
       if (isReactMethod) {
-        pushUniqueLink(
-          {
-            source: path.context.scope.block.id.name,
-            target: methodName
-          },
-          graph.links
-        );
+        graph.links.push({ source: getClassName(path), target: methodName });
       }
     },
     ClassProperty: path => {
@@ -238,4 +221,32 @@ function getAbsolutePath(relativePath: string, basePath: string) {
   }
 
   return stack.join('/');
+}
+
+function getSuperClass(
+  path,
+  imports: { name: string; source: string }[],
+  fileName: string
+) {
+  if (!path.node.superClass) {
+    return;
+  }
+
+  const superClassName =
+    path.node.superClass.name ||
+    (path.node.superClass.property && path.node.superClass.property.name);
+  if (superClassName === 'Component') {
+    return;
+  }
+  const extendsImport = imports.find(
+    theImport => theImport.name === superClassName
+  );
+  if (!extendsImport) {
+    return;
+  }
+  return getImportPath(extendsImport, fileName);
+}
+
+function getClassName(path) {
+  return path.findParent(p => p.isClassDeclaration()).node.id.name;
 }
