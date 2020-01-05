@@ -42,11 +42,6 @@ export interface Entry {
   removeRecursively: () => any;
 }
 
-export interface Import {
-  name: string;
-  source: string;
-}
-
 export interface Settings {
   textCenter?: boolean;
   text?: boolean;
@@ -64,7 +59,6 @@ export interface NodeSelection {
 export interface ComponentMap {
   [componentName: string]: {
     graph?: Graph;
-    imports?: { name: string; source: string }[];
     extends?: string;
     dependencies?: Set<string>;
   };

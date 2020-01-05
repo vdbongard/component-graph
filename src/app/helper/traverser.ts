@@ -1,4 +1,4 @@
-import { Graph, Import, Link } from '../interfaces';
+import { Graph, Link } from '../interfaces';
 import { reactMethods } from '../constants/special-methods';
 import babelTraverse from '@babel/traverse';
 import * as t from '@babel/types';
@@ -9,17 +9,16 @@ export function traverse(ast: t.File, fileName: string) {
     links: []
   };
   const aliases: { [alias: string]: string } = {};
-  const imports = [];
   const dependencies = new Set<string>();
   let superClass = null;
 
   babelTraverse(ast, {
-    ClassDeclaration: ({ node }) => {
+    ClassDeclaration: path => {
       // Node: Class
-      graph.nodes.push({ id: node.id.name, group: 2 });
+      graph.nodes.push({ id: path.node.id.name, group: 2 });
 
       // SuperClass
-      superClass = getSuperClass(node, imports, fileName);
+      superClass = getSuperClass(path, fileName);
     },
     ClassMethod: path => {
       const methodName = path.node.key.name;
@@ -30,7 +29,10 @@ export function traverse(ast: t.File, fileName: string) {
 
       // Link: Class -> ReactMethod
       if (isReactMethod) {
-        graph.links.push({ source: getClassName(path), target: methodName });
+        graph.links.push({
+          source: getParentClassName(path),
+          target: methodName
+        });
       }
     },
     ClassProperty: ({ node }) => {
@@ -43,27 +45,16 @@ export function traverse(ast: t.File, fileName: string) {
         aliases[classPropertyName] = bindFunctionName;
       }
     },
-    'ImportSpecifier|ImportDefaultSpecifier': path => {
-      imports.push({
-        name: path.node.local.name,
-        source: path.parent.source.value
-      });
-    }
-  });
-
-  babelTraverse(ast, {
     MemberExpression: path => {
       if (
-        path.node.object.type === 'ThisExpression' &&
-        path.node.property.type === 'Identifier' &&
-        graph.nodes.find(node => node.id === path.node.property.name)
+        t.isThisExpression(path.node.object) &&
+        t.isIdentifier(path.node.property)
       ) {
-        const classMethodName = getClassMethodName(path);
-
-        if (!classMethodName) {
+        const classMethodPath = path.findParent(p => p.isClassMethod());
+        if (!classMethodPath) {
           return;
         }
-
+        const classMethodName = classMethodPath.node.key.name;
         pushUniqueLink(
           {
             source: classMethodName,
@@ -73,43 +64,26 @@ export function traverse(ast: t.File, fileName: string) {
         );
       }
     },
-    CallExpression: path => {
-      const calleeName = getCalleeName(path.node.callee);
-
-      if (graph.nodes.find(node => node.id === calleeName)) {
-        const classMethodName = getClassMethodName(path);
-
-        if (!classMethodName) {
-          return;
-        }
-
-        pushUniqueLink(
-          {
-            source: classMethodName,
-            target: calleeName
-          },
-          graph.links
-        );
-      }
-    },
-    JSXIdentifier: path => {
-      if (path.container.type === 'JSXOpeningElement') {
-        const foundImport = imports.find(
-          theImport => theImport.name === path.node.name
-        );
-
-        if (foundImport) {
-          const importPath = getImportPath(foundImport, fileName);
+    JSXOpeningElement: path => {
+      if (t.isJSXIdentifier(path.node.name)) {
+        const importPath = getImportPath(path, path.node.name.name, fileName);
+        if (importPath) {
           dependencies.add(importPath);
         }
       }
     }
   });
 
+  // filter out links that have a source/target that is not found in nodes
+  graph.links = graph.links.filter(
+    link =>
+      graph.nodes.find(node => node.id === link.source) &&
+      graph.nodes.find(node => node.id === link.target)
+  );
+
   mergeAliasesWithOriginals(graph, aliases);
 
   return {
-    imports,
     graph,
     dependencies,
     extends: superClass
@@ -144,28 +118,6 @@ function mergeAliasesWithOriginals(
   });
 }
 
-function getCalleeName(callee) {
-  if (callee.type === 'MemberExpression') {
-    return callee.property.name;
-  } else if (callee.type === 'Identifier') {
-    return callee.name;
-  }
-}
-
-function getClassMethodName(path) {
-  let currentPath = path;
-
-  while (currentPath.scope.block.type !== 'ClassMethod') {
-    currentPath = currentPath.parentPath;
-
-    if (!currentPath) {
-      return;
-    }
-  }
-
-  return currentPath.scope.block.key.name;
-}
-
 export function pushUniqueLink(link: Link, links: Link[]) {
   if (link.source === link.target) {
     return;
@@ -181,15 +133,6 @@ export function pushUniqueLink(link: Link, links: Link[]) {
   }
 
   links.push(link);
-}
-
-function getImportPath(theImport: Import, basePath: string) {
-  // npm module import
-  if (!theImport.source.startsWith('.')) {
-    return theImport.source;
-  }
-
-  return getAbsolutePath(theImport.source, basePath);
 }
 
 function getAbsolutePath(relativePath: string, basePath: string) {
@@ -213,31 +156,50 @@ function getAbsolutePath(relativePath: string, basePath: string) {
   return stack.join('/');
 }
 
-function getSuperClass(
-  node,
-  imports: { name: string; source: string }[],
-  fileName: string
-) {
-  if (!node.superClass) {
+function getImportPath(path, importName: string, fileName: string) {
+  const binding = path.scope.getBinding(importName);
+
+  if (!binding) {
     return;
   }
 
-  const superClassName =
-    node.superClass.name ||
-    (node.superClass.property && node.superClass.property.name);
+  if (
+    t.isImportDeclaration(binding.path.parent) &&
+    t.isStringLiteral(binding.path.parent.source)
+  ) {
+    const importPath = (binding.path.parentPath.node.source as t.StringLiteral)
+      .value;
+
+    // npm module import
+    if (!importPath.startsWith('.')) {
+      return importPath;
+    }
+
+    return getAbsolutePath(importPath, fileName);
+  }
+}
+
+function getSuperClass(path, fileName: string) {
+  if (!path.node.superClass) {
+    return;
+  }
+
+  let superClassName = '';
+
+  if (t.isIdentifier(path.node.superClass)) {
+    superClassName = path.node.superClass.name;
+  } else if (t.isMemberExpression(path.node.superClass)) {
+    superClassName = path.node.superClass.property.name;
+  }
+
   if (superClassName === 'Component') {
     return;
   }
-  const extendsImport = imports.find(
-    theImport => theImport.name === superClassName
-  );
-  if (!extendsImport) {
-    return;
-  }
-  return getImportPath(extendsImport, fileName);
+
+  return getImportPath(path, superClassName, fileName);
 }
 
-function getClassName(path) {
+function getParentClassName(path) {
   return path.findParent(p => p.isClassDeclaration()).node.id.name;
 }
 
