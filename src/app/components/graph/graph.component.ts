@@ -184,6 +184,7 @@ export class GraphComponent implements OnInit, OnDestroy {
 
   private startGraph(force?: number) {
     this.firstSimulation = true;
+    this.isFaded = false;
     this.svgZoomGroup = this.createSVG();
     this.simulation = this.createSimulation(force);
     this.links = this.createLinks();
