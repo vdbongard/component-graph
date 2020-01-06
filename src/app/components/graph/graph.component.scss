@@ -45,11 +45,15 @@
 .action-buttons {
   position: absolute;
   top: 8px;
-  right: 8px;
-  left: 8px;
   color: #808080;
-  display: flex;
-  justify-content: space-between;
+
+  &.left {
+    left: 8px;
+  }
+
+  &.right {
+    right: 8px;
+  }
 }
 
 #d3-root {
