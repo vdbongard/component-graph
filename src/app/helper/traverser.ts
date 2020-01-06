@@ -12,6 +12,45 @@ export function traverse(ast: t.File, fileName: string) {
   const dependencies = new Set<string>();
   let superClass = null;
 
+  const functionComponentTraverse = {
+    ArrowFunctionExpression: (path, state) => {
+      if (path.parentPath.isVariableDeclarator()) {
+        const functionParentPath = path.getFunctionParent();
+
+        if (isInnerFunction(functionParentPath, state.functionComponentName)) {
+          // Node: InnerFunction
+          graph.nodes.push({ id: path.parentPath.node.id.name, group: 1 });
+        }
+      }
+    },
+    Identifier: (path, state) => {
+      const binding = path.scope.getBinding(path.node.name);
+
+      if (!binding) {
+        return;
+      }
+
+      const functionParentPath = binding.path.getFunctionParent();
+
+      if (!functionParentPath) {
+        return;
+      }
+
+      if (
+        t.isArrowFunctionExpression(binding.path.node.init) &&
+        isInnerFunction(functionParentPath, state.functionComponentName)
+      ) {
+        const target = path.node.name;
+        const source = path.findParent(
+          p => isFunction(p.node) && p.parentPath.isVariableDeclarator()
+        ).parent.id.name;
+
+        // Link: InnerFunction/FunctionComponent -> InnerFunction
+        pushUniqueLink({ source, target }, graph.links);
+      }
+    }
+  };
+
   babelTraverse(ast, {
     ClassDeclaration: path => {
       // Node: Class
@@ -92,6 +131,20 @@ export function traverse(ast: t.File, fileName: string) {
           // Component Dependency
           dependencies.add(importPath);
         }
+      }
+    },
+    ArrowFunctionExpression: path => {
+      if (
+        isReactFunctionComponent(path) &&
+        path.parentPath.isVariableDeclarator()
+      ) {
+        console.log('FunctionComponent:', path.parentPath.node.id.name);
+        const functionComponentName = path.parentPath.node.id.name;
+        // Node: FunctionComponent
+        graph.nodes.push({ id: functionComponentName, group: 2 });
+
+        path.skip();
+        path.traverse(functionComponentTraverse, { functionComponentName });
       }
     }
   });
@@ -237,4 +290,33 @@ function isFunction(node) {
 
 function isClassPropertyFunction(node) {
   return t.isClassProperty(node) && isFunction(node.value);
+}
+
+function isReactFunctionComponent(path) {
+  if (
+    path.getFunctionParent() ||
+    path.findParent(p => p.isClassDeclaration()) ||
+    !t.isBlockStatement(path.node.body)
+  ) {
+    return false;
+  }
+
+  const returnStatements = path.node.body.body.filter(body =>
+    t.isReturnStatement(body)
+  );
+
+  if (returnStatements.length === 0) {
+    return false;
+  }
+
+  return returnStatements.every(returnStatement =>
+    t.isJSXElement(returnStatement.argument)
+  );
+}
+
+function isInnerFunction(path, functionComponentName: string) {
+  return (
+    path.parentPath.isVariableDeclarator() &&
+    path.parentPath.node.id.name === functionComponentName
+  );
 }
