@@ -36,22 +36,34 @@ export function traverse(ast: t.File, fileName: string) {
       if (isFunctionBind(node)) {
         const bindFunctionName = node.value.callee.object.property.name;
         const classPropertyName = node.key.name;
-        // Node: ClassMethod
-        graph.nodes.push({ id: classPropertyName });
-        // Alias
+        // Alias classProperty = this.classMethod.bind(this)
         aliases[classPropertyName] = bindFunctionName;
+      } else if (
+        t.isArrowFunctionExpression(node.value) ||
+        t.isFunctionExpression(node.value)
+      ) {
+        if (
+          t.isCallExpression(node.value.body) &&
+          t.isMemberExpression(node.value.body.callee) &&
+          isThisMemberExpression(node.value.body.callee)
+        ) {
+          // Alias classProperty = args => this.classMethod(args)
+          aliases[node.key.name] = node.value.body.callee.property.name; // pipe function name
+        } else {
+          // Node classProperty = () => {}
+          graph.nodes.push({ id: node.key.name });
+        }
       }
     },
     MemberExpression: path => {
-      if (
-        t.isThisExpression(path.node.object) &&
-        t.isIdentifier(path.node.property)
-      ) {
-        const classMethodPath = path.findParent(p => p.isClassMethod());
-        if (!classMethodPath) {
+      if (isThisMemberExpression(path.node)) {
+        const classMethodOrPropertyPath = path.findParent(
+          p => p.isClassMethod() || p.isClassProperty()
+        );
+        if (!classMethodOrPropertyPath) {
           return;
         }
-        const classMethodName = classMethodPath.node.key.name;
+        const classMethodName = classMethodOrPropertyPath.node.key.name;
         // Link: ClassMethod -> MemberExpression (this.<property>)
         pushUniqueLink(
           {
@@ -73,14 +85,14 @@ export function traverse(ast: t.File, fileName: string) {
     }
   });
 
+  mergeAliasesWithOriginals(graph, aliases);
+
   // filter out links that have a source/target that is not found in nodes
   graph.links = graph.links.filter(
     link =>
       graph.nodes.find(node => node.id === link.source) &&
       graph.nodes.find(node => node.id === link.target)
   );
-
-  mergeAliasesWithOriginals(graph, aliases);
 
   return {
     graph,
@@ -93,28 +105,24 @@ function mergeAliasesWithOriginals(
   graph: Graph,
   aliases: { [alias: string]: string }
 ) {
-  const linkIndexesToRemove = [];
-
   graph.nodes = graph.nodes.filter(
     node => !Object.keys(aliases).includes(node.id)
   );
 
-  graph.links = graph.links.map((link, index) => {
-    if (Object.keys(aliases).includes(link.source)) {
-      link.source = aliases[link.source];
-    }
-    if (Object.keys(aliases).includes(link.target)) {
-      link.target = aliases[link.target];
-    }
-    if (link.source === link.target) {
-      linkIndexesToRemove.push(index);
-    }
-    return link;
-  });
-
-  linkIndexesToRemove.forEach(index => {
-    graph.links.splice(index, 1);
-  });
+  graph.links = graph.links
+    .map(link => {
+      if (Object.keys(aliases).includes(link.source)) {
+        link.source = aliases[link.source];
+      }
+      if (Object.keys(aliases).includes(link.target)) {
+        link.target = aliases[link.target];
+      }
+      if (link.source === link.target) {
+        return;
+      }
+      return link;
+    })
+    .filter(link => link); // filter out links that are undefined
 }
 
 export function pushUniqueLink(link: Link, links: Link[]) {
@@ -206,4 +214,8 @@ function isFunctionBind(node) {
     t.isMemberExpression(node.value.callee) &&
     t.isIdentifier(node.value.callee.property, { name: 'bind' })
   );
+}
+
+function isThisMemberExpression(node) {
+  return t.isThisExpression(node.object) && t.isIdentifier(node.property);
 }
