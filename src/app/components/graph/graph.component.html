@@ -26,28 +26,41 @@
     <div class="cell main">
       <div id="d3-root" #d3Root></div>
       <div class="action-buttons">
-        <button
-          mat-icon-button
-          aria-label="Zoom to fit"
-          (click)="zoomToFit()"
-          matTooltip="Zoom to fit"
-        >
-          <mat-icon>all_out</mat-icon>
-        </button>
-        <button
-          mat-icon-button
-          aria-label="Toggle fullscreen"
-          (click)="
-            settingsService.setSettings({ fullScreen: !settings.fullScreen })
-          "
-          [matTooltip]="
-            settings.fullScreen ? 'Exit fullscreen' : 'Enter fullscreen'
-          "
-        >
-          <mat-icon>{{
-            settings.fullScreen ? 'fullscreen_exit' : 'fullscreen'
-          }}</mat-icon>
-        </button>
+        <div class="left-action-buttons">
+          <button
+            *ngIf="id"
+            mat-icon-button
+            aria-label="Back to app graph"
+            (click)="routeBack()"
+            matTooltip="Back to app graph"
+          >
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+        </div>
+        <div class="right-action-buttons">
+          <button
+            mat-icon-button
+            aria-label="Zoom to fit"
+            (click)="zoomToFit()"
+            matTooltip="Zoom to fit"
+          >
+            <mat-icon>all_out</mat-icon>
+          </button>
+          <button
+            mat-icon-button
+            aria-label="Toggle fullscreen"
+            (click)="
+              settingsService.setSettings({ fullScreen: !settings.fullScreen })
+            "
+            [matTooltip]="
+              settings.fullScreen ? 'Exit fullscreen' : 'Enter fullscreen'
+            "
+          >
+            <mat-icon>{{
+              settings.fullScreen ? 'fullscreen_exit' : 'fullscreen'
+            }}</mat-icon>
+          </button>
+        </div>
       </div>
     </div>
   </rsz-layout>

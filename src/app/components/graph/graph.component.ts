@@ -579,4 +579,12 @@ export class GraphComponent implements OnInit, OnDestroy {
       this.graphDataSub.unsubscribe();
     }
   }
+
+  routeBack() {
+    this.router.navigate([], {
+      relativeTo: this.activatedRoute,
+      queryParams: { id: null },
+      queryParamsHandling: 'merge'
+    });
+  }
 }

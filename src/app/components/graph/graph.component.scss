@@ -46,7 +46,10 @@
   position: absolute;
   top: 8px;
   right: 8px;
+  left: 8px;
   color: #808080;
+  display: flex;
+  justify-content: space-between;
 }
 
 #d3-root {
