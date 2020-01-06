@@ -16,17 +16,14 @@ export function traverse(ast: t.File, fileName: string) {
     ClassDeclaration: path => {
       // Node: Class
       graph.nodes.push({ id: path.node.id.name, group: 2 });
-
       // SuperClass
       superClass = getSuperClass(path, fileName);
     },
     ClassMethod: path => {
       const methodName = path.node.key.name;
       const isReactMethod = reactMethods.includes(methodName);
-
       // Node: ClassMethod
       graph.nodes.push({ id: methodName, group: isReactMethod ? 3 : 1 });
-
       // Link: Class -> ReactMethod
       if (isReactMethod) {
         graph.links.push({
@@ -55,6 +52,7 @@ export function traverse(ast: t.File, fileName: string) {
           return;
         }
         const classMethodName = classMethodPath.node.key.name;
+        // Link: ClassMethod -> MemberExpression (this.<property>)
         pushUniqueLink(
           {
             source: classMethodName,
@@ -68,6 +66,7 @@ export function traverse(ast: t.File, fileName: string) {
       if (t.isJSXIdentifier(path.node.name)) {
         const importPath = getImportPath(path, path.node.name.name, fileName);
         if (importPath) {
+          // Component Dependency
           dependencies.add(importPath);
         }
       }
