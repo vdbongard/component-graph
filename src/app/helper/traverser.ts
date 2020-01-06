@@ -20,6 +20,9 @@ export function traverse(ast: t.File, fileName: string) {
       superClass = getSuperClass(path, fileName);
     },
     ClassMethod: path => {
+      if (['get', 'set'].includes(path.node.kind)) {
+        return;
+      }
       const methodName = path.node.key.name;
       const isReactMethod = reactMethods.includes(methodName);
       // Node: ClassMethod
