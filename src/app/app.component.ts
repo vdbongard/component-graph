@@ -21,7 +21,10 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     this.settingsService.restoreSettings();
 
-    if (window.localStorage.getItem('graph')) {
+    if (
+      window.location.pathname !== '/graph' &&
+      window.localStorage.getItem('graph')
+    ) {
       this.router.navigateByUrl('/graph');
     }
   }
