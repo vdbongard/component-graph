@@ -134,6 +134,27 @@ export function pushUniqueLink(link: Link, links: Link[]) {
   links.push(link);
 }
 
+function getImportPath(path, importName: string, fileName: string) {
+  const binding = path.scope.getBinding(importName);
+
+  if (
+    !binding ||
+    !t.isImportDeclaration(binding.path.parent) ||
+    !t.isStringLiteral(binding.path.parent.source)
+  ) {
+    return;
+  }
+
+  const importPath: string = binding.path.parentPath.node.source.value;
+
+  // npm module import
+  if (!importPath.startsWith('.')) {
+    return importPath;
+  }
+
+  return getAbsolutePath(importPath, fileName);
+}
+
 function getAbsolutePath(relativePath: string, basePath: string) {
   const stack = basePath.split('/');
   const parts = relativePath.split('/');
@@ -153,29 +174,6 @@ function getAbsolutePath(relativePath: string, basePath: string) {
   }
 
   return stack.join('/');
-}
-
-function getImportPath(path, importName: string, fileName: string) {
-  const binding = path.scope.getBinding(importName);
-
-  if (!binding) {
-    return;
-  }
-
-  if (
-    t.isImportDeclaration(binding.path.parent) &&
-    t.isStringLiteral(binding.path.parent.source)
-  ) {
-    const importPath = (binding.path.parentPath.node.source as t.StringLiteral)
-      .value;
-
-    // npm module import
-    if (!importPath.startsWith('.')) {
-      return importPath;
-    }
-
-    return getAbsolutePath(importPath, fileName);
-  }
 }
 
 function getSuperClass(path, fileName: string) {
