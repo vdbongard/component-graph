@@ -41,10 +41,7 @@ export function traverse(ast: t.File, fileName: string) {
         const classPropertyName = node.key.name;
         // Alias classProperty = this.classMethod.bind(this)
         aliases[classPropertyName] = bindFunctionName;
-      } else if (
-        t.isArrowFunctionExpression(node.value) ||
-        t.isFunctionExpression(node.value)
-      ) {
+      } else if (isFunction(node.value)) {
         if (
           t.isCallExpression(node.value.body) &&
           t.isMemberExpression(node.value.body.callee) &&
@@ -60,17 +57,28 @@ export function traverse(ast: t.File, fileName: string) {
     },
     MemberExpression: path => {
       if (isThisMemberExpression(path.node)) {
-        const classMethodOrPropertyPath = path.findParent(
+        let parentPath = path.findParent(
           p => p.isClassMethod() || p.isClassProperty()
         );
-        if (!classMethodOrPropertyPath) {
+        if (!parentPath) {
           return;
         }
-        const classMethodName = classMethodOrPropertyPath.node.key.name;
-        // Link: ClassMethod -> MemberExpression (this.<property>)
+
+        if (
+          parentPath.isClassProperty() &&
+          !isClassPropertyFunction(parentPath.node) &&
+          path.parentPath.isCallExpression()
+        ) {
+          parentPath = parentPath.findParent(p => p.isClassDeclaration());
+        }
+
+        const parentName = parentPath.isClassDeclaration()
+          ? parentPath.node.id.name
+          : parentPath.node.key.name;
+        // Link: Method/Class -> MemberExpression (this.<property>)
         pushUniqueLink(
           {
-            source: classMethodName,
+            source: parentName,
             target: path.node.property.name
           },
           graph.links
@@ -221,4 +229,12 @@ function isFunctionBind(node) {
 
 function isThisMemberExpression(node) {
   return t.isThisExpression(node.object) && t.isIdentifier(node.property);
+}
+
+function isFunction(node) {
+  return t.isArrowFunctionExpression(node) || t.isFunctionExpression(node);
+}
+
+function isClassPropertyFunction(node) {
+  return t.isClassProperty(node) && isFunction(node.value);
 }
