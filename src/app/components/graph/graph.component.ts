@@ -366,7 +366,7 @@ export class GraphComponent implements OnInit, OnDestroy {
         this.nodes.attr('transform', d => `translate(${d.x}, ${d.y})`);
       })
       .on('end', () => {
-        if (this.firstSimulation && !this.settings.colaLayout) {
+        if (this.firstSimulation) {
           this.firstSimulation = false;
           this.zoomToFit();
         }
