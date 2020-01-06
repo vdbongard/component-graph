@@ -42,6 +42,7 @@ export class GraphComponent implements OnInit, OnDestroy {
   progress: number;
   queryParamWasUpload = false;
   queryParamIsInitial = true;
+  isFaded: boolean;
 
   private graphDataSub: Subscription;
   private settingsSub: Subscription;
@@ -426,15 +427,21 @@ export class GraphComponent implements OnInit, OnDestroy {
       nodes
         .on('click.fade', d => {
           fade(d, this.fadeOpacity);
+          this.isFaded = true;
         })
-        .on('blur', d => fade(d, 1))
+        .on('blur', d => {
+          if (this.isFaded) {
+            fade(d, 1);
+          }
+        })
         .on('mouseover.fade', d => {
           if (d3.event.ctrlKey) {
             fade(d, this.fadeOpacity);
+            this.isFaded = true;
           }
         })
         .on('mouseout.fade', d => {
-          if (d3.event.ctrlKey) {
+          if (d3.event.ctrlKey && this.isFaded) {
             fade(d, 1);
           }
         });
