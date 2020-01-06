@@ -274,7 +274,8 @@ export class GraphComponent implements OnInit, OnDestroy {
       .on('mousedown', () => {
         this.svgZoomGroup.style('transition', null);
       })
-      .call(this.zoom);
+      .call(this.zoom)
+      .on('dblclick.zoom', null);
 
     this.svg
       .append('defs')
@@ -398,17 +399,20 @@ export class GraphComponent implements OnInit, OnDestroy {
       .attr('class', 'node')
       .attr('style', 'cursor: pointer; outline: none; opacity: 1;')
       .on('click', d => {
-        if (d3.event.shiftKey && d.id.startsWith('/')) {
+        if (d3.event.ctrlKey) {
+          this.removeNode(d);
+          this.restartGraph();
+          return;
+        }
+        this.dataService.selectNode(d, this.id);
+      })
+      .on('dblclick', d => {
+        if (d.id.startsWith('/')) {
           this.router.navigate([], {
             relativeTo: this.activatedRoute,
             queryParams: { id: d.id },
             queryParamsHandling: 'merge'
           });
-        } else if (d3.event.ctrlKey) {
-          this.removeNode(d);
-          this.restartGraph();
-        } else {
-          this.dataService.selectNode(d, this.id);
         }
       });
 
