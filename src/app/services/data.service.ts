@@ -207,6 +207,11 @@ export class DataService {
       const moduleReport = this.report.modules.find(
         module => module.srcPath === componentId
       );
+
+      if (!moduleReport.classes[0]) {
+        return moduleReport;
+      }
+
       const report = moduleReport.classes[0].methods.find(
         method => method.name === nodeId
       );
