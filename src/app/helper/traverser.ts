@@ -52,6 +52,13 @@ export function traverse(ast: t.File, fileName: string) {
         // Link: InnerFunction/FunctionComponent -> InnerFunction
         pushUniqueLink({ source, target }, graph.links);
       }
+    },
+    JSXOpeningElement: path => {
+      const importPath = getComponentDependency(path, fileName);
+      if (importPath) {
+        // Component Dependency
+        dependencies.add(importPath);
+      }
     }
   };
 
@@ -129,12 +136,10 @@ export function traverse(ast: t.File, fileName: string) {
       }
     },
     JSXOpeningElement: path => {
-      if (t.isJSXIdentifier(path.node.name)) {
-        const importPath = getImportPath(path, path.node.name.name, fileName);
-        if (importPath) {
-          // Component Dependency
-          dependencies.add(importPath);
-        }
+      const importPath = getComponentDependency(path, fileName);
+      if (importPath) {
+        // Component Dependency
+        dependencies.add(importPath);
       }
     },
     ArrowFunctionExpression: path => {
@@ -323,4 +328,10 @@ function isInnerFunction(path, functionComponentName: string) {
     path.parentPath.isVariableDeclarator() &&
     path.parentPath.node.id.name === functionComponentName
   );
+}
+
+function getComponentDependency(path: any, fileName: string) {
+  if (t.isJSXIdentifier(path.node.name)) {
+    return getImportPath(path, path.node.name.name, fileName);
+  }
 }
