@@ -345,8 +345,8 @@ function isReactFunctionComponent(path) {
     return false;
   }
 
-  return returnStatements.every(returnStatement =>
-    t.isJSXElement(returnStatement.argument)
+  return returnStatements.every(
+    returnStatement => t.isJSXElement(returnStatement.argument) // TODO allow other return types (string, null)
   );
 }
 
