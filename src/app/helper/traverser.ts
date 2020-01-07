@@ -287,7 +287,7 @@ export function pushUniqueLink(link: Link, links: Link[]) {
   links.push(link);
 }
 
-function getImportPath(path, importName: string, fileName: string) {
+function getImportPath(path, importName: string, fileName?: string) {
   const binding = path.scope.getBinding(importName);
 
   if (
@@ -302,6 +302,10 @@ function getImportPath(path, importName: string, fileName: string) {
 
   // npm module import
   if (!importPath.startsWith('.')) {
+    return importPath;
+  }
+
+  if (!fileName) {
     return importPath;
   }
 
@@ -377,19 +381,56 @@ function isClassPropertyFunction(node) {
 }
 
 function isReactClassComponent(path) {
-  return true;
-}
-
-function isReactFunctionComponent(path) {
-  if (
-    path.getFunctionParent() ||
-    path.findParent(p => p.isClassDeclaration()) ||
-    !t.isBlockStatement(path.node.body)
-  ) {
+  if (!path.node.superClass) {
     return false;
   }
 
-  const returnStatements = path.node.body.body.filter(body =>
+  // check if extends Component
+  if (t.isIdentifier(path.node.superClass)) {
+    const superClassName = path.node.superClass.name;
+    const importPath = getImportPath(path, superClassName);
+    if (importPath === 'react' && superClassName === 'Component') {
+      return true;
+    }
+  }
+  // check if extends React.Component
+  else if (
+    t.isMemberExpression(path.node.superClass) &&
+    t.isIdentifier(path.node.superClass.object)
+  ) {
+    const left = path.node.superClass.object.name;
+    const right = path.node.superClass.property.name;
+    if (
+      left === 'React' &&
+      getImportPath(path, left) === 'react' &&
+      right === 'Component'
+    ) {
+      return true;
+    }
+  }
+
+  const renderMethod = path.node.body.body.find(
+    method =>
+      t.isClassMethod(method) && t.isIdentifier(method.key, { name: 'render' })
+  );
+
+  return renderMethod && isReturningJSX(renderMethod);
+}
+
+function isReactFunctionComponent(path) {
+  return (
+    !path.getFunctionParent() &&
+    !path.findParent(p => p.isClassDeclaration()) &&
+    isReturningJSX(path.node)
+  );
+}
+
+function isReturningJSX(path) {
+  if (!t.isBlockStatement(path.body)) {
+    return false;
+  }
+
+  const returnStatements = path.body.body.filter(body =>
     t.isReturnStatement(body)
   );
 
