@@ -24,6 +24,10 @@ export function traverse(ast: t.File, fileName: string) {
       }
     },
     Identifier: (path, state) => {
+      if (path.parentPath.isVariableDeclarator()) {
+        return;
+      }
+
       const binding = path.scope.getBinding(path.node.name);
 
       if (!binding) {
