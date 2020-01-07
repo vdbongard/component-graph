@@ -1,89 +1,69 @@
-import { Graph, Link } from '../interfaces';
+import { ComponentMap, Graph, Import, Link } from '../interfaces';
 import { reactMethods } from '../constants/special-methods';
 import babelTraverse from '@babel/traverse';
 import * as t from '@babel/types';
 
 export function traverse(ast: t.File, fileName: string) {
+  const components: ComponentMap = {};
+
+  babelTraverse(ast, {
+    ClassDeclaration: path => {
+      if (isReactClassComponent(path)) {
+        path.skip();
+        const classComponentName = path.node.id.name;
+        components[classComponentName] = traverseClassComponent(
+          path,
+          classComponentName,
+          fileName
+        );
+      }
+    },
+    FunctionDeclaration: path => {
+      if (isReactFunctionComponent(path)) {
+        path.skip();
+        const functionComponentName = path.node.id.name;
+        console.log('FunctionComponent:', functionComponentName);
+        components[functionComponentName] = traverseFunctionComponent(
+          path,
+          functionComponentName,
+          fileName
+        );
+      }
+    },
+    'FunctionExpression|ArrowFunctionExpression': path => {
+      if (
+        isReactFunctionComponent(path) &&
+        path.parentPath.isVariableDeclarator()
+      ) {
+        path.skip();
+        const functionComponentName = path.parentPath.node.id.name;
+        console.log('FunctionComponent:', functionComponentName);
+        components[functionComponentName] = traverseFunctionComponent(
+          path,
+          functionComponentName,
+          fileName
+        );
+      }
+    }
+  });
+
+  return components;
+}
+
+function traverseClassComponent(componentPath, name, fileName) {
   const graph: Graph = {
     nodes: [],
     links: []
   };
   const aliases: { [alias: string]: string } = {};
-  const dependencies = new Set<string>();
-  let superClass = null;
+  const dependencies = new Set<Import>();
+  // SuperClass
+  const superClass: Import = getSuperClass(componentPath, fileName);
 
-  const functionComponentTraverse = {
-    'FunctionExpression|ArrowFunctionExpression': (path, state) => {
-      if (path.parentPath.isVariableDeclarator()) {
-        const functionParentPath = path.getFunctionParent();
+  // Node: Class
+  graph.nodes.push({ id: name, group: 2 });
 
-        if (isInnerFunction(functionParentPath, state.functionComponentName)) {
-          // Node: InnerFunction
-          graph.nodes.push({
-            id: path.parentPath
-              ? path.parentPath.node.id.name
-              : path.node.id.name,
-            group: 1
-          });
-        }
-      }
-    },
-    Identifier: (path, state) => {
-      if (path.parentPath.isVariableDeclarator()) {
-        return;
-      }
-
-      const binding = path.scope.getBinding(path.node.name);
-
-      if (!binding) {
-        return;
-      }
-
-      const functionParentPath = binding.path.getFunctionParent();
-
-      if (!functionParentPath) {
-        return;
-      }
-
-      if (isInnerFunction(functionParentPath, state.functionComponentName)) {
-        const target = path.node.name;
-
-        const parent = path.findParent(
-          p =>
-            (isFunction(p.node) && p.parentPath.isVariableDeclarator()) ||
-            p.isFunctionDeclaration()
-        );
-
-        if (!parent) {
-          return;
-        }
-
-        const source = parent.isFunctionDeclaration()
-          ? parent.node.id.name
-          : parent.parent.id.name;
-
-        if (source) {
-          // Link: InnerFunction/FunctionComponent -> InnerFunction
-          pushUniqueLink({ source, target }, graph.links);
-        }
-      }
-    },
-    JSXOpeningElement: path => {
-      const importPath = getComponentDependency(path, fileName);
-      if (importPath) {
-        // Component Dependency
-        dependencies.add(importPath);
-      }
-    }
-  };
-
-  babelTraverse(ast, {
-    ClassDeclaration: path => {
-      // Node: Class
-      graph.nodes.push({ id: path.node.id.name, group: 2 });
-      // SuperClass
-      superClass = getSuperClass(path, fileName);
-    },
+  const classComponentTraverse = {
     ClassMethod: path => {
       if (['get', 'set'].includes(path.node.kind)) {
         return;
@@ -151,39 +131,110 @@ export function traverse(ast: t.File, fileName: string) {
       }
     },
     JSXOpeningElement: path => {
-      const importPath = getComponentDependency(path, fileName);
-      if (importPath) {
+      const dependency = getComponentDependency(path, fileName);
+      if (dependency) {
         // Component Dependency
-        dependencies.add(importPath);
-      }
-    },
-    'FunctionExpression|ArrowFunctionExpression': path => {
-      if (
-        isReactFunctionComponent(path) &&
-        path.parentPath.isVariableDeclarator()
-      ) {
-        const functionComponentName = path.parentPath.node.id.name;
-        console.log('FunctionComponent:', functionComponentName);
-        // Node: FunctionComponent
-        graph.nodes.push({ id: functionComponentName, group: 2 });
-
-        path.skip();
-        path.traverse(functionComponentTraverse, { functionComponentName });
-      }
-    },
-    FunctionDeclaration: path => {
-      if (isReactFunctionComponent(path)) {
-        const functionComponentName = path.node.id.name;
-        console.log('FunctionComponent:', functionComponentName);
-        // Node: FunctionComponent
-        graph.nodes.push({ id: functionComponentName, group: 2 });
-
-        path.skip();
-        path.traverse(functionComponentTraverse, { functionComponentName });
+        dependencies.add(dependency);
       }
     }
-  });
+  };
 
+  componentPath.traverse(classComponentTraverse, { name });
+  postProcessing(graph, aliases);
+
+  return {
+    graph,
+    dependencies,
+    extends: superClass
+  };
+}
+
+function traverseFunctionComponent(componentPath, name, fileName) {
+  const graph: Graph = {
+    nodes: [],
+    links: []
+  };
+  const aliases: { [alias: string]: string } = {};
+  const dependencies = new Set<Import>();
+
+  // Node: FunctionComponent
+  graph.nodes.push({ id: name, group: 2 });
+
+  const functionComponentTraverse = {
+    'FunctionExpression|ArrowFunctionExpression': (path, state) => {
+      if (path.parentPath.isVariableDeclarator()) {
+        const functionParentPath = path.getFunctionParent();
+
+        if (isInnerFunction(functionParentPath, state.name)) {
+          // Node: InnerFunction
+          graph.nodes.push({
+            id: path.parentPath
+              ? path.parentPath.node.id.name
+              : path.node.id.name,
+            group: 1
+          });
+        }
+      }
+    },
+    Identifier: (path, state) => {
+      if (path.parentPath.isVariableDeclarator()) {
+        return;
+      }
+
+      const binding = path.scope.getBinding(path.node.name);
+
+      if (!binding) {
+        return;
+      }
+
+      const functionParentPath = binding.path.getFunctionParent();
+
+      if (!functionParentPath) {
+        return;
+      }
+
+      if (isInnerFunction(functionParentPath, state.name)) {
+        const target = path.node.name;
+
+        const parent = path.findParent(
+          p =>
+            (isFunction(p.node) && p.parentPath.isVariableDeclarator()) ||
+            p.isFunctionDeclaration()
+        );
+
+        if (!parent) {
+          return;
+        }
+
+        const source = parent.isFunctionDeclaration()
+          ? parent.node.id.name
+          : parent.parent.id.name;
+
+        if (source) {
+          // Link: InnerFunction/FunctionComponent -> InnerFunction
+          pushUniqueLink({ source, target }, graph.links);
+        }
+      }
+    },
+    JSXOpeningElement: path => {
+      const dependency = getComponentDependency(path, fileName);
+      if (dependency) {
+        // Component Dependency
+        dependencies.add(dependency);
+      }
+    }
+  };
+
+  componentPath.traverse(functionComponentTraverse, { name });
+  postProcessing(graph, aliases);
+
+  return {
+    graph,
+    dependencies
+  };
+}
+
+function postProcessing(graph: Graph, aliases: { [p: string]: string }) {
   mergeAliasesWithOriginals(graph, aliases);
 
   // filter out links that have a source/target that is not found in nodes
@@ -193,12 +244,6 @@ export function traverse(ast: t.File, fileName: string) {
       graph.nodes.find(node => node.id === link.source) &&
       graph.nodes.find(node => node.id === link.target)
   );
-
-  return {
-    graph,
-    dependencies,
-    extends: superClass
-  };
 }
 
 function mergeAliasesWithOriginals(
@@ -301,7 +346,10 @@ function getSuperClass(path, fileName: string) {
     return;
   }
 
-  return getImportPath(path, superClassName, fileName);
+  return {
+    name: superClassName,
+    source: getImportPath(path, superClassName, fileName) || fileName
+  };
 }
 
 function getParentClassName(path) {
@@ -328,6 +376,10 @@ function isClassPropertyFunction(node) {
   return t.isClassProperty(node) && isFunction(node.value);
 }
 
+function isReactClassComponent(path) {
+  return true;
+}
+
 function isReactFunctionComponent(path) {
   if (
     path.getFunctionParent() ||
@@ -348,6 +400,7 @@ function isReactFunctionComponent(path) {
   return returnStatements.every(
     returnStatement =>
       t.isJSXElement(returnStatement.argument) ||
+      t.isJSXFragment(returnStatement.argument) ||
       t.isStringLiteral(returnStatement.argument) ||
       t.isNullLiteral(returnStatement.argument)
   );
@@ -365,6 +418,16 @@ function isInnerFunction(path, functionComponentName: string) {
 
 function getComponentDependency(path: any, fileName: string) {
   if (t.isJSXIdentifier(path.node.name)) {
-    return getImportPath(path, path.node.name.name, fileName);
+    const importName = path.node.name.name;
+    const importPath = getImportPath(path, importName, fileName);
+
+    if (!importPath) {
+      return;
+    }
+
+    return {
+      name: importName,
+      source: importPath
+    };
   }
 }

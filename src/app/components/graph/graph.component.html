@@ -78,7 +78,7 @@
             *ngIf="selectedNode && !selectedNode.report?.aggregate"
             class="mat-h4"
           >
-            {{ selectedNode.id }}</span
+            {{ selectedNode.label || selectedNode.id }}</span
           >
         </h2>
         <div *ngIf="selectedNode" class="content-inner">

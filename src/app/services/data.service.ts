@@ -2,8 +2,9 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
 import {
   AstWithPath,
-  ComponentMap,
+  FileMap,
   Graph,
+  Import,
   Node,
   NodeSelection
 } from '../interfaces';
@@ -22,7 +23,7 @@ export class DataService {
   files: FileWithPath[] = [];
   componentFiles: FileWithPath[];
 
-  componentMap: ComponentMap = {};
+  fileMap: FileMap = {};
   appGraph: Graph = {
     nodes: [],
     links: []
@@ -41,7 +42,7 @@ export class DataService {
       window.localStorage.setItem('graph', JSON.stringify(this.appGraph));
       window.localStorage.setItem(
         'components',
-        JSON.stringify(this.componentMap, SetToJSON)
+        JSON.stringify(this.fileMap, SetToJSON)
       );
       window.localStorage.setItem('report', JSON.stringify(this.report));
     }
@@ -53,9 +54,9 @@ export class DataService {
     if (window.localStorage.getItem('graph')) {
       this.appGraph = JSON.parse(window.localStorage.getItem('graph'));
 
-      this.componentMap =
+      this.fileMap =
         JSON.parse(window.localStorage.getItem('components'), JSONToSet) || {};
-      console.log('ComponentMap: ', this.componentMap);
+      console.log('FileMap: ', this.fileMap);
 
       this.report = JSON.parse(window.localStorage.getItem('report'));
       console.log('Report: ', this.report);
@@ -75,16 +76,16 @@ export class DataService {
     const asts: AstWithPath[] = [];
 
     for (const [index, file] of this.componentFiles.entries()) {
-      const { ast, component } = await this.setFile(file);
+      const { ast, components, code } = await this.setFile(file);
       asts.push({ ast, srcPath: file.path });
-      this.componentMap[file.path] = component;
+      this.fileMap[file.path] = { components, code };
       this.progress$.next(((index + 1) / this.componentFiles.length) * 100);
     }
 
-    console.log('ComponentMap:', this.componentMap);
+    console.log('FileMap:', this.fileMap);
     this.report = escomplexProject.analyze(asts);
     console.log('Report:', this.report);
-    this.appGraph = this.generateAppGraph(this.componentMap);
+    this.appGraph = this.generateAppGraph(this.fileMap);
     this.progress$.next(undefined);
     this.setComponentGraph();
   }
@@ -92,18 +93,37 @@ export class DataService {
   async setFile(file: FileWithPath) {
     const code = await file.file.text();
     const ast = parse(code, file.path);
-    const component = traverse(ast, file.path);
-    return { ast, component };
+    const components = traverse(ast, file.path);
+    return { ast, components, code };
   }
 
   setComponentGraph(componentId?: string) {
-    if (this.componentMap[componentId]) {
-      this.graphData$.next(this.componentMap[componentId].graph);
-    } else if (Object.values(this.componentMap).length === 1) {
-      this.graphData$.next(Object.values(this.componentMap)[0].graph);
-    } else {
-      this.graphData$.next(this.appGraph);
+    if (componentId) {
+      const [fileName, componentName] = componentId.split('#');
+
+      if (
+        this.fileMap[fileName] &&
+        this.fileMap[fileName].components[componentName]
+      ) {
+        this.graphData$.next(
+          this.fileMap[fileName].components[componentName].graph
+        );
+        return;
+      }
     }
+
+    // if only one component show it's graph instead of the app graph
+    if (
+      Object.keys(this.fileMap).length === 1 &&
+      Object.keys(Object.values(this.fileMap)[0].components).length === 1
+    ) {
+      this.graphData$.next(
+        Object.values(Object.values(this.fileMap)[0].components)[0].graph
+      );
+      return;
+    }
+
+    this.graphData$.next(this.appGraph);
   }
 
   selectNode(node: Node, componentId: string) {
@@ -116,51 +136,69 @@ export class DataService {
     this.selectedNode$.next(selectedNode);
   }
 
-  private generateAppGraph(componentMap: ComponentMap): Graph {
+  private generateAppGraph(fileMap: FileMap): Graph {
     const nodes = [];
     const links = [];
 
-    for (const [path, component] of Object.entries(componentMap)) {
-      nodes.push({
-        id: path,
-        label: path
-          .split('/')
-          .pop()
-          .split('.')[0]
-      });
+    for (const [fileName, file] of Object.entries(fileMap)) {
+      for (const [componentName, component] of Object.entries(
+        file.components
+      )) {
+        nodes.push({
+          id: `${fileName}#${componentName}`,
+          label: componentName
+            .split('/')
+            .pop()
+            .split('.')[0]
+        });
 
-      if (component.extends) {
-        component.extends = this.getCompleteFilePath(component.extends);
-      }
-
-      component.dependencies = new Set<string>(
-        [...component.dependencies].map(this.getCompleteFilePath.bind(this))
-      );
-
-      component.dependencies.forEach(dependency => {
-        if (!dependency.startsWith('/')) {
-          return;
+        if (component.extends) {
+          component.extends.source = this.getCompleteFilePath(
+            component.extends.source
+          );
         }
-        pushUniqueLink(
-          {
-            source: path,
-            target: dependency
-          },
-          links
-        );
-      });
 
-      if (component.extends) {
-        if (!nodes.find(node => node.id === component.extends)) {
-          console.log('Found a wrong super class path: ', component.extends);
-        } else {
+        component.dependencies = new Set<Import>(
+          [...component.dependencies].map(dependency => {
+            dependency.source = this.getCompleteFilePath(dependency.source);
+            return dependency;
+          })
+        );
+
+        component.dependencies.forEach(dependency => {
+          if (!dependency.source.startsWith('/')) {
+            return;
+          }
           pushUniqueLink(
             {
-              source: component.extends,
-              target: path
+              source: `${fileName}#${componentName}`,
+              target: `${dependency.source}#${dependency.name}`
             },
             links
           );
+        });
+
+        if (component.extends) {
+          if (
+            !nodes.find(
+              node =>
+                node.id ===
+                `${component.extends.source}#${component.extends.name}`
+            )
+          ) {
+            console.warn(
+              'Found a wrong super class path: ',
+              `${component.extends.source}#${component.extends.name}`
+            );
+          } else {
+            pushUniqueLink(
+              {
+                source: `${component.extends.source}#${component.extends.name}`,
+                target: `${fileName}#${componentName}`
+              },
+              links
+            );
+          }
         }
       }
     }
@@ -170,7 +208,7 @@ export class DataService {
 
   private resetData(): void {
     this.componentFiles = [];
-    this.componentMap = {};
+    this.fileMap = {};
     this.appGraph = {
       nodes: [],
       links: []
@@ -205,7 +243,7 @@ export class DataService {
 
     if (componentId) {
       const moduleReport = this.report.modules.find(
-        module => module.srcPath === componentId
+        module => module.srcPath === componentId.split('#')[0]
       );
 
       if (!moduleReport.classes[0]) {
@@ -218,7 +256,9 @@ export class DataService {
 
       return report || moduleReport;
     } else {
-      return this.report.modules.find(module => module.srcPath === nodeId);
+      return this.report.modules.find(
+        module => module.srcPath === nodeId.split('#')[0]
+      );
     }
   }
 }

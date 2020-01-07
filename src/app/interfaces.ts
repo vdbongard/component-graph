@@ -42,15 +42,27 @@ export interface NodeSelection {
   report: any;
 }
 
+export interface FileMap {
+  [fileName: string]: {
+    components: ComponentMap;
+    code: string;
+  };
+}
+
 export interface ComponentMap {
   [componentName: string]: {
     graph?: Graph;
-    extends?: string;
-    dependencies?: Set<string>;
+    extends?: Import;
+    dependencies?: Set<Import>;
   };
 }
 
 export interface AstWithPath {
   ast: BabelFile;
   srcPath: string;
+}
+
+export interface Import {
+  name: string;
+  source: string;
 }
