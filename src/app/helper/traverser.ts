@@ -142,7 +142,7 @@ export function traverse(ast: t.File, fileName: string) {
         dependencies.add(importPath);
       }
     },
-    ArrowFunctionExpression: path => {
+    'FunctionExpression|ArrowFunctionExpression': path => {
       if (
         isReactFunctionComponent(path) &&
         path.parentPath.isVariableDeclarator()
