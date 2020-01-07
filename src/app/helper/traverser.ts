@@ -13,13 +13,18 @@ export function traverse(ast: t.File, fileName: string) {
   let superClass = null;
 
   const functionComponentTraverse = {
-    ArrowFunctionExpression: (path, state) => {
+    'FunctionExpression|ArrowFunctionExpression': (path, state) => {
       if (path.parentPath.isVariableDeclarator()) {
         const functionParentPath = path.getFunctionParent();
 
         if (isInnerFunction(functionParentPath, state.functionComponentName)) {
           // Node: InnerFunction
-          graph.nodes.push({ id: path.parentPath.node.id.name, group: 1 });
+          graph.nodes.push({
+            id: path.parentPath
+              ? path.parentPath.node.id.name
+              : path.node.id.name,
+            group: 1
+          });
         }
       }
     },
@@ -40,17 +45,27 @@ export function traverse(ast: t.File, fileName: string) {
         return;
       }
 
-      if (
-        t.isArrowFunctionExpression(binding.path.node.init) &&
-        isInnerFunction(functionParentPath, state.functionComponentName)
-      ) {
+      if (isInnerFunction(functionParentPath, state.functionComponentName)) {
         const target = path.node.name;
-        const source = path.findParent(
-          p => isFunction(p.node) && p.parentPath.isVariableDeclarator()
-        ).parent.id.name;
 
-        // Link: InnerFunction/FunctionComponent -> InnerFunction
-        pushUniqueLink({ source, target }, graph.links);
+        const parent = path.findParent(
+          p =>
+            (isFunction(p.node) && p.parentPath.isVariableDeclarator()) ||
+            p.isFunctionDeclaration()
+        );
+
+        if (!parent) {
+          return;
+        }
+
+        const source = parent.isFunctionDeclaration()
+          ? parent.node.id.name
+          : parent.parent.id.name;
+
+        if (source) {
+          // Link: InnerFunction/FunctionComponent -> InnerFunction
+          pushUniqueLink({ source, target }, graph.links);
+        }
       }
     },
     JSXOpeningElement: path => {
@@ -147,8 +162,19 @@ export function traverse(ast: t.File, fileName: string) {
         isReactFunctionComponent(path) &&
         path.parentPath.isVariableDeclarator()
       ) {
-        console.log('FunctionComponent:', path.parentPath.node.id.name);
         const functionComponentName = path.parentPath.node.id.name;
+        console.log('FunctionComponent:', functionComponentName);
+        // Node: FunctionComponent
+        graph.nodes.push({ id: functionComponentName, group: 2 });
+
+        path.skip();
+        path.traverse(functionComponentTraverse, { functionComponentName });
+      }
+    },
+    FunctionDeclaration: path => {
+      if (isReactFunctionComponent(path)) {
+        const functionComponentName = path.node.id.name;
+        console.log('FunctionComponent:', functionComponentName);
         // Node: FunctionComponent
         graph.nodes.push({ id: functionComponentName, group: 2 });
 
@@ -163,6 +189,7 @@ export function traverse(ast: t.File, fileName: string) {
   // filter out links that have a source/target that is not found in nodes
   graph.links = graph.links.filter(
     link =>
+      link &&
       graph.nodes.find(node => node.id === link.source) &&
       graph.nodes.find(node => node.id === link.target)
   );
@@ -325,8 +352,11 @@ function isReactFunctionComponent(path) {
 
 function isInnerFunction(path, functionComponentName: string) {
   return (
-    path.parentPath.isVariableDeclarator() &&
-    path.parentPath.node.id.name === functionComponentName
+    (isFunction(path.node) &&
+      path.parentPath.isVariableDeclarator() &&
+      path.parentPath.node.id.name === functionComponentName) ||
+    (path.isFunctionDeclaration() &&
+      path.node.id.name === functionComponentName)
   );
 }
 
