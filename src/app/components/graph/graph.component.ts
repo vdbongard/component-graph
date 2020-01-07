@@ -43,6 +43,7 @@ export class GraphComponent implements OnInit, OnDestroy {
   queryParamWasUpload = false;
   queryParamIsInitial = true;
   isFaded: boolean;
+  isWheelZooming = false;
 
   private graphDataSub: Subscription;
   private settingsSub: Subscription;
@@ -118,8 +119,6 @@ export class GraphComponent implements OnInit, OnDestroy {
 
     // @ts-ignore
     window.restartGraph = this.restartGraph.bind(this);
-    // @ts-ignore
-    window.zoomFit = this.zoomToFit.bind(this);
 
     window.onbeforeunload = () => this.dataService.saveToLocalStorage();
 
@@ -268,13 +267,10 @@ export class GraphComponent implements OnInit, OnDestroy {
         'width: 100%; height: 100%; user-select: none; display: block;'
       )
       .on('wheel', () => {
-        this.svgZoomGroup.style(
-          'transition',
-          `transform ${this.zoomTransition}`
-        );
+        this.addTransition();
       })
       .on('mousedown', () => {
-        this.svgZoomGroup.style('transition', null);
+        this.removeTransition();
       })
       .call(this.zoom)
       .on('dblclick.zoom', null);
@@ -295,6 +291,24 @@ export class GraphComponent implements OnInit, OnDestroy {
       .style('stroke', 'none');
 
     return this.svg.append('g');
+  }
+
+  private addTransition() {
+    if (!this.isWheelZooming) {
+      this.isWheelZooming = true;
+      this.svgZoomGroup.style('transition', `transform ${this.zoomTransition}`);
+      this.svgZoomGroup
+        .selectAll('.node text')
+        .style('transition', `font-size ${this.zoomTransition}`);
+    }
+  }
+
+  private removeTransition() {
+    if (this.isWheelZooming) {
+      this.isWheelZooming = false;
+      this.svgZoomGroup.style('transition', null);
+      this.svgZoomGroup.selectAll('.node text').style('transition', null);
+    }
   }
 
   private createSimulation(force?: number) {
@@ -463,7 +477,6 @@ export class GraphComponent implements OnInit, OnDestroy {
         .text(d => d.label || d.id)
         .style('font-size', `${this.normalTextSize}px`)
         .style('dominant-baseline', 'central')
-        .style('transition', `font-size ${this.zoomTransition}`)
         .attr('x', this.circleRadius * 1.1);
 
       if (this.settings.textCenter) {
@@ -543,6 +556,8 @@ export class GraphComponent implements OnInit, OnDestroy {
       fullWidth / 2 - scale * midX,
       fullHeight / 2 - scale * midY
     ];
+
+    this.removeTransition();
 
     this.svg
       .transition()
