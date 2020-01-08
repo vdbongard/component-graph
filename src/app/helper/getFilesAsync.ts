@@ -1,12 +1,13 @@
 export async function getFilesAsync(dataTransfer: DataTransfer) {
   const files: FileWithPath[] = [];
+  const entryContentPromises = [];
+
   // @ts-ignore
   for (const item of dataTransfer.items) {
     if (item.kind === 'file') {
       if (typeof item.webkitGetAsEntry === 'function') {
         const entry = item.webkitGetAsEntry();
-        const entryContent = await readEntryContentAsync(entry);
-        files.push(...entryContent);
+        entryContentPromises.push(readEntryContentAsync(entry));
         continue;
       }
 
@@ -17,6 +18,10 @@ export async function getFilesAsync(dataTransfer: DataTransfer) {
       }
     }
   }
+
+  (await Promise.all(entryContentPromises)).map(entryContent =>
+    files.push(...entryContent)
+  );
 
   return files;
 }
