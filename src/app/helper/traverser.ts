@@ -56,6 +56,13 @@ export function traverse(ast: t.File, fileName: string) {
         defaultExport = path.node.declaration.left.name;
       } else if (path.get('declaration').isIdentifier()) {
         defaultExport = path.node.declaration.name;
+      } else if (path.get('declaration').isCallExpression()) {
+        const identifierArgument = path
+          .get('declaration.arguments')
+          .find(argument => argument.isIdentifier());
+        if (identifierArgument) {
+          defaultExport = identifierArgument.node.name;
+        }
       }
     }
   });
