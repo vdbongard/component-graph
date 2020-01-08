@@ -430,42 +430,91 @@ function isReactClassComponent(path) {
     }
   }
 
-  const renderMethod = path.node.body.body.find(
-    method =>
-      t.isClassMethod(method) && t.isIdentifier(method.key, { name: 'render' })
-  );
+  const renderMethodPath = path
+    .get('body.body')
+    .find(
+      method =>
+        method.isClassMethod() &&
+        method.get('key').isIdentifier({ name: 'render' })
+    );
 
-  return renderMethod && isReturningJSX(renderMethod);
+  return renderMethodPath && isReturningJSX(renderMethodPath);
 }
 
 function isReactFunctionComponent(path) {
   return (
     !path.getFunctionParent() &&
     !path.findParent(p => p.isClassDeclaration()) &&
-    isReturningJSX(path.node)
+    isReturningJSX(path)
   );
 }
 
 function isReturningJSX(path) {
-  if (!t.isBlockStatement(path.body)) {
+  if (!t.isBlockStatement(path.node.body)) {
     return false;
   }
 
-  const returnStatements = path.body.body.filter(body =>
-    t.isReturnStatement(body)
-  );
+  let returnsAtLeastOnce = false;
+  let returnsJSX = true;
 
-  if (returnStatements.length === 0) {
-    return false;
-  }
+  path.traverse({
+    ReturnStatement: returnStatementPath => {
+      returnsAtLeastOnce = true;
+      if (
+        !returnStatementPath.get('argument').isJSXElement() &&
+        !returnStatementPath.get('argument').isJSXFragment() &&
+        !returnStatementPath.get('argument').isNullLiteral()
+      ) {
+        returnStatementPath.stop();
+        returnsJSX = false;
+      }
+      if (returnStatementPath.get('argument').isCallExpression()) {
+        const callBind = returnStatementPath.scope.getBinding(
+          returnStatementPath.node.argument.callee.name
+        );
+        if (callBind.path.isFunctionDeclaration()) {
+          returnsJSX = isReturningJSX(callBind.path);
+          if (!returnsJSX) {
+            returnStatementPath.stop();
+          }
+        } else if (
+          callBind.path.isVariableDeclarator() &&
+          isFunction(callBind.path.node.init)
+        ) {
+          returnsJSX = isReturningJSX(callBind.path.get('init'));
+          if (!returnsJSX) {
+            returnStatementPath.stop();
+          }
+        } else if (callBind.constantViolations.length === 0) {
+          returnsJSX = false;
+          returnStatementPath.stop();
+        } else if (callBind.constantViolations.length > 0) {
+          callBind.constantViolations.forEach(constantViolation => {
+            if (
+              constantViolation.isAssignmentExpression() &&
+              isFunction(constantViolation.node.right)
+            ) {
+              returnsJSX = isReturningJSX(constantViolation.get('right'));
+              if (!returnsJSX) {
+                returnStatementPath.stop();
+              }
+            } else {
+              returnsJSX = false;
+              returnStatementPath.stop();
+            }
+          });
+        }
+      }
+    },
+    'FunctionExpression|ArrowFunctionExpression': functionPath => {
+      functionPath.skip();
+    },
+    FunctionDeclaration: functionDeclarationPath => {
+      functionDeclarationPath.skip();
+    }
+  });
 
-  return returnStatements.every(
-    returnStatement =>
-      t.isJSXElement(returnStatement.argument) ||
-      t.isJSXFragment(returnStatement.argument) ||
-      t.isStringLiteral(returnStatement.argument) ||
-      t.isNullLiteral(returnStatement.argument)
-  );
+  return returnsAtLeastOnce && returnsJSX;
 }
 
 function isInnerFunction(path, functionComponentName: string) {
