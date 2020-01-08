@@ -154,6 +154,18 @@ function traverseClassComponent(componentPath, name, fileName) {
       const dependency = getComponentDependency(path, fileName);
       // Component Dependency
       pushUniqueDependency(dependency, dependencies);
+
+      path.skip();
+      path.traverse({
+        Identifier: identifierPath => {
+          const innerDependency = getComponentDependency(
+            identifierPath,
+            fileName
+          );
+          // Component Dependency
+          pushUniqueDependency(innerDependency, dependencies);
+        }
+      });
     }
   };
 
@@ -259,6 +271,18 @@ function traverseFunctionComponent(componentPath, name, fileName) {
       const dependency = getComponentDependency(path, fileName);
       // Component Dependency
       pushUniqueDependency(dependency, dependencies);
+
+      path.skip();
+      path.traverse({
+        Identifier: identifierPath => {
+          const innerDependency = getComponentDependency(
+            identifierPath,
+            fileName
+          );
+          // Component Dependency
+          pushUniqueDependency(innerDependency, dependencies);
+        }
+      });
     }
   };
 
@@ -533,6 +557,7 @@ function isReturningJSX(path) {
   let returnsAtLeastOnce = false;
   let returnsJSX = true;
 
+  path.skip();
   path.traverse({
     ReturnStatement: returnStatementPath => {
       returnsAtLeastOnce = true;
@@ -618,41 +643,52 @@ function isInnerFunction(path, functionComponentName: string) {
 }
 
 function getComponentDependency(path: any, fileName: string) {
+  let importName;
+
   if (t.isJSXIdentifier(path.node.name)) {
-    const importName = path.node.name.name;
-    const binding = path.scope.getBinding(importName);
+    importName = path.node.name.name;
+  } else if (t.isIdentifier(path.node)) {
+    importName = path.node.name;
+  } else {
+    return;
+  }
 
-    if (binding && binding.path.isVariableDeclarator()) {
-      return {
-        name: importName,
-        source: fileName
-      };
-    }
+  const binding = path.scope.getBinding(importName);
 
-    const importBindingPath = getImportPathFromBinding(binding);
-
-    if (!importBindingPath) {
-      return;
-    }
-
-    let defaultImport = false;
-    if (importBindingPath.isImportDefaultSpecifier()) {
-      defaultImport = true;
-    }
-
-    const importPath = getImportPathFromImportSpecifier(
-      importBindingPath,
-      importName,
-      fileName
-    );
-
-    if (!importPath) {
-      return;
-    }
-
+  if (
+    binding &&
+    binding.path.isVariableDeclarator() &&
+    isReactFunctionComponent(binding.path.get('init'))
+  ) {
     return {
-      name: defaultImport ? 'default' : importName,
-      source: importPath
+      name: importName,
+      source: fileName
     };
   }
+
+  const importBindingPath = getImportPathFromBinding(binding);
+
+  if (!importBindingPath) {
+    return;
+  }
+
+  let defaultImport = false;
+  if (importBindingPath.isImportDefaultSpecifier()) {
+    defaultImport = true;
+  }
+
+  const importPath = getImportPathFromImportSpecifier(
+    importBindingPath,
+    importName,
+    fileName
+  );
+
+  if (!importPath) {
+    return;
+  }
+
+  return {
+    name: defaultImport ? 'default' : importName,
+    source: importPath
+  };
 }
