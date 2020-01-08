@@ -85,7 +85,9 @@ export class DataService {
     console.log('FileMap:', this.fileMap);
     this.report = escomplexProject.analyze(asts);
     console.log('Report:', this.report);
-    this.appGraph = this.generateAppGraph(this.fileMap);
+    if (!this.hasSingleComponent()) {
+      this.appGraph = this.generateAppGraph(this.fileMap);
+    }
     this.progress$.next(undefined);
     this.setComponentGraph();
   }
@@ -150,16 +152,34 @@ export class DataService {
         });
 
         if (component.extends) {
-          component.extends.source = this.getCompleteFilePath(
-            component.extends.source
-          );
+          const source = this.getCompleteFilePath(component.extends.source);
+
+          if (!source && component.extends.source.startsWith('/')) {
+            console.error(
+              `Base class dependency not found: ${component.extends.source} (${fileName})`
+            );
+            return;
+          }
+
+          component.extends.source = source;
         }
 
         component.dependencies = new Set<Import>(
-          [...component.dependencies].map(dependency => {
-            dependency.source = this.getCompleteFilePath(dependency.source);
-            return dependency;
-          })
+          [...component.dependencies]
+            .map(dependency => {
+              const source = this.getCompleteFilePath(dependency.source);
+
+              if (!source && dependency.source.startsWith('/')) {
+                console.error(
+                  `Dependency not found: ${dependency.source} (${fileName})`
+                );
+                return;
+              }
+
+              dependency.source = source;
+              return dependency;
+            })
+            .filter(d => d)
         );
 
         component.dependencies.forEach(dependency => {
@@ -168,7 +188,17 @@ export class DataService {
           }
 
           if (dependency.name === 'default') {
-            dependency.name = this.getDefaultExport(fileMap, dependency.source);
+            const defaultExport = this.getDefaultExport(
+              fileMap,
+              dependency.source
+            );
+            if (!defaultExport) {
+              console.error(
+                `Default export not found: ${dependency.source} (${fileName})`
+              );
+              return;
+            }
+            dependency.name = defaultExport;
           }
 
           pushUniqueLink(
@@ -181,26 +211,21 @@ export class DataService {
         });
 
         if (component.extends) {
-          if (
-            !nodes.find(
-              node =>
-                node.id ===
-                `${component.extends.source}#${component.extends.name}`
-            )
-          ) {
-            console.warn(
-              'Found a wrong super class path: ',
-              `${component.extends.source}#${component.extends.name}`
+          const name = component.extends.name;
+          const source = component.extends.source;
+          if (!nodes.find(node => node.id === `${source}#${name}`)) {
+            console.error(
+              `Super class not found: ${source}#${name} (${fileName})`
             );
-          } else {
-            pushUniqueLink(
-              {
-                source: `${component.extends.source}#${component.extends.name}`,
-                target: `${fileName}#${componentName}`
-              },
-              links
-            );
+            return;
           }
+          pushUniqueLink(
+            {
+              source: `${source}#${name}`,
+              target: `${fileName}#${componentName}`
+            },
+            links
+          );
         }
       }
     }
@@ -234,6 +259,10 @@ export class DataService {
     const file = this.componentFiles.find(componentFile =>
       componentFile.path.startsWith(importPath)
     );
+
+    if (!file && importPath.startsWith('/')) {
+      return;
+    }
 
     return file ? file.path : importPath;
   }
