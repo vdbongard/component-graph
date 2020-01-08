@@ -367,7 +367,7 @@ function getSuperClass(path, fileName: string) {
     superClassName = path.node.superClass.property.name;
   }
 
-  if (superClassName === 'Component') {
+  if (['Component', 'PureComponent'].includes(superClassName)) {
     return;
   }
 
@@ -410,7 +410,10 @@ function isReactClassComponent(path) {
   if (t.isIdentifier(path.node.superClass)) {
     const superClassName = path.node.superClass.name;
     const importPath = getImportPath(path, superClassName);
-    if (importPath === 'react' && superClassName === 'Component') {
+    if (
+      importPath === 'react' &&
+      ['Component', 'PureComponent'].includes(superClassName)
+    ) {
       return true;
     }
   }
@@ -424,7 +427,7 @@ function isReactClassComponent(path) {
     if (
       left === 'React' &&
       getImportPath(path, left) === 'react' &&
-      right === 'Component'
+      ['Component', 'PureComponent'].includes(right)
     ) {
       return true;
     }
