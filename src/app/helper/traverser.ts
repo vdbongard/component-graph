@@ -151,21 +151,9 @@ function traverseClassComponent(componentPath, name, fileName) {
       }
     },
     JSXOpeningElement: path => {
-      const dependency = getComponentDependency(path, fileName);
+      const newDependencies = getComponentDependencies(path, fileName);
       // Component Dependency
-      pushUniqueDependency(dependency, dependencies);
-
-      path.skip();
-      path.traverse({
-        Identifier: identifierPath => {
-          const innerDependency = getComponentDependency(
-            identifierPath,
-            fileName
-          );
-          // Component Dependency
-          pushUniqueDependency(innerDependency, dependencies);
-        }
-      });
+      pushUniqueDependencies(newDependencies, dependencies);
     }
   };
 
@@ -268,21 +256,9 @@ function traverseFunctionComponent(componentPath, name, fileName) {
       }
     },
     JSXOpeningElement: path => {
-      const dependency = getComponentDependency(path, fileName);
+      const newDependencies = getComponentDependencies(path, fileName);
       // Component Dependency
-      pushUniqueDependency(dependency, dependencies);
-
-      path.skip();
-      path.traverse({
-        Identifier: identifierPath => {
-          const innerDependency = getComponentDependency(
-            identifierPath,
-            fileName
-          );
-          // Component Dependency
-          pushUniqueDependency(innerDependency, dependencies);
-        }
-      });
+      pushUniqueDependencies(newDependencies, dependencies);
     }
   };
 
@@ -357,6 +333,15 @@ export function pushUniqueLink(link: Link, links: Link[]) {
   }
 
   links.push(link);
+}
+
+function pushUniqueDependencies(
+  newDependencies: Import[],
+  dependencies: Import[]
+) {
+  newDependencies.forEach(dependency =>
+    pushUniqueDependency(dependency, dependencies)
+  );
 }
 
 export function pushUniqueDependency(
@@ -642,7 +627,29 @@ function isInnerFunction(path, functionComponentName: string) {
   );
 }
 
-function getComponentDependency(path: any, fileName: string) {
+function getComponentDependencies(path, fileName: string) {
+  const dependencies = [];
+
+  const dependency = getComponentDependency(path, fileName);
+
+  if (dependency) {
+    dependencies.push(dependency);
+  }
+
+  path.skip();
+  path.traverse({
+    Identifier: identifierPath => {
+      const innerDependency = getComponentDependency(identifierPath, fileName);
+      if (innerDependency) {
+        dependencies.push(innerDependency);
+      }
+    }
+  });
+
+  return dependencies;
+}
+
+function getComponentDependency(path, fileName: string) {
   let importName;
 
   if (t.isJSXIdentifier(path.node.name)) {
