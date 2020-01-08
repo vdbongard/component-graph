@@ -77,7 +77,9 @@ export class DataService {
     for (const [index, file] of this.componentFiles.entries()) {
       const { ast, components, defaultExport, code } = await this.setFile(file);
       asts.push({ ast, srcPath: file.path });
-      this.fileMap[file.path] = { components, defaultExport, code };
+      if (Object.keys(components).length > 0) {
+        this.fileMap[file.path] = { components, defaultExport, code };
+      }
       this.progress$.next(((index + 1) / this.componentFiles.length) * 100);
     }
 
