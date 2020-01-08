@@ -662,10 +662,14 @@ function getComponentDependency(path, fileName: string) {
 
   const binding = path.scope.getBinding(importName);
 
+  if (!binding) {
+    return;
+  }
+
   if (
-    binding &&
-    binding.path.isVariableDeclarator() &&
-    isReactFunctionComponent(binding.path.get('init'))
+    (binding.path.isVariableDeclarator() &&
+      isReactFunctionComponent(binding.path.get('init'))) ||
+    (binding.path.isClassDeclaration() && isReactClassComponent(binding.path))
   ) {
     return {
       name: importName,
