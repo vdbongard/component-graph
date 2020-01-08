@@ -76,7 +76,7 @@ function traverseClassComponent(componentPath, name, fileName) {
     links: []
   };
   const aliases: { [alias: string]: string } = {};
-  const dependencies = new Set<Import>();
+  const dependencies: Import[] = [];
   // SuperClass
   const superClass: Import = getSuperClass(componentPath, fileName);
 
@@ -154,7 +154,7 @@ function traverseClassComponent(componentPath, name, fileName) {
       const dependency = getComponentDependency(path, fileName);
       if (dependency) {
         // Component Dependency
-        dependencies.add(dependency);
+        pushUniqueDependency(dependency, dependencies);
       }
     }
   };
@@ -175,7 +175,7 @@ function traverseFunctionComponent(componentPath, name, fileName) {
     links: []
   };
   const aliases: { [alias: string]: string } = {};
-  const dependencies = new Set<Import>();
+  const dependencies: Import[] = [];
 
   // Node: FunctionComponent
   graph.nodes.push({
@@ -261,7 +261,7 @@ function traverseFunctionComponent(componentPath, name, fileName) {
       const dependency = getComponentDependency(path, fileName);
       if (dependency) {
         // Component Dependency
-        dependencies.add(dependency);
+        pushUniqueDependency(dependency, dependencies);
       }
     }
   };
@@ -326,6 +326,23 @@ export function pushUniqueLink(link: Link, links: Link[]) {
   }
 
   links.push(link);
+}
+
+export function pushUniqueDependency(
+  dependency: Import,
+  dependencies: Import[]
+) {
+  if (
+    dependencies.find(
+      searchDependency =>
+        searchDependency.source === dependency.source &&
+        searchDependency.name === dependency.name
+    )
+  ) {
+    return;
+  }
+
+  dependencies.push(dependency);
 }
 
 function getImportBindingPath(path, importName) {

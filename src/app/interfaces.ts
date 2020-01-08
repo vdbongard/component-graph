@@ -54,7 +54,7 @@ export interface ComponentMap {
   [componentName: string]: {
     graph?: Graph;
     extends?: Import;
-    dependencies?: Set<Import>;
+    dependencies?: Import[];
   };
 }
 

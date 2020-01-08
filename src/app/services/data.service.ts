@@ -4,7 +4,6 @@ import {
   AstWithPath,
   FileMap,
   Graph,
-  Import,
   Node,
   NodeSelection
 } from '../interfaces';
@@ -164,23 +163,21 @@ export class DataService {
           component.extends.source = source;
         }
 
-        component.dependencies = new Set<Import>(
-          [...component.dependencies]
-            .map(dependency => {
-              const source = this.getCompleteFilePath(dependency.source);
+        component.dependencies = [...component.dependencies]
+          .map(dependency => {
+            const source = this.getCompleteFilePath(dependency.source);
 
-              if (!source && dependency.source.startsWith('/')) {
-                console.error(
-                  `Dependency not found: ${dependency.source} (${fileName})`
-                );
-                return;
-              }
+            if (!source && dependency.source.startsWith('/')) {
+              console.error(
+                `Dependency not found: ${dependency.source} (${fileName})`
+              );
+              return;
+            }
 
-              dependency.source = source;
-              return dependency;
-            })
-            .filter(d => d)
-        );
+            dependency.source = source;
+            return dependency;
+          })
+          .filter(d => d);
 
         component.dependencies.forEach(dependency => {
           if (!dependency.source.startsWith('/')) {
