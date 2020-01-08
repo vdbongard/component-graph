@@ -245,12 +245,14 @@ export class DataService {
   }
 
   private getCompleteFilePath(importPath: string, fileName: string) {
-    const filePath = importPath.includes('.') ? importPath : importPath + '.';
+    const hasExtension = importPath.includes('.');
+    const filePath = hasExtension ? importPath : importPath + '.';
+
     let file = this.componentFiles.find(componentFile =>
       componentFile.path.startsWith(filePath)
     );
 
-    if (!file) {
+    if (!file && !hasExtension) {
       const indexPath = importPath + '/index.';
       file = this.componentFiles.find(componentFile =>
         componentFile.path.startsWith(indexPath)
