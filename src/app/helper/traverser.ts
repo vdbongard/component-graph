@@ -470,6 +470,7 @@ function isReturningJSX(path) {
       ) {
         returnStatementPath.stop();
         returnsJSX = false;
+        return;
       }
       if (
         returnStatementPath.get('argument').isCallExpression() &&
@@ -478,10 +479,16 @@ function isReturningJSX(path) {
         const callBind = returnStatementPath.scope.getBinding(
           returnStatementPath.node.argument.callee.name
         );
+        if (!callBind) {
+          returnStatementPath.stop();
+          returnsJSX = false;
+          return;
+        }
         if (callBind.path.isFunctionDeclaration()) {
           returnsJSX = isReturningJSX(callBind.path);
           if (!returnsJSX) {
             returnStatementPath.stop();
+            return;
           }
         } else if (
           callBind.path.isVariableDeclarator() &&
@@ -490,10 +497,12 @@ function isReturningJSX(path) {
           returnsJSX = isReturningJSX(callBind.path.get('init'));
           if (!returnsJSX) {
             returnStatementPath.stop();
+            return;
           }
         } else if (callBind.constantViolations.length === 0) {
           returnsJSX = false;
           returnStatementPath.stop();
+          return;
         } else if (callBind.constantViolations.length > 0) {
           callBind.constantViolations.forEach(constantViolation => {
             if (
@@ -503,10 +512,12 @@ function isReturningJSX(path) {
               returnsJSX = isReturningJSX(constantViolation.get('right'));
               if (!returnsJSX) {
                 returnStatementPath.stop();
+                return;
               }
             } else {
               returnsJSX = false;
               returnStatementPath.stop();
+              return;
             }
           });
         }
