@@ -152,10 +152,8 @@ function traverseClassComponent(componentPath, name, fileName) {
     },
     JSXOpeningElement: path => {
       const dependency = getComponentDependency(path, fileName);
-      if (dependency) {
-        // Component Dependency
-        pushUniqueDependency(dependency, dependencies);
-      }
+      // Component Dependency
+      pushUniqueDependency(dependency, dependencies);
     }
   };
 
@@ -259,10 +257,8 @@ function traverseFunctionComponent(componentPath, name, fileName) {
     },
     JSXOpeningElement: path => {
       const dependency = getComponentDependency(path, fileName);
-      if (dependency) {
-        // Component Dependency
-        pushUniqueDependency(dependency, dependencies);
-      }
+      // Component Dependency
+      pushUniqueDependency(dependency, dependencies);
     }
   };
 
@@ -343,6 +339,10 @@ export function pushUniqueDependency(
   dependency: Import,
   dependencies: Import[]
 ) {
+  if (!dependency) {
+    return;
+  }
+
   if (
     dependencies.find(
       searchDependency =>
