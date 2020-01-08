@@ -16,6 +16,8 @@ export const reactMethods = [
   // deprecated
   'UNSAFE_componentWillUpdate',
   'UNSAFE_componentWillReceiveProps',
+  'UNSAFE_componentWillMount',
   'componentWillUpdate',
-  'componentWillReceiveProps'
+  'componentWillReceiveProps',
+  'componentWillMount'
 ];
