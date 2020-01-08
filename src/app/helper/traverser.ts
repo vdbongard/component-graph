@@ -468,7 +468,10 @@ function isReturningJSX(path) {
         returnStatementPath.stop();
         returnsJSX = false;
       }
-      if (returnStatementPath.get('argument').isCallExpression()) {
+      if (
+        returnStatementPath.get('argument').isCallExpression() &&
+        returnStatementPath.get('argument.callee').isIdentifier()
+      ) {
         const callBind = returnStatementPath.scope.getBinding(
           returnStatementPath.node.argument.callee.name
         );
