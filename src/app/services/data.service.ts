@@ -245,9 +245,17 @@ export class DataService {
   }
 
   private getCompleteFilePath(importPath: string, fileName: string) {
-    const file = this.componentFiles.find(componentFile =>
-      componentFile.path.startsWith(importPath)
+    const filePath = importPath.includes('.') ? importPath : importPath + '.';
+    let file = this.componentFiles.find(componentFile =>
+      componentFile.path.startsWith(filePath)
     );
+
+    if (!file) {
+      const indexPath = importPath + '/index.';
+      file = this.componentFiles.find(componentFile =>
+        componentFile.path.startsWith(indexPath)
+      );
+    }
 
     if (!file && importPath.startsWith('/')) {
       console.error(`File path not found: ${importPath} (${fileName})`);
