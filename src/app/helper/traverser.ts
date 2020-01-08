@@ -54,6 +54,8 @@ export function traverse(ast: t.File, fileName: string) {
         path.get('declaration.left').isIdentifier()
       ) {
         defaultExport = path.node.declaration.left.name;
+      } else if (path.get('declaration').isIdentifier()) {
+        defaultExport = path.node.declaration.name;
       }
     }
   });
@@ -582,12 +584,12 @@ function getComponentDependency(path: any, fileName: string) {
     const importName = path.node.name.name;
 
     const importBindingPath = getImportBindingPath(path, importName);
-    let defaultImport = false;
 
     if (!importBindingPath) {
       return;
     }
 
+    let defaultImport = false;
     if (importBindingPath.isImportDefaultSpecifier()) {
       defaultImport = true;
     }
