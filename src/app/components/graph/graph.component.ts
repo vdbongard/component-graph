@@ -328,7 +328,7 @@ export class GraphComponent implements OnInit, OnDestroy {
         .avoidOverlaps(true)
         .flowLayout('y', 100)
         .symmetricDiffLinkLengths(40, 0.7)
-        .start(40, 40, 40);
+        .start(40, 20, 20);
     } else {
       const chargeForce =
         force !== undefined
