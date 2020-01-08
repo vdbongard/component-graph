@@ -15,6 +15,7 @@ import { d3adaptor, Layout, Link as ColaLink, Node as ColaNode } from 'webcola';
 import { ID3StyleLayoutAdaptor } from 'webcola/dist/src/d3adaptor';
 import { generateLinkReferences } from '../../helper/generateLinkReferences';
 import { Subscription } from 'rxjs';
+import { FileWithPath } from '../../helper/getFilesAsync';
 
 @Component({
   selector: 'app-graph',
@@ -125,6 +126,7 @@ export class GraphComponent implements OnInit, OnDestroy {
     this.queryParamsSub = this.activatedRoute.queryParams.subscribe(
       queryParams => {
         if (queryParams.upload) {
+          this.id = undefined;
           this.router.navigate([], {
             relativeTo: this.activatedRoute
           });
@@ -615,5 +617,10 @@ export class GraphComponent implements OnInit, OnDestroy {
       queryParams: { id: null },
       queryParamsHandling: 'merge'
     });
+  }
+
+  onFileDropped(files: FileWithPath[]) {
+    this.dataService.setFiles(files);
+    this.router.navigate(['graph'], { queryParams: { upload: 1 } });
   }
 }
