@@ -157,31 +157,19 @@ export class DataService {
         });
 
         if (component.extends) {
-          const source = this.getCompleteFilePath(component.extends.source);
-
-          if (!source && component.extends.source.startsWith('/')) {
-            console.error(
-              `Base class dependency not found: ${component.extends.source} (${fileName})`
-            );
-            return;
-          }
-
-          component.extends.source = source;
+          component.extends.source = this.getCompleteFilePath(
+            component.extends.source,
+            fileName
+          );
         }
 
         component.dependencies = [...component.dependencies]
           .map(dependency => {
-            const source = this.getCompleteFilePath(dependency.source);
-
-            if (!source && dependency.source.startsWith('/')) {
-              console.error(
-                `Dependency not found: ${dependency.source} (${fileName})`
-              );
-              return;
-            }
-
-            dependency.source = source;
-            return dependency;
+            dependency.source = this.getCompleteFilePath(
+              dependency.source,
+              fileName
+            );
+            return dependency.source && dependency;
           })
           .filter(d => d);
 
@@ -256,12 +244,13 @@ export class DataService {
     );
   }
 
-  private getCompleteFilePath(importPath: string) {
+  private getCompleteFilePath(importPath: string, fileName: string) {
     const file = this.componentFiles.find(componentFile =>
       componentFile.path.startsWith(importPath)
     );
 
     if (!file && importPath.startsWith('/')) {
+      console.error(`File path not found: ${importPath} (${fileName})`);
       return;
     }
 
