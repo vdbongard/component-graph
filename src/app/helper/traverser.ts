@@ -277,14 +277,7 @@ function traverseFunctionComponent(componentPath, name, fileName) {
 
 function postProcessing(graph: Graph, aliases: { [p: string]: string }) {
   mergeAliasesWithOriginals(graph, aliases);
-
-  // filter out links that have a source/target that is not found in nodes
-  graph.links = graph.links.filter(
-    link =>
-      link &&
-      graph.nodes.find(node => node.id === link.source) &&
-      graph.nodes.find(node => node.id === link.target)
-  );
+  filterInvalidLinks(graph);
 }
 
 function mergeAliasesWithOriginals(
@@ -309,6 +302,24 @@ function mergeAliasesWithOriginals(
       return link;
     })
     .filter(link => link); // filter out links that are undefined
+}
+
+export function filterInvalidLinks(graph: Graph, logging = false) {
+  graph.links = graph.links.filter(link => {
+    if (
+      link &&
+      graph.nodes.find(node => node.id === link.source) &&
+      graph.nodes.find(node => node.id === link.target)
+    ) {
+      return true;
+    } else {
+      if (logging) {
+        console.warn('Found invalid link:', link);
+      }
+      return false;
+    }
+  });
+  return graph;
 }
 
 export function pushUniqueLink(link: Link, links: Link[]) {
@@ -345,9 +356,7 @@ export function pushUniqueDependency(
   dependencies.push(dependency);
 }
 
-function getImportBindingPath(path, importName) {
-  const binding = path.scope.getBinding(importName);
-
+function getImportPathFromBinding(binding) {
   if (
     !binding ||
     !t.isImportDeclaration(binding.path.parent) ||
@@ -357,6 +366,11 @@ function getImportBindingPath(path, importName) {
   }
 
   return binding.path;
+}
+
+function getImportBindingPath(path, importName) {
+  const binding = path.scope.getBinding(importName);
+  return getImportPathFromBinding(binding);
 }
 
 function getImportPath(path, importName: string, fileName?: string) {
@@ -606,8 +620,16 @@ function isInnerFunction(path, functionComponentName: string) {
 function getComponentDependency(path: any, fileName: string) {
   if (t.isJSXIdentifier(path.node.name)) {
     const importName = path.node.name.name;
+    const binding = path.scope.getBinding(importName);
 
-    const importBindingPath = getImportBindingPath(path, importName);
+    if (binding && binding.path.isVariableDeclarator()) {
+      return {
+        name: importName,
+        source: fileName
+      };
+    }
+
+    const importBindingPath = getImportPathFromBinding(binding);
 
     if (!importBindingPath) {
       return;

@@ -12,7 +12,11 @@ import { excludedFolders, supportedExtensions } from '../constants/files';
 import { JSONToSet, SetToJSON } from '../helper/SetToJson';
 import escomplexProject from 'typhonjs-escomplex-project';
 import { parse } from '../helper/parser';
-import { pushUniqueLink, traverse } from '../helper/traverser';
+import {
+  filterInvalidLinks,
+  pushUniqueLink,
+  traverse
+} from '../helper/traverser';
 import data from '../constants/data';
 
 @Injectable({
@@ -200,13 +204,9 @@ export class DataService {
             dependency.name = defaultExport;
           }
 
-          pushUniqueLink(
-            {
-              source: `${fileName}#${componentName}`,
-              target: `${dependency.source}#${dependency.name}`
-            },
-            links
-          );
+          const source = `${fileName}#${componentName}`;
+          const target = `${dependency.source}#${dependency.name}`;
+          pushUniqueLink({ source, target }, links);
         });
 
         if (component.extends) {
@@ -231,7 +231,7 @@ export class DataService {
       }
     }
 
-    return { nodes, links };
+    return filterInvalidLinks({ nodes, links }, true);
   }
 
   private resetData(): void {
