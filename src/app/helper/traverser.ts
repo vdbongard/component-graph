@@ -158,7 +158,11 @@ function traverseFunctionComponent(componentPath, name, fileName) {
   const dependencies = new Set<Import>();
 
   // Node: FunctionComponent
-  graph.nodes.push({ id: name, group: 2 });
+  graph.nodes.push({
+    id: `${name}#${componentPath.node.loc.start.line}`,
+    label: name,
+    group: 2
+  });
 
   const functionComponentTraverse = {
     'FunctionExpression|ArrowFunctionExpression': (path, state) => {
@@ -169,6 +173,9 @@ function traverseFunctionComponent(componentPath, name, fileName) {
           // Node: InnerFunction
           graph.nodes.push({
             id: path.parentPath
+              ? `${path.parentPath.node.id.name}#${path.parentPath.node.id.loc.start.line}`
+              : `${path.node.id.name}#${path.node.id.loc.start.line}`,
+            label: path.parentPath
               ? path.parentPath.node.id.name
               : path.node.id.name,
             group: 1
@@ -195,6 +202,7 @@ function traverseFunctionComponent(componentPath, name, fileName) {
 
       if (isInnerFunction(functionParentPath, state.name)) {
         const target = path.node.name;
+        const targetLine = binding.identifier.loc.start.line;
 
         const parent = path.findParent(
           p =>
@@ -206,13 +214,26 @@ function traverseFunctionComponent(componentPath, name, fileName) {
           return;
         }
 
-        const source = parent.isFunctionDeclaration()
-          ? parent.node.id.name
-          : parent.parent.id.name;
+        let source;
+        let sourceLine;
+
+        if (parent.isFunctionDeclaration()) {
+          source = parent.node.id.name;
+          sourceLine = parent.node.id.loc.start.line;
+        } else {
+          source = parent.parent.id.name;
+          sourceLine = parent.parent.id.loc.start.line;
+        }
 
         if (source) {
           // Link: InnerFunction/FunctionComponent -> InnerFunction
-          pushUniqueLink({ source, target }, graph.links);
+          pushUniqueLink(
+            {
+              source: `${source}#${sourceLine}`,
+              target: `${target}#${targetLine}`
+            },
+            graph.links
+          );
         }
       }
     },

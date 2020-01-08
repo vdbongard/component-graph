@@ -113,10 +113,7 @@ export class DataService {
     }
 
     // if only one component show it's graph instead of the app graph
-    if (
-      Object.keys(this.fileMap).length === 1 &&
-      Object.keys(Object.values(this.fileMap)[0].components).length === 1
-    ) {
+    if (this.hasSingleComponent()) {
       this.graphData$.next(
         Object.values(Object.values(this.fileMap)[0].components)[0].graph
       );
@@ -236,28 +233,63 @@ export class DataService {
     return file ? file.path : importPath;
   }
 
+  private hasSingleComponent() {
+    return (
+      Object.keys(this.fileMap).length === 1 &&
+      Object.keys(Object.values(this.fileMap)[0].components).length === 1
+    );
+  }
+
   private findReport(nodeId: string, componentId: string) {
     if (!this.report) {
       return;
     }
 
+    if (!componentId && this.hasSingleComponent()) {
+      const fileName = Object.keys(this.fileMap)[0];
+      const componentName = Object.keys(
+        Object.values(this.fileMap)[0].components
+      )[0];
+
+      componentId = `${fileName}#${componentName}`;
+    }
+
     if (componentId) {
+      const fileName = componentId.split('#')[0];
+      const componentName = componentId.split('#')[1];
+
       const moduleReport = this.report.modules.find(
-        module => module.srcPath === componentId.split('#')[0]
+        module => module.srcPath === fileName
+      );
+      const report = moduleReport.classes.find(
+        classReport => classReport.name === componentName
       );
 
-      if (!moduleReport.classes[0]) {
-        return moduleReport;
+      if (report) {
+        if (nodeId === componentName) {
+          return report;
+        } else if (nodeId) {
+          return report.methods.find(method => method.name === nodeId);
+        }
+      } else {
+        if (nodeId.includes('#')) {
+          const lineStart = parseInt(nodeId.split('#')[1], 10);
+          return moduleReport.methods.find(
+            method => method.lineStart === lineStart
+          );
+        } else {
+          return moduleReport;
+        }
       }
-
-      const report = moduleReport.classes[0].methods.find(
-        method => method.name === nodeId
-      );
-
-      return report || moduleReport;
     } else {
-      return this.report.modules.find(
-        module => module.srcPath === nodeId.split('#')[0]
+      const fileName = nodeId.split('#')[0];
+      const componentName = nodeId.split('#')[1];
+
+      const moduleReport = this.report.modules.find(
+        module => module.srcPath === fileName
+      );
+      return moduleReport.classes.find(
+        classReport => classReport.name === componentName
       );
     }
   }
