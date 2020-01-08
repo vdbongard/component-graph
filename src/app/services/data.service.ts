@@ -76,9 +76,9 @@ export class DataService {
     const asts: AstWithPath[] = [];
 
     for (const [index, file] of this.componentFiles.entries()) {
-      const { ast, components, code } = await this.setFile(file);
+      const { ast, components, defaultExport, code } = await this.setFile(file);
       asts.push({ ast, srcPath: file.path });
-      this.fileMap[file.path] = { components, code };
+      this.fileMap[file.path] = { components, defaultExport, code };
       this.progress$.next(((index + 1) / this.componentFiles.length) * 100);
     }
 
@@ -93,8 +93,8 @@ export class DataService {
   async setFile(file: FileWithPath) {
     const code = await file.file.text();
     const ast = parse(code, file.path);
-    const components = traverse(ast, file.path);
-    return { ast, components, code };
+    const { components, defaultExport } = traverse(ast, file.path);
+    return { ast, components, defaultExport, code };
   }
 
   setComponentGraph(componentId?: string) {
@@ -166,6 +166,11 @@ export class DataService {
           if (!dependency.source.startsWith('/')) {
             return;
           }
+
+          if (dependency.name === 'default') {
+            dependency.name = this.getDefaultExport(fileMap, dependency.source);
+          }
+
           pushUniqueLink(
             {
               source: `${fileName}#${componentName}`,
@@ -292,5 +297,10 @@ export class DataService {
         classReport => classReport.name === componentName
       );
     }
+  }
+
+  private getDefaultExport(fileMap: FileMap, source: string) {
+    const fileName = Object.keys(fileMap).find(name => name === source);
+    return fileName && fileMap[fileName].defaultExport;
   }
 }

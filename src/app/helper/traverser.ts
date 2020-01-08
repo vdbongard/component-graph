@@ -5,6 +5,7 @@ import * as t from '@babel/types';
 
 export function traverse(ast: t.File, fileName: string) {
   const components: ComponentMap = {};
+  let defaultExport: string = null;
 
   babelTraverse(ast, {
     ClassDeclaration: path => {
@@ -44,10 +45,20 @@ export function traverse(ast: t.File, fileName: string) {
           fileName
         );
       }
+    },
+    ExportDefaultDeclaration: path => {
+      if (path.node.declaration.id) {
+        defaultExport = path.node.declaration.id.name;
+      } else if (
+        path.get('declaration').isAssignmentExpression() &&
+        path.get('declaration.left').isIdentifier()
+      ) {
+        defaultExport = path.node.declaration.left.name;
+      }
     }
   });
 
-  return components;
+  return { components, defaultExport };
 }
 
 function traverseClassComponent(componentPath, name, fileName) {
@@ -308,7 +319,7 @@ export function pushUniqueLink(link: Link, links: Link[]) {
   links.push(link);
 }
 
-function getImportPath(path, importName: string, fileName?: string) {
+function getImportBindingPath(path, importName) {
   const binding = path.scope.getBinding(importName);
 
   if (
@@ -319,18 +330,40 @@ function getImportPath(path, importName: string, fileName?: string) {
     return;
   }
 
-  const importPath: string = binding.path.parentPath.node.source.value;
+  return binding.path;
+}
+
+function getImportPath(path, importName: string, fileName?: string) {
+  const importBindingPath = getImportBindingPath(path, importName);
+
+  if (!importBindingPath) {
+    return;
+  }
+
+  return getImportPathFromImportSpecifier(
+    importBindingPath,
+    importName,
+    fileName
+  );
+}
+
+function getImportPathFromImportSpecifier(
+  importSpecifierPath,
+  importName: string,
+  fileName?: string
+) {
+  const importSource: string = importSpecifierPath.parentPath.node.source.value;
 
   // npm module import
-  if (!importPath.startsWith('.')) {
-    return importPath;
+  if (!importSource.startsWith('.')) {
+    return importSource;
   }
 
   if (!fileName) {
-    return importPath;
+    return importSource;
   }
 
-  return getAbsolutePath(importPath, fileName);
+  return getAbsolutePath(importSource, fileName);
 }
 
 function getAbsolutePath(relativePath: string, basePath: string) {
@@ -547,14 +580,30 @@ function isInnerFunction(path, functionComponentName: string) {
 function getComponentDependency(path: any, fileName: string) {
   if (t.isJSXIdentifier(path.node.name)) {
     const importName = path.node.name.name;
-    const importPath = getImportPath(path, importName, fileName);
+
+    const importBindingPath = getImportBindingPath(path, importName);
+    let defaultImport = false;
+
+    if (!importBindingPath) {
+      return;
+    }
+
+    if (importBindingPath.isImportDefaultSpecifier()) {
+      defaultImport = true;
+    }
+
+    const importPath = getImportPathFromImportSpecifier(
+      importBindingPath,
+      importName,
+      fileName
+    );
 
     if (!importPath) {
       return;
     }
 
     return {
-      name: importName,
+      name: defaultImport ? 'default' : importName,
       source: importPath
     };
   }

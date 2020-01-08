@@ -45,6 +45,7 @@ export interface NodeSelection {
 export interface FileMap {
   [fileName: string]: {
     components: ComponentMap;
+    defaultExport: string;
     code: string;
   };
 }
