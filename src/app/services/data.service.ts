@@ -214,9 +214,11 @@ export class DataService {
           const name = component.extends.name;
           const source = component.extends.source;
           if (!nodes.find(node => node.id === `${source}#${name}`)) {
-            console.error(
-              `Super class not found: ${source}#${name} (${fileName})`
-            );
+            if (source.startsWith('/')) {
+              console.error(
+                `Super class not found: ${source}#${name} (${fileName})`
+              );
+            }
             return;
           }
           pushUniqueLink(
