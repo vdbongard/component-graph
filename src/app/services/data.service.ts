@@ -9,7 +9,6 @@ import {
 } from '../interfaces';
 import { FileWithPath } from '../helper/getFilesAsync';
 import { excludedFolders, supportedExtensions } from '../constants/files';
-import { JSONToSet, SetToJSON } from '../helper/SetToJson';
 import escomplexProject from 'typhonjs-escomplex-project';
 import { parse } from '../helper/parser';
 import {
@@ -43,10 +42,7 @@ export class DataService {
     if (this.report) {
       console.log('Saving to local storage...');
       window.localStorage.setItem('graph', JSON.stringify(this.appGraph));
-      window.localStorage.setItem(
-        'components',
-        JSON.stringify(this.fileMap, SetToJSON)
-      );
+      window.localStorage.setItem('components', JSON.stringify(this.fileMap));
       window.localStorage.setItem('report', JSON.stringify(this.report));
     }
   }
@@ -58,7 +54,7 @@ export class DataService {
       this.appGraph = JSON.parse(window.localStorage.getItem('graph'));
 
       this.fileMap =
-        JSON.parse(window.localStorage.getItem('components'), JSONToSet) || {};
+        JSON.parse(window.localStorage.getItem('components')) || {};
       console.log('FileMap: ', this.fileMap);
 
       this.report = JSON.parse(window.localStorage.getItem('report'));
