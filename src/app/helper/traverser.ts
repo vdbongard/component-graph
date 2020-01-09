@@ -14,7 +14,7 @@ export function traverse(asts: AstWithPath[], fileName: string) {
 
   babelTraverse(ast, {
     ClassDeclaration: path => {
-      if (isReactClassComponent(path)) {
+      if (isReactClassComponent(path, asts, fileName)) {
         path.skip();
         const classComponentName = path.node.id.name;
         components[classComponentName] = traverseClassComponent(
@@ -491,29 +491,62 @@ function isClassPropertyFunction(node) {
   return t.isClassProperty(node) && isFunction(node.value);
 }
 
-function isReactClassComponent(path) {
+function isReactClassComponent(path, asts: AstWithPath[], fileName: string) {
   if (!path.node.superClass) {
     return false;
   }
 
-  // check if extends Component
+  // check if extends <Class>
   if (t.isIdentifier(path.node.superClass)) {
     const superClassName = path.node.superClass.name;
     const importPath = getImportPath(path, superClassName);
+
+    if (!importPath) {
+      return false;
+    }
+
+    // check if extends Component/PureComponent
     if (
       importPath === 'react' &&
       ['Component', 'PureComponent'].includes(superClassName)
     ) {
       return true;
     }
+
+    if (!importPath.startsWith('.')) {
+      return false;
+    }
+
+    const absolutePath = getAbsolutePath(importPath, fileName);
+    const file = getComponentFileFromImportPath(absolutePath, asts);
+
+    if (!file) {
+      return false;
+    }
+
+    let superClassPath;
+    babelTraverse(file.ast, {
+      enter: enterPath => {
+        const binding = enterPath.scope.getBinding(superClassName);
+        if (binding) {
+          superClassPath = binding.path;
+        }
+        enterPath.stop();
+      }
+    });
+
+    return superClassPath
+      ? isReactClassComponent(superClassPath, asts, fileName)
+      : false;
   }
-  // check if extends React.Component
+  // check if extends <Import>.<Class>
   else if (
     t.isMemberExpression(path.node.superClass) &&
     t.isIdentifier(path.node.superClass.object)
   ) {
     const left = path.node.superClass.object.name;
     const right = path.node.superClass.property.name;
+    // check if extends React.Component/PureComponent
     if (
       left === 'React' &&
       getImportPath(path, left) === 'react' &&
@@ -682,7 +715,8 @@ function getComponentDependency(path, fileName: string, asts: AstWithPath[]) {
   if (
     (binding.path.isVariableDeclarator() &&
       isReactFunctionComponent(binding.path.get('init'))) ||
-    (binding.path.isClassDeclaration() && isReactClassComponent(binding.path))
+    (binding.path.isClassDeclaration() &&
+      isReactClassComponent(binding.path, asts, fileName))
   ) {
     return {
       name: importName,
@@ -722,8 +756,15 @@ function getComponentDependency(path, fileName: string, asts: AstWithPath[]) {
 }
 
 function isComponentFileImport(importPath: string, asts: AstWithPath[]) {
+  return !!getComponentFileFromImportPath(importPath, asts);
+}
+
+function getComponentFileFromImportPath(
+  importPath: string,
+  asts: AstWithPath[]
+) {
   if (!importPath.startsWith('/')) {
-    return false;
+    return;
   }
 
   const filePath = importPath + '.';
@@ -739,5 +780,5 @@ function isComponentFileImport(importPath: string, asts: AstWithPath[]) {
     );
   }
 
-  return !!file;
+  return file;
 }
