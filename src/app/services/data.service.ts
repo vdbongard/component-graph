@@ -46,13 +46,27 @@ export class DataService {
     const asts: AstWithPath[] = [];
 
     for (const [index, file] of this.componentFiles.entries()) {
-      const { ast, components, defaultExport, code } = await this.setFile(file);
+      const { ast, code } = await this.setFile(file);
       asts.push({ ast, srcPath: file.path });
-      if (Object.keys(components).length > 0) {
-        this.fileMap[file.path] = { components, defaultExport, code };
-      }
-      this.progress$.next(((index + 1) / this.componentFiles.length) * 100);
+      this.fileMap[file.path] = { code };
+      this.progress$.next(((index + 1) / this.componentFiles.length) * 50);
     }
+
+    for (const [index, file] of this.componentFiles.entries()) {
+      const { components, defaultExport } = await new Promise(resolve =>
+        setTimeout(() => resolve(traverse(asts, file.path)), 0)
+      );
+      if (Object.keys(components).length > 0) {
+        this.fileMap[file.path].components = components;
+        this.fileMap[file.path].defaultExport = defaultExport;
+      }
+      this.progress$.next(((index + 1) / this.componentFiles.length) * 50 + 50);
+    }
+
+    // filter out files that have no components
+    this.fileMap = Object.entries(this.fileMap)
+      .filter(([_, file]) => file.components)
+      .reduce((acc, [key, val]) => Object.assign(acc, { [key]: val }), {});
 
     console.log('FileMap:', this.fileMap);
     this.report = escomplexProject.analyze(asts);
@@ -67,8 +81,7 @@ export class DataService {
   async setFile(file: FileWithPath) {
     const code = await file.file.text();
     const ast = parse(code, file.path);
-    const { components, defaultExport } = traverse(ast, file.path);
-    return { ast, components, defaultExport, code };
+    return { ast, code };
   }
 
   setComponentGraph(componentId?: string) {

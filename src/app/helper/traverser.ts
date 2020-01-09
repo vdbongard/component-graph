@@ -1,11 +1,16 @@
-import { ComponentMap, Graph, Import, Link } from '../interfaces';
+import { AstWithPath, ComponentMap, Graph, Import, Link } from '../interfaces';
 import { reactMethods } from '../constants/special-methods';
 import babelTraverse from '@babel/traverse';
 import * as t from '@babel/types';
 
-export function traverse(ast: t.File, fileName: string) {
+export function traverse(asts: AstWithPath[], fileName: string) {
+  const ast: t.File = asts.find(theAst => theAst.srcPath === fileName).ast;
   const components: ComponentMap = {};
   let defaultExport: string = null;
+
+  if (!ast) {
+    console.error('AST not found:', fileName);
+  }
 
   babelTraverse(ast, {
     ClassDeclaration: path => {
