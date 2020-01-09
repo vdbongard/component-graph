@@ -20,7 +20,8 @@ export function traverse(asts: AstWithPath[], fileName: string) {
         components[classComponentName] = traverseClassComponent(
           path,
           classComponentName,
-          fileName
+          fileName,
+          asts
         );
       }
     },
@@ -32,7 +33,8 @@ export function traverse(asts: AstWithPath[], fileName: string) {
         components[functionComponentName] = traverseFunctionComponent(
           path,
           functionComponentName,
-          fileName
+          fileName,
+          asts
         );
       }
     },
@@ -47,7 +49,8 @@ export function traverse(asts: AstWithPath[], fileName: string) {
         components[functionComponentName] = traverseFunctionComponent(
           path,
           functionComponentName,
-          fileName
+          fileName,
+          asts
         );
       }
     },
@@ -75,7 +78,7 @@ export function traverse(asts: AstWithPath[], fileName: string) {
   return { components, defaultExport };
 }
 
-function traverseClassComponent(componentPath, name, fileName) {
+function traverseClassComponent(componentPath, name, fileName, asts) {
   const graph: Graph = {
     nodes: [],
     links: []
@@ -156,7 +159,7 @@ function traverseClassComponent(componentPath, name, fileName) {
       }
     },
     JSXOpeningElement: path => {
-      const newDependencies = getComponentDependencies(path, fileName);
+      const newDependencies = getComponentDependencies(path, fileName, asts);
       // Component Dependency
       pushUniqueDependencies(newDependencies, dependencies);
     }
@@ -172,7 +175,7 @@ function traverseClassComponent(componentPath, name, fileName) {
   };
 }
 
-function traverseFunctionComponent(componentPath, name, fileName) {
+function traverseFunctionComponent(componentPath, name, fileName, asts) {
   const graph: Graph = {
     nodes: [],
     links: []
@@ -261,7 +264,7 @@ function traverseFunctionComponent(componentPath, name, fileName) {
       }
     },
     JSXOpeningElement: path => {
-      const newDependencies = getComponentDependencies(path, fileName);
+      const newDependencies = getComponentDependencies(path, fileName, asts);
       // Component Dependency
       pushUniqueDependencies(newDependencies, dependencies);
     }
@@ -632,10 +635,10 @@ function isInnerFunction(path, functionComponentName: string) {
   );
 }
 
-function getComponentDependencies(path, fileName: string) {
+function getComponentDependencies(path, fileName: string, asts: AstWithPath[]) {
   const dependencies = [];
 
-  const dependency = getComponentDependency(path, fileName);
+  const dependency = getComponentDependency(path, fileName, asts);
 
   if (dependency) {
     dependencies.push(dependency);
@@ -644,7 +647,11 @@ function getComponentDependencies(path, fileName: string) {
   path.skip();
   path.traverse({
     Identifier: identifierPath => {
-      const innerDependency = getComponentDependency(identifierPath, fileName);
+      const innerDependency = getComponentDependency(
+        identifierPath,
+        fileName,
+        asts
+      );
       if (innerDependency) {
         dependencies.push(innerDependency);
       }
@@ -654,7 +661,7 @@ function getComponentDependencies(path, fileName: string) {
   return dependencies;
 }
 
-function getComponentDependency(path, fileName: string) {
+function getComponentDependency(path, fileName: string, asts: AstWithPath[]) {
   let importName;
 
   if (t.isJSXIdentifier(path.node.name)) {
@@ -671,6 +678,7 @@ function getComponentDependency(path, fileName: string) {
     return;
   }
 
+  // check if dependency is in the same file
   if (
     (binding.path.isVariableDeclarator() &&
       isReactFunctionComponent(binding.path.get('init'))) ||
@@ -688,11 +696,6 @@ function getComponentDependency(path, fileName: string) {
     return;
   }
 
-  let defaultImport = false;
-  if (importBindingPath.isImportDefaultSpecifier()) {
-    defaultImport = true;
-  }
-
   const importPath = getImportPathFromImportSpecifier(
     importBindingPath,
     importName,
@@ -703,8 +706,38 @@ function getComponentDependency(path, fileName: string) {
     return;
   }
 
+  if (!isComponentFileImport(importPath, asts)) {
+    return;
+  }
+
+  let defaultImport = false;
+  if (importBindingPath.isImportDefaultSpecifier()) {
+    defaultImport = true;
+  }
+
   return {
     name: defaultImport ? 'default' : importName,
     source: importPath
   };
+}
+
+function isComponentFileImport(importPath: string, asts: AstWithPath[]) {
+  if (!importPath.startsWith('/')) {
+    return false;
+  }
+
+  const filePath = importPath + '.';
+
+  let file = asts.find(componentFile =>
+    componentFile.srcPath.startsWith(filePath)
+  );
+
+  if (!file) {
+    const indexPath = importPath + '/index.';
+    file = asts.find(componentFile =>
+      componentFile.srcPath.startsWith(indexPath)
+    );
+  }
+
+  return !!file;
 }
