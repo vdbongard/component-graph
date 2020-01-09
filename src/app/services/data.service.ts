@@ -38,35 +38,6 @@ export class DataService {
 
   constructor() {}
 
-  saveToLocalStorage() {
-    if (this.report) {
-      console.log('Saving to local storage...');
-      window.localStorage.setItem('graph', JSON.stringify(this.appGraph));
-      window.localStorage.setItem('components', JSON.stringify(this.fileMap));
-      window.localStorage.setItem('report', JSON.stringify(this.report));
-    }
-  }
-
-  restoreFromLocalStorage() {
-    console.log('Restoring from local storage...');
-
-    if (window.localStorage.getItem('graph')) {
-      this.appGraph = JSON.parse(window.localStorage.getItem('graph'));
-
-      this.fileMap =
-        JSON.parse(window.localStorage.getItem('components')) || {};
-      console.log('FileMap: ', this.fileMap);
-
-      this.report = JSON.parse(window.localStorage.getItem('report'));
-      console.log('Report: ', this.report);
-    } else {
-      this.appGraph = {
-        nodes: data.nodes,
-        links: data.links
-      };
-    }
-  }
-
   async setFiles(files: FileWithPath[]) {
     console.log('Loaded files count:', files.length);
     this.resetData();
@@ -216,6 +187,35 @@ export class DataService {
     }
 
     return filterInvalidLinks({ nodes, links }, true);
+  }
+
+  saveToLocalStorage() {
+    if (this.report) {
+      console.log('Saving to local storage...');
+      window.localStorage.setItem('graph', JSON.stringify(this.appGraph));
+      window.localStorage.setItem('components', JSON.stringify(this.fileMap));
+      window.localStorage.setItem('report', JSON.stringify(this.report));
+    }
+  }
+
+  restoreFromLocalStorage() {
+    console.log('Restoring from local storage...');
+
+    if (window.localStorage.getItem('graph')) {
+      this.appGraph = JSON.parse(window.localStorage.getItem('graph'));
+
+      this.fileMap =
+        JSON.parse(window.localStorage.getItem('components')) || {};
+      console.log('FileMap: ', this.fileMap);
+
+      this.report = JSON.parse(window.localStorage.getItem('report'));
+      console.log('Report: ', this.report);
+    } else {
+      this.appGraph = {
+        nodes: data.nodes,
+        links: data.links
+      };
+    }
   }
 
   private resetData(): void {
