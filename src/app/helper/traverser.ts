@@ -677,7 +677,6 @@ function getComponentDependencies(path, fileName: string, asts: AstWithPath[]) {
     dependencies.push(dependency);
   }
 
-  path.skip();
   path.traverse({
     Identifier: identifierPath => {
       if (identifierPath.parentPath.isTSTypeReference()) {
