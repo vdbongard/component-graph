@@ -160,9 +160,10 @@ export class DataService {
 
           if (
             !Object.keys(fileMap).find(name =>
-              name.startsWith(dependency.source + '.')
+              name.startsWith(dependency.source)
             )
           ) {
+            console.warn('Dependency not found:', dependency);
             return;
           }
 
