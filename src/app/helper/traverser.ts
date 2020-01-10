@@ -680,6 +680,10 @@ function getComponentDependencies(path, fileName: string, asts: AstWithPath[]) {
   path.skip();
   path.traverse({
     Identifier: identifierPath => {
+      if (identifierPath.parentPath.isTSTypeReference()) {
+        return;
+      }
+
       const innerDependency = getComponentDependency(
         identifierPath,
         fileName,
