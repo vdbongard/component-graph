@@ -411,11 +411,6 @@ function getImportPathFromImportSpecifier(
 ) {
   const importSource: string = importSpecifierPath.parentPath.node.source.value;
 
-  // npm module import
-  if (!importSource.startsWith('.')) {
-    return importSource;
-  }
-
   if (!fileName) {
     return importSource;
   }
