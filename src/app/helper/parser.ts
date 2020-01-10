@@ -11,7 +11,7 @@ export function parse(code: string, fileName?: string) {
       'classProperties',
       'classPrivateProperties',
       'classPrivateMethods',
-      ['decorators', { decoratorsBeforeExport: false }],
+      ['decorators', { decoratorsBeforeExport: true }],
       'doExpressions',
       'dynamicImport',
       'exportDefaultFrom',
