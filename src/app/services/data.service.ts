@@ -158,6 +158,14 @@ export class DataService {
             return;
           }
 
+          if (
+            !Object.keys(fileMap).find(name =>
+              name.startsWith(dependency.source + '.')
+            )
+          ) {
+            return;
+          }
+
           if (dependency.name === 'default') {
             const defaultExport = this.getDefaultExport(
               fileMap,
