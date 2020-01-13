@@ -39,11 +39,16 @@ export function traverse(asts: AstWithPath[], fileName: string) {
     },
     'FunctionExpression|ArrowFunctionExpression': path => {
       if (
-        isReactFunctionComponent(path) &&
-        path.parentPath.isVariableDeclarator()
+        !path.parentPath.isVariableDeclarator() &&
+        !path.parentPath.isCallExpression()
       ) {
+        return;
+      }
+      if (isReactFunctionComponent(path)) {
         path.skip();
-        const functionComponentName = path.parentPath.node.id.name;
+        const functionComponentName = path.findParent(p =>
+          p.isVariableDeclarator()
+        ).node.id.name;
         components[functionComponentName] = traverseFunctionComponent(
           path,
           functionComponentName,
