@@ -29,7 +29,6 @@ export function traverse(asts: AstWithPath[], fileName: string) {
       if (isReactFunctionComponent(path)) {
         path.skip();
         const functionComponentName = path.node.id.name;
-        console.log('FunctionComponent:', functionComponentName);
         components[functionComponentName] = traverseFunctionComponent(
           path,
           functionComponentName,
@@ -45,7 +44,6 @@ export function traverse(asts: AstWithPath[], fileName: string) {
       ) {
         path.skip();
         const functionComponentName = path.parentPath.node.id.name;
-        console.log('FunctionComponent:', functionComponentName);
         components[functionComponentName] = traverseFunctionComponent(
           path,
           functionComponentName,
