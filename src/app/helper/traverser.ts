@@ -89,7 +89,7 @@ function traverseClassComponent(componentPath, name, fileName, asts) {
   const aliases: { [alias: string]: string } = {};
   const dependencies: Import[] = [];
   // SuperClass
-  const superClass: Import = getSuperClass(componentPath, fileName);
+  const superClass: Import = getSuperClass(componentPath, fileName, asts);
 
   // Node: Class
   graph.nodes.push({ id: name, group: 2 });
@@ -393,7 +393,12 @@ function getImportBindingPath(path, importName) {
   return getImportPathFromBinding(binding);
 }
 
-function getImportPath(path, importName: string, fileName?: string) {
+function getImportPath(
+  path,
+  importName: string,
+  asts: AstWithPath[],
+  fileName?: string
+) {
   const importBindingPath = getImportBindingPath(path, importName);
 
   if (!importBindingPath) {
@@ -403,6 +408,7 @@ function getImportPath(path, importName: string, fileName?: string) {
   return getImportPathFromImportSpecifier(
     importBindingPath,
     importName,
+    asts,
     fileName
   );
 }
@@ -410,12 +416,23 @@ function getImportPath(path, importName: string, fileName?: string) {
 function getImportPathFromImportSpecifier(
   importSpecifierPath,
   importName: string,
+  asts: AstWithPath[],
   fileName?: string
 ) {
   const importSource: string = importSpecifierPath.parentPath.node.source.value;
 
   if (!fileName) {
     return importSource;
+  }
+
+  if (!importSource.startsWith('.')) {
+    const componentFile = getComponentFileFromImportPath(importSource, asts);
+
+    if (!componentFile) {
+      return;
+    }
+
+    return componentFile.srcPath;
   }
 
   return getAbsolutePath(importSource, fileName);
@@ -442,7 +459,7 @@ function getAbsolutePath(relativePath: string, basePath: string) {
   return stack.join('/');
 }
 
-function getSuperClass(path, fileName: string) {
+function getSuperClass(path, fileName: string, asts: AstWithPath[]) {
   if (!path.node.superClass) {
     return;
   }
@@ -461,7 +478,7 @@ function getSuperClass(path, fileName: string) {
 
   return {
     name: superClassName,
-    source: getImportPath(path, superClassName, fileName) || fileName
+    source: getImportPath(path, superClassName, asts, fileName) || fileName
   };
 }
 
@@ -497,7 +514,7 @@ function isReactClassComponent(path, asts: AstWithPath[], fileName: string) {
   // check if extends <Class>
   if (t.isIdentifier(path.node.superClass)) {
     const superClassName = path.node.superClass.name;
-    const importPath = getImportPath(path, superClassName);
+    const importPath = getImportPath(path, superClassName, asts);
 
     if (!importPath) {
       return false;
@@ -547,7 +564,7 @@ function isReactClassComponent(path, asts: AstWithPath[], fileName: string) {
     // check if extends React.Component/PureComponent
     if (
       left === 'React' &&
-      getImportPath(path, left) === 'react' &&
+      getImportPath(path, left, asts) === 'react' &&
       ['Component', 'PureComponent'].includes(right)
     ) {
       return true;
@@ -734,6 +751,7 @@ function getComponentDependency(path, fileName: string, asts: AstWithPath[]) {
   const importPath = getImportPathFromImportSpecifier(
     importBindingPath,
     importName,
+    asts,
     fileName
   );
 
@@ -763,12 +781,18 @@ function isComponentFileImport(importPath: string, asts: AstWithPath[]) {
 function getComponentFileFromImportPath(
   importPath: string,
   asts: AstWithPath[]
-) {
+): AstWithPath {
   if (!importPath.startsWith('/')) {
+    const searchString = '/src/';
+    const index = asts[0].srcPath.indexOf(searchString);
+    if (index >= 0) {
+      const srcPath = asts[0].srcPath.substr(0, index + searchString.length);
+      return getComponentFileFromImportPath(srcPath + importPath, asts);
+    }
     return;
   }
 
-  const filePath = importPath + '.';
+  const filePath = importPath.includes('.') ? importPath : importPath + '.';
 
   let file = asts.find(componentFile =>
     componentFile.srcPath.startsWith(filePath)
