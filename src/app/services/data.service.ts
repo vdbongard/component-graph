@@ -174,7 +174,17 @@ export class DataService {
           }
 
           if (dependency.name === 'default') {
-            dependency = this.getDefaultExport(fileMap, dependency, fileName);
+            const defaultDependency = this.getDefaultExport(
+              fileMap,
+              dependency,
+              fileName
+            );
+
+            if (!defaultDependency) {
+              return;
+            }
+
+            dependency = defaultDependency;
           }
 
           const source = `${fileName}#${componentName}`;
