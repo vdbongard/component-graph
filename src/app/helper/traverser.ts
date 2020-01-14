@@ -117,17 +117,10 @@ export function traverse(asts: AstWithPath[], fileName: string) {
 
       if (arg.isIdentifier()) {
         const componentDependency = getComponentDependency(arg, fileName, asts);
-
         if (!componentDependency) {
           return;
         }
         const componentName = path.parentPath.node.id.name;
-        console.log(
-          'isComponentDependency',
-          componentName,
-          componentDependency
-        );
-
         components[componentName] = {
           dependencies: [componentDependency]
         };
