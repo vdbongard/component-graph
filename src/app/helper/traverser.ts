@@ -101,6 +101,11 @@ export function traverse(asts: AstWithPath[], fileName: string) {
         if (identifierArgument) {
           defaultExport = identifierArgument.node.name;
         }
+      } else if (
+        path.get('declaration').isFunctionDeclaration() &&
+        isReactFunctionComponent(path.get('declaration'))
+      ) {
+        defaultExport = path.node.id.name;
       }
     },
     CallExpression: path => {
