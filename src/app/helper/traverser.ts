@@ -646,7 +646,8 @@ function isReturningJSX(path) {
   }
 
   let returnsAtLeastOnce = false;
-  let returnsJSX = true;
+  let returnsJSXOrNull = true;
+  let returnsJSXOnce = false;
 
   path.skip();
   path.traverse({
@@ -658,8 +659,14 @@ function isReturningJSX(path) {
         !returnStatementPath.get('argument').isNullLiteral()
       ) {
         returnStatementPath.stop();
-        returnsJSX = false;
+        returnsJSXOrNull = false;
         return;
+      }
+      if (
+        returnStatementPath.get('argument').isJSXElement() ||
+        returnStatementPath.get('argument').isJSXFragment()
+      ) {
+        returnsJSXOnce = true;
       }
       if (
         returnStatementPath.get('argument').isCallExpression() &&
@@ -670,12 +677,12 @@ function isReturningJSX(path) {
         );
         if (!callBind) {
           returnStatementPath.stop();
-          returnsJSX = false;
+          returnsJSXOrNull = false;
           return;
         }
         if (callBind.path.isFunctionDeclaration()) {
-          returnsJSX = isReturningJSX(callBind.path);
-          if (!returnsJSX) {
+          returnsJSXOrNull = isReturningJSX(callBind.path);
+          if (!returnsJSXOrNull) {
             returnStatementPath.stop();
             return;
           }
@@ -683,13 +690,13 @@ function isReturningJSX(path) {
           callBind.path.isVariableDeclarator() &&
           isFunction(callBind.path.node.init)
         ) {
-          returnsJSX = isReturningJSX(callBind.path.get('init'));
-          if (!returnsJSX) {
+          returnsJSXOrNull = isReturningJSX(callBind.path.get('init'));
+          if (!returnsJSXOrNull) {
             returnStatementPath.stop();
             return;
           }
         } else if (callBind.constantViolations.length === 0) {
-          returnsJSX = false;
+          returnsJSXOrNull = false;
           returnStatementPath.stop();
           return;
         } else if (callBind.constantViolations.length > 0) {
@@ -698,13 +705,13 @@ function isReturningJSX(path) {
               constantViolation.isAssignmentExpression() &&
               isFunction(constantViolation.node.right)
             ) {
-              returnsJSX = isReturningJSX(constantViolation.get('right'));
-              if (!returnsJSX) {
+              returnsJSXOrNull = isReturningJSX(constantViolation.get('right'));
+              if (!returnsJSXOrNull) {
                 returnStatementPath.stop();
                 return;
               }
             } else {
-              returnsJSX = false;
+              returnsJSXOrNull = false;
               returnStatementPath.stop();
               return;
             }
@@ -720,7 +727,7 @@ function isReturningJSX(path) {
     }
   });
 
-  return returnsAtLeastOnce && returnsJSX;
+  return returnsAtLeastOnce && returnsJSXOrNull && returnsJSXOnce;
 }
 
 function isInnerFunction(path, functionComponentName: string) {
