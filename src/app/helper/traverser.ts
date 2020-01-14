@@ -796,7 +796,9 @@ function getComponentDependency(path, fileName: string, asts: AstWithPath[]) {
     (binding.path.isVariableDeclarator() &&
       isReactFunctionComponent(binding.path.get('init'))) ||
     (binding.path.isClassDeclaration() &&
-      isReactClassComponent(binding.path, asts, fileName))
+      isReactClassComponent(binding.path, asts, fileName)) ||
+    (binding.path.isFunctionDeclaration() &&
+      isReactFunctionComponent(binding.path))
   ) {
     return {
       name: importName,
