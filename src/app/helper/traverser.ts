@@ -67,6 +67,33 @@ export function traverse(asts: AstWithPath[], fileName: string) {
         defaultExport = path.node.declaration.left.name;
       } else if (path.get('declaration').isIdentifier()) {
         defaultExport = path.node.declaration.name;
+
+        const binding = path.scope.getBinding(defaultExport);
+        let name = '';
+        if (binding.path.isImportDefaultSpecifier()) {
+          name = 'default';
+        } else if (binding.path.isImportSpecifier()) {
+          name = defaultExport;
+        } else {
+          return;
+        }
+        const source = getImportPathFromImportSpecifier(
+          binding.path,
+          defaultExport,
+          asts,
+          fileName
+        );
+
+        const componentFile = getComponentFileFromImportPath(source, asts);
+
+        if (!componentFile) {
+          console.error('Component file not found', source);
+          return;
+        }
+
+        const componentPath = componentFile.srcPath;
+
+        defaultExport = `${componentPath}#${name}`;
       } else if (path.get('declaration').isCallExpression()) {
         const identifierArgument = path
           .get('declaration.arguments')

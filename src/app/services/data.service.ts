@@ -4,6 +4,7 @@ import {
   AstWithPath,
   FileMap,
   Graph,
+  Import,
   Node,
   NodeSelection
 } from '../interfaces';
@@ -56,16 +57,18 @@ export class DataService {
       const { components, defaultExport } = await new Promise(resolve =>
         setTimeout(() => resolve(traverse(asts, file.path)), 0)
       );
-      if (Object.keys(components).length > 0) {
-        this.fileMap[file.path].components = components;
-        this.fileMap[file.path].defaultExport = defaultExport;
-      }
+      this.fileMap[file.path].components = components;
+      this.fileMap[file.path].defaultExport = defaultExport;
       this.progress$.next(((index + 1) / this.componentFiles.length) * 50 + 50);
     }
 
-    // filter out files that have no components
+    // filter out files that have no components or default component export
     this.fileMap = Object.entries(this.fileMap)
-      .filter(([_, file]) => file.components)
+      .filter(
+        ([_, file]) =>
+          file.components ||
+          (file.defaultExport && file.defaultExport.startsWith('/'))
+      )
       .reduce((acc, [key, val]) => Object.assign(acc, { [key]: val }), {});
 
     console.log('FileMap:', this.fileMap);
@@ -125,6 +128,9 @@ export class DataService {
     const links = [];
 
     for (const [fileName, file] of Object.entries(fileMap)) {
+      if (!file.components) {
+        return;
+      }
       for (const [componentName, component] of Object.entries(
         file.components
       )) {
@@ -168,17 +174,7 @@ export class DataService {
           }
 
           if (dependency.name === 'default') {
-            const defaultExport = this.getDefaultExport(
-              fileMap,
-              dependency.source
-            );
-            if (!defaultExport) {
-              console.error(
-                `Default export not found: ${dependency.source} (${fileName})`
-              );
-              return;
-            }
-            dependency.name = defaultExport;
+            dependency = this.getDefaultExport(fileMap, dependency, fileName);
           }
 
           const source = `${fileName}#${componentName}`;
@@ -281,6 +277,7 @@ export class DataService {
   private hasSingleComponent() {
     return (
       Object.keys(this.fileMap).length === 1 &&
+      Object.values(this.fileMap)[0].components &&
       Object.keys(Object.values(this.fileMap)[0].components).length === 1
     );
   }
@@ -339,8 +336,40 @@ export class DataService {
     }
   }
 
-  private getDefaultExport(fileMap: FileMap, source: string) {
-    const fileName = Object.keys(fileMap).find(name => name === source);
-    return fileName && fileMap[fileName].defaultExport;
+  private getDefaultExport(
+    fileMap: FileMap,
+    dependency: Import,
+    currentFileName: string
+  ): Import {
+    const fileName = Object.keys(fileMap).find(
+      name => name === dependency.source
+    );
+
+    if (!fileName || !fileMap[fileName].defaultExport) {
+      console.error(
+        `Default export not found: ${dependency.source} (${currentFileName})`
+      );
+      return;
+    }
+
+    const defaultExport = fileMap[fileName].defaultExport;
+
+    // default export is an import
+    if (defaultExport.startsWith('/')) {
+      const parts = defaultExport.split('#');
+      const importPath = parts[0];
+      const importName = parts[1];
+
+      if (importName === 'default') {
+        return this.getDefaultExport(
+          fileMap,
+          { source: importPath, name: importName },
+          currentFileName
+        );
+      }
+    }
+
+    dependency.name = defaultExport;
+    return dependency;
   }
 }
