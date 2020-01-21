@@ -1,5 +1,4 @@
 import {
-  ChangeDetectorRef,
   Component,
   ElementRef,
   Input,
@@ -8,7 +7,7 @@ import {
   ViewChild
 } from '@angular/core';
 import * as d3 from 'd3';
-import { RefLink, Node, Settings, NodeSelection } from '../../interfaces';
+import { Node, NodeSelection, RefLink, Settings } from '../../interfaces';
 import { DataService } from '../../services/data.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SettingsService } from '../../services/settings.service';
@@ -85,8 +84,7 @@ export class GraphComponent implements OnInit, OnDestroy {
     public dataService: DataService,
     public settingsService: SettingsService,
     private router: Router,
-    private activatedRoute: ActivatedRoute,
-    private ref: ChangeDetectorRef
+    private activatedRoute: ActivatedRoute
   ) {}
 
   ngOnInit() {
@@ -119,8 +117,7 @@ export class GraphComponent implements OnInit, OnDestroy {
         this.initGraph();
       } else {
         if (Object.keys(settings).length === 1 && 'fullScreen' in settings) {
-          this.ref.detectChanges();
-          this.zoomToFit();
+          setTimeout(this.zoomToFit.bind(this), 0);
           return;
         }
         setTimeout(this.restartGraph.bind(this), 0);
