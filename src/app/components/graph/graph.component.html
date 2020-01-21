@@ -1,102 +1,32 @@
-<div class="content cols" appDropTarget (fileDropped)="onFileDropped($event)">
-  <mat-progress-bar
-    *ngIf="progress !== undefined"
-    class="progress-bar"
-    [value]="progress"
+<div id="d3-root" #d3Root></div>
+<div class="action-buttons left">
+  <button
+    *ngIf="id"
+    mat-icon-button
+    aria-label="Back to app graph"
+    (click)="routeBack()"
+    matTooltip="Back to app graph"
   >
-  </mat-progress-bar>
-
-  <rsz-layout class="row left" [directions]="['right']" [rFlex]="true">
-    <div class="cell">
-      <div class="cell-inner">
-        <h2 class="mat-h3 cell-header">Files</h2>
-      </div>
-    </div>
-  </rsz-layout>
-  <rsz-layout
-    class="row main"
-    [directions]="['left', 'right']"
-    [rFlex]="false"
-    [class.full-screen]="settings.fullScreen"
+    <mat-icon>arrow_back</mat-icon>
+  </button>
+</div>
+<div class="action-buttons right">
+  <button
+    mat-icon-button
+    aria-label="Zoom to fit"
+    (click)="zoomToFit()"
+    matTooltip="Zoom to fit"
   >
-    <div class="cell main">
-      <div id="d3-root" #d3Root></div>
-      <div class="action-buttons left">
-        <button
-          *ngIf="id"
-          mat-icon-button
-          aria-label="Back to app graph"
-          (click)="routeBack()"
-          matTooltip="Back to app graph"
-        >
-          <mat-icon>arrow_back</mat-icon>
-        </button>
-      </div>
-      <div class="action-buttons right">
-        <button
-          mat-icon-button
-          aria-label="Zoom to fit"
-          (click)="zoomToFit()"
-          matTooltip="Zoom to fit"
-        >
-          <mat-icon>all_out</mat-icon>
-        </button>
-        <button
-          mat-icon-button
-          aria-label="Toggle fullscreen"
-          (click)="
-            settingsService.setSettings({ fullScreen: !settings.fullScreen })
-          "
-          [matTooltip]="
-            settings.fullScreen ? 'Exit fullscreen' : 'Enter fullscreen'
-          "
-        >
-          <mat-icon>{{
-            settings.fullScreen ? 'fullscreen_exit' : 'fullscreen'
-          }}</mat-icon>
-        </button>
-      </div>
-    </div>
-  </rsz-layout>
-  <rsz-layout class="row right" [directions]="['left']" [rFlex]="true">
-    <rsz-layout
-      class="cell code-quality"
-      [directions]="['bottom']"
-      [rFlex]="true"
-    >
-      <div class="cell-inner">
-        <h2 class="mat-h3 cell-header">
-          Code Quality
-          <span *ngIf="selectedNode?.report?.aggregate" class="mat-h4">
-            {{ selectedNode.label || selectedNode.id }} (aggregate)</span
-          >
-          <span
-            *ngIf="selectedNode && !selectedNode.report?.aggregate"
-            class="mat-h4"
-          >
-            {{ selectedNode.label || selectedNode.id }}</span
-          >
-        </h2>
-        <div *ngIf="selectedNode" class="content-inner">
-          <ng-container *ngIf="selectedNode.report?.aggregate">
-            <small style="display: block; margin-bottom: 4px;">
-              Maintainability: {{ selectedNode.report.maintainability }}
-            </small>
-            <pre style="margin: 0;">{{
-              selectedNode.report?.aggregate | json
-            }}</pre>
-          </ng-container>
-
-          <pre *ngIf="!selectedNode.report?.aggregate" style="margin: 0;">{{
-            selectedNode.report | json
-          }}</pre>
-        </div>
-      </div>
-    </rsz-layout>
-    <rsz-layout class="cell" [directions]="['none']" [rFlex]="false">
-      <div class="cell-inner">
-        <h2 class="mat-h3 cell-header">Source Code</h2>
-      </div>
-    </rsz-layout>
-  </rsz-layout>
+    <mat-icon>all_out</mat-icon>
+  </button>
+  <button
+    mat-icon-button
+    aria-label="Toggle fullscreen"
+    (click)="settingsService.setSettings({ fullScreen: !settings.fullScreen })"
+    [matTooltip]="settings.fullScreen ? 'Exit fullscreen' : 'Enter fullscreen'"
+  >
+    <mat-icon>{{
+      settings.fullScreen ? 'fullscreen_exit' : 'fullscreen'
+    }}</mat-icon>
+  </button>
 </div>

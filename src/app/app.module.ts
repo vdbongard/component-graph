@@ -22,6 +22,7 @@ import { NgxResizableModule } from '@3dgenomes/ngx-resizable';
 import { SettingsModalComponent } from './components/settings-modal/settings-modal.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { A11yModule } from '@angular/cdk/a11y';
+import { GraphViewComponent } from './components/graph-view/graph-view.component';
 
 @NgModule({
   declarations: [
@@ -29,7 +30,8 @@ import { A11yModule } from '@angular/cdk/a11y';
     GraphComponent,
     UploadViewComponent,
     DropTargetDirective,
-    SettingsModalComponent
+    SettingsModalComponent,
+    GraphViewComponent
   ],
   imports: [
     BrowserModule,

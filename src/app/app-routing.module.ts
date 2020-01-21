@@ -1,11 +1,11 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { GraphComponent } from './components/graph/graph.component';
 import { UploadViewComponent } from './components/upload-view/upload-view.component';
+import { GraphViewComponent } from './components/graph-view/graph-view.component';
 
 const routes: Routes = [
   { path: '', component: UploadViewComponent },
-  { path: 'graph', component: GraphComponent }
+  { path: 'graph', component: GraphViewComponent }
 ];
 
 @NgModule({

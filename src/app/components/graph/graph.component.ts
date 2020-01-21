@@ -2,6 +2,7 @@ import {
   ChangeDetectorRef,
   Component,
   ElementRef,
+  Input,
   OnDestroy,
   OnInit,
   ViewChild
@@ -15,7 +16,6 @@ import { d3adaptor, Layout, Link as ColaLink, Node as ColaNode } from 'webcola';
 import { ID3StyleLayoutAdaptor } from 'webcola/dist/src/d3adaptor';
 import { generateLinkReferences } from '../../helper/generateLinkReferences';
 import { Subscription } from 'rxjs';
-import { FileWithPath } from '../../helper/getFilesAsync';
 
 @Component({
   selector: 'app-graph',
@@ -23,10 +23,21 @@ import { FileWithPath } from '../../helper/getFilesAsync';
   styleUrls: ['./graph.component.scss']
 })
 export class GraphComponent implements OnInit, OnDestroy {
-  nodeData: Node[];
-  linkData: RefLink[];
+  private selectedNodeInternal: NodeSelection;
+
+  @Input() set selectedNode(value: NodeSelection) {
+    this.selectedNodeInternal = value;
+    this.updateGraph();
+  }
+
+  get selectedNode(): NodeSelection {
+    return this.selectedNodeInternal;
+  }
 
   @ViewChild('d3Root', { static: false }) d3Root: ElementRef;
+
+  nodeData: Node[];
+  linkData: RefLink[];
 
   svg: d3.Selection<SVGElement, any, any, any>;
   svgZoomGroup: d3.Selection<SVGGElement, any, any, any>;
@@ -38,13 +49,11 @@ export class GraphComponent implements OnInit, OnDestroy {
   scale = d3.scaleOrdinal(d3.schemeCategory10);
   dragging = false;
   firstSimulation = true;
-  selectedNode: NodeSelection;
   id: string;
-  progress: number;
-  queryParamWasUpload = false;
-  queryParamIsInitial = true;
   isFaded: boolean;
   isWheelZooming = false;
+  queryParamWasUpload = false;
+  queryParamIsInitial = true;
 
   private graphDataSub: Subscription;
   private settingsSub: Subscription;
@@ -118,11 +127,6 @@ export class GraphComponent implements OnInit, OnDestroy {
       }
     });
 
-    // @ts-ignore
-    window.restartGraph = this.restartGraph.bind(this);
-
-    window.onbeforeunload = () => this.dataService.saveToLocalStorage();
-
     this.queryParamsSub = this.activatedRoute.queryParams.subscribe(
       queryParams => {
         if (queryParams.upload) {
@@ -147,22 +151,6 @@ export class GraphComponent implements OnInit, OnDestroy {
         this.id = queryParams.id;
         this.dataService.setComponentGraph(queryParams.id);
       }
-    );
-
-    this.selectedNodeSub = this.dataService.selectedNode$.subscribe(node => {
-      if (!node) {
-        return;
-      }
-      if (node.report && node.report.aggregate) {
-        node.report.aggregate.halstead.operands.identifiers = ['...'];
-        node.report.aggregate.halstead.operators.identifiers = ['...'];
-      }
-      this.selectedNode = node;
-      this.updateGraph();
-    });
-
-    this.progressSub = this.dataService.progress$.subscribe(
-      progress => (this.progress = progress)
     );
   }
 
@@ -211,6 +199,10 @@ export class GraphComponent implements OnInit, OnDestroy {
   }
 
   private updateGraph() {
+    if (!this.svgZoomGroup) {
+      return;
+    }
+
     this.svgZoomGroup
       .selectAll('.node circle')
       .attr('stroke-width', (d: Node) => {
@@ -600,6 +592,14 @@ export class GraphComponent implements OnInit, OnDestroy {
       .on('end', dragEnded);
   }
 
+  routeBack() {
+    this.router.navigate([], {
+      relativeTo: this.activatedRoute,
+      queryParams: { id: null },
+      queryParamsHandling: 'merge'
+    });
+  }
+
   ngOnDestroy() {
     this.stopGraph();
     this.settingsSub.unsubscribe();
@@ -609,18 +609,5 @@ export class GraphComponent implements OnInit, OnDestroy {
     if (this.graphDataSub) {
       this.graphDataSub.unsubscribe();
     }
-  }
-
-  routeBack() {
-    this.router.navigate([], {
-      relativeTo: this.activatedRoute,
-      queryParams: { id: null },
-      queryParamsHandling: 'merge'
-    });
-  }
-
-  onFileDropped(files: FileWithPath[]) {
-    this.dataService.setFiles(files);
-    this.router.navigate(['graph'], { queryParams: { upload: 1 } });
   }
 }

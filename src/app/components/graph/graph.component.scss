@@ -1,46 +1,20 @@
-:host {
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-template-rows: 1fr;
-  height: 100%;
-}
+//::ng-deep .row.main [rszdraghandle] {
+//  display: none;
+//}
+//
+//.row.main.full-screen {
+//  position: absolute;
+//  top: 0;
+//  left: 0;
+//  right: 0;
+//  bottom: 0;
+//  z-index: 2;
+//}
 
-.progress-bar {
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 3;
-}
-
-.row.left.resizable {
-  flex: 0 0 280px;
-}
-
-.row.right.resizable {
-  flex: 0 0 360px;
-}
-
-.cell.code-quality {
-  flex-basis: 400px;
-}
-
-::ng-deep .row.main [rszdraghandle] {
-  display: none;
-}
-
-.row.main.full-screen {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 2;
-}
-
-.cell.main {
-  background-color: #fafafa;
-  position: relative;
-}
+//.cell.main {
+//  background-color: #fafafa;
+//  position: relative;
+//}
 
 .action-buttons {
   position: absolute;
@@ -59,37 +33,4 @@
 #d3-root {
   height: 100%;
   position: relative;
-}
-
-.cell-inner {
-  display: flex;
-  flex-direction: column;
-  padding: 8px;
-  height: 100%;
-
-  .cell-header {
-    font-weight: 500;
-    margin-bottom: 8px;
-  }
-
-  .content-inner {
-    overflow-y: auto;
-  }
-}
-
-.is-dragging-over::before {
-  content: 'Drop file here';
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 999;
-  background-color: rgba(0, 0, 0, 0.55);
-  pointer-events: none;
-  font-size: 32px;
-  color: white;
 }
