@@ -1,4 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
+import 'codemirror/mode/jsx/jsx.js';
 
 @Component({
   selector: 'app-source-code',
@@ -7,6 +8,11 @@ import { Component, Input, OnInit } from '@angular/core';
 })
 export class SourceCodeComponent implements OnInit {
   @Input() code: string;
+  config = {
+    mode: { name: 'jsx' },
+    lineNumbers: true,
+    readOnly: true
+  };
 
   constructor() {}
 

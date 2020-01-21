@@ -29,6 +29,10 @@
   flex-basis: 400px;
 }
 
+.cell.source-code .cell-inner {
+  padding: 0;
+}
+
 ::ng-deep .row.main [rszdraghandle] {
   display: none;
 }
