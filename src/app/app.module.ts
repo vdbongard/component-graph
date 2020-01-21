@@ -24,6 +24,8 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { A11yModule } from '@angular/cdk/a11y';
 import { GraphViewComponent } from './components/graph-view/graph-view.component';
 import { CodeQualityComponent } from './components/code-quality/code-quality.component';
+import { SourceCodeComponent } from './components/source-code/source-code.component';
+import { FileTreeComponent } from './components/file-tree/file-tree.component';
 
 @NgModule({
   declarations: [
@@ -33,7 +35,9 @@ import { CodeQualityComponent } from './components/code-quality/code-quality.com
     DropTargetDirective,
     SettingsModalComponent,
     GraphViewComponent,
-    CodeQualityComponent
+    CodeQualityComponent,
+    SourceCodeComponent,
+    FileTreeComponent
   ],
   imports: [
     BrowserModule,
