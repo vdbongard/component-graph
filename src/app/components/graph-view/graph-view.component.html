@@ -6,6 +6,7 @@
   >
   </mat-progress-bar>
 
+  <!-- Left pane -->
   <rsz-layout class="row left" [directions]="['right']" [rFlex]="true">
     <div class="cell">
       <div class="cell-inner">
@@ -13,6 +14,8 @@
       </div>
     </div>
   </rsz-layout>
+
+  <!-- Center pane -->
   <rsz-layout
     class="row main"
     [directions]="['left', 'right']"
@@ -23,41 +26,21 @@
       <app-graph [selectedNode]="selectedNode"></app-graph>
     </div>
   </rsz-layout>
+
+  <!-- Right pane -->
   <rsz-layout class="row right" [directions]="['left']" [rFlex]="true">
+    <!-- Code Quality pane -->
     <rsz-layout
       class="cell code-quality"
       [directions]="['bottom']"
       [rFlex]="true"
     >
       <div class="cell-inner">
-        <h2 class="mat-h3 cell-header">
-          Code Quality
-          <span *ngIf="selectedNode?.report?.aggregate" class="mat-h4">
-            {{ selectedNode.label || selectedNode.id }} (aggregate)</span
-          >
-          <span
-            *ngIf="selectedNode && !selectedNode.report?.aggregate"
-            class="mat-h4"
-          >
-            {{ selectedNode.label || selectedNode.id }}</span
-          >
-        </h2>
-        <div *ngIf="selectedNode" class="content-inner">
-          <ng-container *ngIf="selectedNode.report?.aggregate">
-            <small style="display: block; margin-bottom: 4px;">
-              Maintainability: {{ selectedNode.report.maintainability }}
-            </small>
-            <pre style="margin: 0;">{{
-              selectedNode.report?.aggregate | json
-            }}</pre>
-          </ng-container>
-
-          <pre *ngIf="!selectedNode.report?.aggregate" style="margin: 0;">{{
-            selectedNode.report | json
-          }}</pre>
-        </div>
+        <app-code-quality [selectedNode]="selectedNode"></app-code-quality>
       </div>
     </rsz-layout>
+
+    <!-- Source Code pane-->
     <rsz-layout class="cell" [directions]="['none']" [rFlex]="false">
       <div class="cell-inner">
         <h2 class="mat-h3 cell-header">Source Code</h2>

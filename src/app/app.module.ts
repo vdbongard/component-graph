@@ -23,6 +23,7 @@ import { SettingsModalComponent } from './components/settings-modal/settings-mod
 import { ReactiveFormsModule } from '@angular/forms';
 import { A11yModule } from '@angular/cdk/a11y';
 import { GraphViewComponent } from './components/graph-view/graph-view.component';
+import { CodeQualityComponent } from './components/code-quality/code-quality.component';
 
 @NgModule({
   declarations: [
@@ -31,7 +32,8 @@ import { GraphViewComponent } from './components/graph-view/graph-view.component
     UploadViewComponent,
     DropTargetDirective,
     SettingsModalComponent,
-    GraphViewComponent
+    GraphViewComponent,
+    CodeQualityComponent
   ],
   imports: [
     BrowserModule,
