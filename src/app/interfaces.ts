@@ -40,6 +40,7 @@ export interface NodeSelection {
   id: string;
   label?: string;
   report: any;
+  code?: string;
 }
 
 export interface FileMap {

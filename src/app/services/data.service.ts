@@ -117,7 +117,8 @@ export class DataService {
     const selectedNode = {
       id: node.id,
       label: node.label,
-      report: this.findReport(node.id, componentId)
+      report: this.findReport(node.id, componentId),
+      code: this.findCode(node.id, componentId)
     };
     console.log('Select node: ', selectedNode);
     this.selectedNode$.next(selectedNode);
@@ -381,5 +382,12 @@ export class DataService {
 
     dependency.name = defaultExport;
     return dependency;
+  }
+
+  private findCode(nodeId: string, componentId: string) {
+    const fileName =
+      (componentId && componentId.split('#')[0]) || nodeId.split('#')[0];
+    const file = this.fileMap[fileName];
+    return file && file.code;
   }
 }
