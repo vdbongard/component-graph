@@ -2477,6 +2477,11 @@ codelyzer@^5.0.0:
     source-map "^0.5.7"
     sprintf-js "^1.1.2"
 
+codemirror@^5.22.2, codemirror@^5.51.0:
+  version "5.51.0"
+  resolved "https://registry.yarnpkg.com/codemirror/-/codemirror-5.51.0.tgz#7746caaf5223e68f5c55ea11e2f3cc82a9a3929e"
+  integrity sha512-vyuYYRv3eXL0SCuZA4spRFlKNzQAewHcipRQCOKgRy7VNAvZxTKzbItdbCl4S5AgPZ5g3WkHp+ibWQwv9TLG7Q==
+
 collection-visit@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/collection-visit/-/collection-visit-1.0.0.tgz#4bc0373c164bc3291b4d368c829cf1a80a59dca0"
@@ -5926,6 +5931,13 @@ neo-async@^2.5.0, neo-async@^2.6.0, neo-async@^2.6.1:
   version "2.6.1"
   resolved "https://registry.yarnpkg.com/neo-async/-/neo-async-2.6.1.tgz#ac27ada66167fa8849a6addd837f6b189ad2081c"
   integrity sha512-iyam8fBuCUpWeKPGpaNMetEocMt364qkCsfL9JuhjXX6dRnguRVOfk2GZaDpPjcOKiiXCPINZC1GczQ7iTq3Zw==
+
+ng2-codemirror@^1.1.3:
+  version "1.1.3"
+  resolved "https://registry.yarnpkg.com/ng2-codemirror/-/ng2-codemirror-1.1.3.tgz#e31262db1e8c03b44ac6f52e2e47aa1a2105af0c"
+  integrity sha512-aqBTOTCo1poOMKxh1hil4ehCN7NgnaxGKG0Hu6Mwe9ya7yN3SQpPUCznw0kWBdN8ir1esbn13vh8y1bSewim4A==
+  dependencies:
+    codemirror "^5.22.2"
 
 nice-try@^1.0.4:
   version "1.0.5"

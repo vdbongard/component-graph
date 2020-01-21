@@ -5,6 +5,11 @@
   height: 100%;
 }
 
+.content.cols,
+.row-inner {
+  overflow: hidden;
+}
+
 .progress-bar {
   position: absolute;
   top: 0;
