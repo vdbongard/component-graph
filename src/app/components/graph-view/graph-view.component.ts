@@ -18,7 +18,6 @@ export class GraphViewComponent implements OnInit, OnDestroy {
   settings: Settings;
 
   private graphDataSub: Subscription;
-  private settingsSub: Subscription;
   private selectedNodeSub: Subscription;
   private progressSub: Subscription;
 
@@ -29,10 +28,6 @@ export class GraphViewComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.settingsSub = this.settingsService.settings$.subscribe(settings => {
-      this.settings = { ...this.settings, ...settings };
-    });
-
     window.onbeforeunload = () => this.dataService.saveToLocalStorage();
 
     this.selectedNodeSub = this.dataService.selectedNode$.subscribe(node => {
@@ -52,7 +47,6 @@ export class GraphViewComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.settingsSub.unsubscribe();
     this.selectedNodeSub.unsubscribe();
     this.progressSub.unsubscribe();
     if (this.graphDataSub) {

@@ -17,7 +17,7 @@
     class="row main"
     [directions]="['left', 'right']"
     [rFlex]="false"
-    [class.full-screen]="settings.fullScreen"
+    [class.full-screen]="(settingsService.settings$ | async).fullScreen"
   >
     <div class="cell main">
       <app-graph [selectedNode]="selectedNode"></app-graph>
