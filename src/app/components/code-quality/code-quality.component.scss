@@ -1,6 +1,6 @@
-:host,
-.content-inner {
-  overflow-y: auto;
+:host {
+  display: block;
+  padding: 8px;
 }
 
 .cell-header {

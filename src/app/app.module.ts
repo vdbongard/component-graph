@@ -18,7 +18,6 @@ import {
   MatTooltipModule
 } from '@angular/material';
 import { DropTargetDirective } from './directives/drop-target.directive';
-import { NgxResizableModule } from '@3dgenomes/ngx-resizable';
 import { SettingsModalComponent } from './components/settings-modal/settings-modal.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { A11yModule } from '@angular/cdk/a11y';
@@ -27,6 +26,7 @@ import { CodeQualityComponent } from './components/code-quality/code-quality.com
 import { SourceCodeComponent } from './components/source-code/source-code.component';
 import { FileTreeComponent } from './components/file-tree/file-tree.component';
 import { CodemirrorModule } from 'ng2-codemirror';
+import { AngularSplitModule } from 'angular-split';
 
 @NgModule({
   declarations: [
@@ -47,7 +47,6 @@ import { CodemirrorModule } from 'ng2-codemirror';
     MatToolbarModule,
     MatIconModule,
     MatCardModule,
-    NgxResizableModule,
     MatButtonModule,
     MatTooltipModule,
     MatDialogModule,
@@ -57,7 +56,8 @@ import { CodemirrorModule } from 'ng2-codemirror';
     MatSlideToggleModule,
     MatProgressBarModule,
     CodemirrorModule,
-    FormsModule
+    FormsModule,
+    AngularSplitModule.forRoot()
   ],
   entryComponents: [SettingsModalComponent],
   providers: [],

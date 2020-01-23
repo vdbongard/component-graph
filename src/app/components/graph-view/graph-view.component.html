@@ -1,4 +1,4 @@
-<div class="content cols" appDropTarget (fileDropped)="onFileDropped($event)">
+<div class="container" appDropTarget (fileDropped)="onFileDropped($event)">
   <mat-progress-bar
     *ngIf="progress !== undefined"
     class="progress-bar"
@@ -6,49 +6,27 @@
   >
   </mat-progress-bar>
 
-  <!-- Left pane -->
-  <rsz-layout class="row left" [directions]="['right']" [rFlex]="true">
-    <div class="cell">
-      <div class="cell-inner">
-        <app-file-tree></app-file-tree>
-      </div>
-    </div>
-  </rsz-layout>
-
-  <!-- Center pane -->
-  <rsz-layout
-    class="row main"
-    [directions]="['left', 'right']"
-    [rFlex]="false"
-    [class.full-screen]="(settingsService.settings$ | async).fullScreen"
+  <as-split
+    unit="pixel"
+    direction="horizontal"
+    *ngIf="settingsService.settings$ | async as settings"
+    [gutterSize]="gutterSize"
   >
-    <div class="cell main">
+    <as-split-area size="275" order="1" [visible]="!settings.fullScreen">
+      <app-file-tree></app-file-tree>
+    </as-split-area>
+    <as-split-area size="*" order="2">
       <app-graph [selectedNode]="selectedNode"></app-graph>
-    </div>
-  </rsz-layout>
-
-  <!-- Right pane -->
-  <rsz-layout class="row right" [directions]="['left']" [rFlex]="true">
-    <!-- Code Quality pane -->
-    <rsz-layout
-      class="cell code-quality"
-      [directions]="['bottom']"
-      [rFlex]="true"
-    >
-      <div class="cell-inner">
-        <app-code-quality [selectedNode]="selectedNode"></app-code-quality>
-      </div>
-    </rsz-layout>
-
-    <!-- Source Code pane-->
-    <rsz-layout
-      class="cell source-code"
-      [directions]="['none']"
-      [rFlex]="false"
-    >
-      <div class="cell-inner">
-        <app-source-code [code]="selectedNode?.code"></app-source-code>
-      </div>
-    </rsz-layout>
-  </rsz-layout>
+    </as-split-area>
+    <as-split-area size="575" order="3" [visible]="!settings.fullScreen">
+      <as-split unit="percent" direction="vertical" [gutterSize]="gutterSize">
+        <as-split-area size="30">
+          <app-code-quality [selectedNode]="selectedNode"></app-code-quality>
+        </as-split-area>
+        <as-split-area size="70">
+          <app-source-code [code]="selectedNode?.code"></app-source-code>
+        </as-split-area>
+      </as-split>
+    </as-split-area>
+  </as-split>
 </div>

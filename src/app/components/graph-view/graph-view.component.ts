@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { DataService } from '../../services/data.service';
 import { Router } from '@angular/router';
-import { NodeSelection, Settings } from '../../interfaces';
+import { NodeSelection } from '../../interfaces';
 import { Subscription } from 'rxjs';
 import { SettingsService } from '../../services/settings.service';
 import { FileWithPath } from '../../helper/getFilesAsync';
@@ -15,7 +15,7 @@ export class GraphViewComponent implements OnInit, OnDestroy {
   selectedNode: NodeSelection;
   id: string;
   progress: number;
-  settings: Settings;
+  gutterSize = 8;
 
   private graphDataSub: Subscription;
   private selectedNodeSub: Subscription;

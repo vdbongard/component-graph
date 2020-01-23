@@ -5,8 +5,7 @@
   height: 100%;
 }
 
-.content.cols,
-.row-inner {
+.container {
   overflow: hidden;
 }
 
@@ -15,52 +14,6 @@
   top: 0;
   left: 0;
   z-index: 3;
-}
-
-.row.left.resizable {
-  flex: 0 0 280px;
-}
-
-.row.right.resizable {
-  flex: 0 0 360px;
-}
-
-.cell.code-quality {
-  flex-basis: 400px;
-}
-
-.cell.source-code .cell-inner {
-  padding: 0;
-}
-
-::ng-deep .row.main [rszdraghandle] {
-  display: none;
-}
-
-.row.main.full-screen {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 7;
-}
-
-.cell.main {
-  background-color: #fafafa;
-  position: relative;
-}
-
-.cell-inner {
-  display: flex;
-  flex-direction: column;
-  padding: 8px;
-  height: 100%;
-
-  .cell-header {
-    font-weight: 500;
-    margin-bottom: 8px;
-  }
 }
 
 .is-dragging-over::before {
@@ -78,4 +31,8 @@
   pointer-events: none;
   font-size: 32px;
   color: white;
+}
+
+.as-split-area {
+  background: white;
 }

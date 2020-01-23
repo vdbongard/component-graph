@@ -2,13 +2,6 @@
 # yarn lockfile v1
 
 
-"@3dgenomes/ngx-resizable@^1.8.1":
-  version "1.8.1"
-  resolved "https://registry.yarnpkg.com/@3dgenomes/ngx-resizable/-/ngx-resizable-1.8.1.tgz#0d35774c4c698e8be0d52e3d6db247f87b91f763"
-  integrity sha512-MrFLjNHY1tr4uaptI9aFVgJgTvfmNU9OIBAwN72QumSd7DgOqVlZFv30sd1zO0kfxGEdihlXHUmEbjuOy+JuYg==
-  dependencies:
-    tslib "^1.9.0"
-
 "@angular-devkit/architect@0.803.19":
   version "0.803.19"
   resolved "https://registry.yarnpkg.com/@angular-devkit/architect/-/architect-0.803.19.tgz#03c13c94cd9c71f6a6c74b80b7323b973325a1fc"
@@ -1479,6 +1472,13 @@ angular-cli-ghpages@^0.6.0:
     commander "^3.0.0-0"
     fs-extra "^8.1.0"
     gh-pages "^2.1.0"
+
+angular-split@^3.0.2:
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/angular-split/-/angular-split-3.0.2.tgz#df7c52653b15a7307f143e127d7552039f526b13"
+  integrity sha512-km59k1kEgVlplo2t4t5Ob43Vx16qVXWXsl5gbsdQtqrOW7341So4CFUmCjcZgfk1swu9RBaCdSQEqzNWOe/89w==
+  dependencies:
+    tslib "^1.9.0"
 
 ansi-align@^2.0.0:
   version "2.0.0"
