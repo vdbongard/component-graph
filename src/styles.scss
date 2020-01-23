@@ -21,3 +21,8 @@ html {
 .is-dragging-over > * {
   pointer-events: none;
 }
+
+.CodeMirror-vscrollbar,
+.CodeMirror-hscrollbar {
+  outline: none;
+}
