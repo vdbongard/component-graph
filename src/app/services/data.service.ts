@@ -36,6 +36,7 @@ export class DataService {
   graphData$ = new Subject<Graph>();
   selectedNode$ = new BehaviorSubject<NodeSelection>(undefined);
   progress$ = new BehaviorSubject<number>(undefined);
+  fileMap$ = new BehaviorSubject<FileMap>(undefined);
 
   constructor() {}
 
@@ -45,11 +46,12 @@ export class DataService {
     this.componentFiles = files.filter(this.isComponentFile);
     console.log('Component files:', this.componentFiles);
     const asts: AstWithPath[] = [];
+    let fileMap: FileMap = {};
 
     for (const [index, file] of this.componentFiles.entries()) {
       const { ast, code } = await this.setFile(file);
       asts.push({ ast, srcPath: file.path });
-      this.fileMap[file.path] = { code };
+      fileMap[file.path] = { code };
       this.progress$.next(((index + 1) / this.componentFiles.length) * 50);
     }
 
@@ -57,13 +59,13 @@ export class DataService {
       const { components, defaultExport } = await new Promise(resolve =>
         setTimeout(() => resolve(traverse(asts, file.path)), 0)
       );
-      this.fileMap[file.path].components = components;
-      this.fileMap[file.path].defaultExport = defaultExport;
+      fileMap[file.path].components = components;
+      fileMap[file.path].defaultExport = defaultExport;
       this.progress$.next(((index + 1) / this.componentFiles.length) * 50 + 50);
     }
 
     // filter out files that have no components or default component export
-    this.fileMap = Object.entries(this.fileMap)
+    fileMap = Object.entries(fileMap)
       .filter(
         ([_, file]) =>
           (file.components && Object.keys(file.components).length > 0) ||
@@ -72,11 +74,13 @@ export class DataService {
       // Object.fromEntries
       .reduce((acc, [key, val]) => Object.assign(acc, { [key]: val }), {});
 
-    console.log('FileMap:', this.fileMap);
+    this.fileMap$.next(fileMap);
+
+    console.log('FileMap:', this.fileMap$.value);
     this.report = escomplexProject.analyze(asts);
     console.log('Report:', this.report);
     if (!this.hasSingleComponent()) {
-      this.appGraph = this.generateAppGraph(this.fileMap);
+      this.appGraph = this.generateAppGraph(this.fileMap$.value);
     }
     this.progress$.next(undefined);
     this.setComponentGraph();
@@ -93,11 +97,11 @@ export class DataService {
       const [fileName, componentName] = componentId.split('#');
 
       if (
-        this.fileMap[fileName] &&
-        this.fileMap[fileName].components[componentName]
+        this.fileMap$.value[fileName] &&
+        this.fileMap$.value[fileName].components[componentName]
       ) {
         this.graphData$.next(
-          this.fileMap[fileName].components[componentName].graph
+          this.fileMap$.value[fileName].components[componentName].graph
         );
         return;
       }
@@ -106,7 +110,7 @@ export class DataService {
     // if only one component show it's graph instead of the app graph
     if (this.hasSingleComponent()) {
       this.graphData$.next(
-        Object.values(Object.values(this.fileMap)[0].components)[0].graph
+        Object.values(Object.values(this.fileMap$.value)[0].components)[0].graph
       );
       return;
     }
@@ -216,7 +220,10 @@ export class DataService {
     if (this.report) {
       console.log('Saving to local storage...');
       window.localStorage.setItem('graph', JSON.stringify(this.appGraph));
-      window.localStorage.setItem('components', JSON.stringify(this.fileMap));
+      window.localStorage.setItem(
+        'components',
+        JSON.stringify(this.fileMap$.value)
+      );
       window.localStorage.setItem('report', JSON.stringify(this.report));
     }
   }
@@ -227,9 +234,10 @@ export class DataService {
     if (window.localStorage.getItem('graph')) {
       this.appGraph = JSON.parse(window.localStorage.getItem('graph'));
 
-      this.fileMap =
-        JSON.parse(window.localStorage.getItem('components')) || {};
-      console.log('FileMap: ', this.fileMap);
+      this.fileMap$.next(
+        JSON.parse(window.localStorage.getItem('components')) || {}
+      );
+      console.log('FileMap: ', this.fileMap$.value);
 
       this.report = JSON.parse(window.localStorage.getItem('report'));
       console.log('Report: ', this.report);
@@ -243,7 +251,7 @@ export class DataService {
 
   private resetData(): void {
     this.componentFiles = [];
-    this.fileMap = {};
+    this.fileMap$.next({});
     this.appGraph = {
       nodes: [],
       links: []
@@ -288,9 +296,9 @@ export class DataService {
 
   private hasSingleComponent() {
     return (
-      Object.keys(this.fileMap).length === 1 &&
-      Object.values(this.fileMap)[0].components &&
-      Object.keys(Object.values(this.fileMap)[0].components).length === 1
+      Object.keys(this.fileMap$.value).length === 1 &&
+      Object.values(this.fileMap$.value)[0].components &&
+      Object.keys(Object.values(this.fileMap$.value)[0].components).length === 1
     );
   }
 
@@ -300,9 +308,9 @@ export class DataService {
     }
 
     if (!componentId && this.hasSingleComponent()) {
-      const fileName = Object.keys(this.fileMap)[0];
+      const fileName = Object.keys(this.fileMap$.value)[0];
       const componentName = Object.keys(
-        Object.values(this.fileMap)[0].components
+        Object.values(this.fileMap$.value)[0].components
       )[0];
 
       componentId = `${fileName}#${componentName}`;
@@ -388,7 +396,7 @@ export class DataService {
   private findCode(nodeId: string, componentId: string) {
     const fileName =
       (componentId && componentId.split('#')[0]) || nodeId.split('#')[0];
-    const file = this.fileMap[fileName];
+    const file = this.fileMap$.value[fileName];
     return file && file.code;
   }
 }
