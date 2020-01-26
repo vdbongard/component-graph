@@ -66,9 +66,10 @@ export class DataService {
     this.fileMap = Object.entries(this.fileMap)
       .filter(
         ([_, file]) =>
-          file.components ||
+          (file.components && Object.keys(file.components).length > 0) ||
           (file.defaultExport && file.defaultExport.startsWith('/'))
       )
+      // Object.fromEntries
       .reduce((acc, [key, val]) => Object.assign(acc, { [key]: val }), {});
 
     console.log('FileMap:', this.fileMap);
