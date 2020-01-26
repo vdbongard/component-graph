@@ -15,6 +15,7 @@ import {
   MatInputModule,
   MatListModule,
   MatProgressBarModule,
+  MatRippleModule,
   MatSlideToggleModule,
   MatTooltipModule,
   MatTreeModule
@@ -61,7 +62,8 @@ import { AngularSplitModule } from 'angular-split';
     FormsModule,
     AngularSplitModule.forRoot(),
     MatListModule,
-    MatTreeModule
+    MatTreeModule,
+    MatRippleModule
   ],
   entryComponents: [SettingsModalComponent],
   providers: [],

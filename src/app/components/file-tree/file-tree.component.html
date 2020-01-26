@@ -3,6 +3,8 @@
     <!-- This is the tree node template for leaf nodes -->
     <mat-tree-node *matTreeNodeDef="let node">
       <mat-list-item
+        disableRipple
+        matRipple
         matTreeNodePadding
         [attr.aria-label]="'toggle ' + node.name"
       >
@@ -16,6 +18,8 @@
     <!-- This is the tree node template for expandable nodes -->
     <mat-tree-node *matTreeNodeDef="let node; when: hasChild">
       <mat-list-item
+        disableRipple
+        matRipple
         matTreeNodeToggle
         matTreeNodePadding
         [attr.aria-label]="'toggle ' + node.name"
