@@ -17,7 +17,6 @@ export class GraphViewComponent implements OnInit, OnDestroy {
   progress: number;
   gutterSize = 8;
 
-  private graphDataSub: Subscription;
   private selectedNodeSub: Subscription;
   private progressSub: Subscription;
   fileTree: FileTree[] = [
@@ -79,9 +78,6 @@ export class GraphViewComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.selectedNodeSub.unsubscribe();
     this.progressSub.unsubscribe();
-    if (this.graphDataSub) {
-      this.graphDataSub.unsubscribe();
-    }
   }
 
   onFileDropped(files: FileWithPath[]) {
