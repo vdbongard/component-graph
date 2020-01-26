@@ -71,6 +71,7 @@ export interface Import {
 
 export interface FileTree {
   name: string;
+  id?: string;
   type: 'file' | 'folder';
   children?: FileTree[];
 }

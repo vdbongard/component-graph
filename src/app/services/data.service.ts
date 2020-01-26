@@ -26,7 +26,6 @@ export class DataService {
   files: FileWithPath[] = [];
   componentFiles: FileWithPath[];
 
-  fileMap: FileMap = {};
   appGraph: Graph = {
     nodes: [],
     links: []

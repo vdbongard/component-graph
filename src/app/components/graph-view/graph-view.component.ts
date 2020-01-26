@@ -19,36 +19,6 @@ export class GraphViewComponent implements OnInit, OnDestroy {
 
   private selectedNodeSub: Subscription;
   private progressSub: Subscription;
-  fileTree: FileTree[] = [
-    {
-      type: 'folder',
-      name: 'src',
-      children: [
-        {
-          type: 'file',
-          name: 'App.tsx'
-        },
-        {
-          type: 'folder',
-          name: 'components',
-          children: [
-            {
-              type: 'file',
-              name: 'ComponentA.tsx'
-            },
-            {
-              type: 'file',
-              name: 'ComponentB.tsx'
-            },
-            {
-              type: 'file',
-              name: 'ComponentC.tsx'
-            }
-          ]
-        }
-      ]
-    }
-  ];
 
   constructor(
     public dataService: DataService,
