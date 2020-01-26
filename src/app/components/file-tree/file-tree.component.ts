@@ -29,6 +29,9 @@ export class FileTreeComponent implements OnInit {
 
   ngOnInit(): void {
     this.dataSource.data = this.fileTree;
+    this.treeControl.dataNodes
+      .filter(node => node.level <= 1)
+      .forEach(node => this.treeControl.expand(node));
   }
 
   hasChild = (_: number, node: FlatNode) => node.expandable;
