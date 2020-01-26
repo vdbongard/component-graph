@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { DataService } from '../../services/data.service';
 import { Router } from '@angular/router';
-import { FileTree, NodeSelection } from '../../interfaces';
+import { NodeSelection } from '../../interfaces';
 import { Subscription } from 'rxjs';
 import { SettingsService } from '../../services/settings.service';
 import { FileWithPath } from '../../helper/getFilesAsync';
