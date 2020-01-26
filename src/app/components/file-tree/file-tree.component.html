@@ -1,1 +1,30 @@
-<h2 class="mat-h3 cell-header">Files</h2>
+<mat-action-list dense>
+  <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
+    <!-- This is the tree node template for leaf nodes -->
+    <mat-tree-node *matTreeNodeDef="let node">
+      <mat-list-item
+        matTreeNodePadding
+        [attr.aria-label]="'toggle ' + node.name"
+      >
+        <mat-icon matListIcon>{{
+          node.type === 'folder' ? 'folder' : node.type === 'file' && 'code'
+        }}</mat-icon>
+        <h3 matLine>{{ node.name }}</h3>
+      </mat-list-item>
+    </mat-tree-node>
+
+    <!-- This is the tree node template for expandable nodes -->
+    <mat-tree-node *matTreeNodeDef="let node; when: hasChild">
+      <mat-list-item
+        matTreeNodeToggle
+        matTreeNodePadding
+        [attr.aria-label]="'toggle ' + node.name"
+      >
+        <mat-icon matListIcon>{{
+          treeControl.isExpanded(node) ? 'folder_open' : 'folder'
+        }}</mat-icon>
+        <h3 matLine>{{ node.name }}</h3>
+      </mat-list-item>
+    </mat-tree-node>
+  </mat-tree>
+</mat-action-list>

@@ -13,7 +13,7 @@
     [gutterSize]="gutterSize"
   >
     <as-split-area size="275" order="1" [visible]="!settings.fullScreen">
-      <app-file-tree></app-file-tree>
+      <app-file-tree [fileTree]="fileTree"></app-file-tree>
     </as-split-area>
     <as-split-area size="*" order="2">
       <app-graph [selectedNode]="selectedNode"></app-graph>

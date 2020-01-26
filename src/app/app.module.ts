@@ -13,9 +13,11 @@ import {
   MatDialogModule,
   MatIconModule,
   MatInputModule,
+  MatListModule,
   MatProgressBarModule,
   MatSlideToggleModule,
-  MatTooltipModule
+  MatTooltipModule,
+  MatTreeModule
 } from '@angular/material';
 import { DropTargetDirective } from './directives/drop-target.directive';
 import { SettingsModalComponent } from './components/settings-modal/settings-modal.component';
@@ -57,7 +59,9 @@ import { AngularSplitModule } from 'angular-split';
     MatProgressBarModule,
     CodemirrorModule,
     FormsModule,
-    AngularSplitModule.forRoot()
+    AngularSplitModule.forRoot(),
+    MatListModule,
+    MatTreeModule
   ],
   entryComponents: [SettingsModalComponent],
   providers: [],

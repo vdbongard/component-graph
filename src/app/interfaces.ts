@@ -68,3 +68,15 @@ export interface Import {
   name: string;
   source: string;
 }
+
+export interface FileTree {
+  name: string;
+  type: 'file' | 'folder';
+  children?: FileTree[];
+}
+
+export interface FlatNode {
+  expandable: boolean;
+  name: string;
+  level: number;
+}

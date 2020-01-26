@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { DataService } from '../../services/data.service';
 import { Router } from '@angular/router';
-import { NodeSelection } from '../../interfaces';
+import { FileTree, NodeSelection } from '../../interfaces';
 import { Subscription } from 'rxjs';
 import { SettingsService } from '../../services/settings.service';
 import { FileWithPath } from '../../helper/getFilesAsync';
@@ -20,6 +20,36 @@ export class GraphViewComponent implements OnInit, OnDestroy {
   private graphDataSub: Subscription;
   private selectedNodeSub: Subscription;
   private progressSub: Subscription;
+  fileTree: FileTree[] = [
+    {
+      type: 'folder',
+      name: 'src',
+      children: [
+        {
+          type: 'file',
+          name: 'App.tsx'
+        },
+        {
+          type: 'folder',
+          name: 'components',
+          children: [
+            {
+              type: 'file',
+              name: 'ComponentA.tsx'
+            },
+            {
+              type: 'file',
+              name: 'ComponentB.tsx'
+            },
+            {
+              type: 'file',
+              name: 'ComponentC.tsx'
+            }
+          ]
+        }
+      ]
+    }
+  ];
 
   constructor(
     public dataService: DataService,
