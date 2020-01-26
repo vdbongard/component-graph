@@ -87,9 +87,13 @@ THE SOFTWARE.
 
 @angular/material/button
 
+@angular/material/core
+
 @angular/material/dialog
 
 @angular/material/icon
+
+@angular/material/list
 
 @angular/material/progress-bar
 
@@ -98,6 +102,8 @@ THE SOFTWARE.
 @angular/material/toolbar
 
 @angular/material/tooltip
+
+@angular/material/tree
 
 @angular/platform-browser
 MIT
