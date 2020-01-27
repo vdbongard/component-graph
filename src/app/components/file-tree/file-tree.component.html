@@ -6,6 +6,7 @@
         disableRipple
         matRipple
         matTreeNodePadding
+        [matTreeNodePaddingIndent]="28"
         [attr.aria-label]="'toggle ' + node.name"
       >
         <mat-icon matListIcon>{{
@@ -22,11 +23,10 @@
         matRipple
         matTreeNodeToggle
         matTreeNodePadding
+        [matTreeNodePaddingIndent]="28"
         [attr.aria-label]="'toggle ' + node.name"
       >
-        <mat-icon matListIcon>{{
-          treeControl.isExpanded(node) ? 'folder_open' : 'folder'
-        }}</mat-icon>
+        <mat-icon matListIcon>folder</mat-icon>
         <h3 matLine>{{ node.name }}</h3>
       </mat-list-item>
     </mat-tree-node>
