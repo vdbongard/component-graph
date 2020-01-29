@@ -345,7 +345,7 @@ export class GraphComponent implements OnInit, OnDestroy {
         )
         .force(
           'collide',
-          d3.forceCollide().radius((d: Node) => d.width)
+          d3.forceCollide().radius((d: Node) => (d.width / 2) * 1.2)
         );
     }
 
