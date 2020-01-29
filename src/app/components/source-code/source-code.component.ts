@@ -21,7 +21,8 @@ export class SourceCodeComponent implements OnInit, AfterViewInit {
   config = {
     mode: { name: 'jsx' },
     lineNumbers: true,
-    readOnly: true
+    readOnly: true,
+    theme: 'neo'
   };
 
   constructor() {}

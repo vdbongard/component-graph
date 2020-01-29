@@ -27,6 +27,7 @@
             "styles": [
               "./node_modules/@angular/material/prebuilt-themes/deeppurple-amber.css",
               "./node_modules/codemirror/lib/codemirror.css",
+              "src/assets/neo.css",
               "src/styles.scss"
             ],
             "scripts": []
@@ -91,6 +92,7 @@
             "styles": [
               "./node_modules/@angular/material/prebuilt-themes/deeppurple-amber.css",
               "./node_modules/codemirror/lib/codemirror.css",
+              "src/assets/neo.css",
               "src/styles.scss"
             ],
             "scripts": []
