@@ -38,6 +38,7 @@ export interface Settings {
 
 export interface NodeSelection {
   id: string;
+  type: 'component' | 'function';
   label?: string;
   report: any;
   code?: string;

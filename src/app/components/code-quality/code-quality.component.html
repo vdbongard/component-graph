@@ -32,19 +32,19 @@
     <app-quality-metric
       name="Lines of Code"
       [value]="report.sloc.physical"
-      [threshold]="200"
+      [threshold]="selectedNode.type === 'component' ? 200 : 40"
     ></app-quality-metric>
 
     <app-quality-metric
       name="Lines of Code (logical)"
       [value]="report.sloc.logical"
-      [threshold]="200"
+      [threshold]="selectedNode.type === 'component' ? 200 : 40"
     ></app-quality-metric>
 
     <app-quality-metric
       name="Cyclomatic Complexity"
       [value]="report.cyclomatic"
-      [threshold]="10"
+      [threshold]="selectedNode.type === 'component' ? 20 : 5"
     ></app-quality-metric>
 
     <app-quality-metric
@@ -56,7 +56,7 @@
     <app-quality-metric
       name="Halstead Difficulty"
       [value]="report.halstead.difficulty"
-      [threshold]="30"
+      [threshold]="selectedNode.type === 'component' ? 30 : 8"
     ></app-quality-metric>
   </ng-container>
 </div>

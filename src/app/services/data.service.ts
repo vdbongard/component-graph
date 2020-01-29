@@ -119,9 +119,10 @@ export class DataService {
   }
 
   selectNode(node: Node, componentId: string) {
-    const selectedNode = {
+    const selectedNode: NodeSelection = {
       id: node.id,
       label: node.label,
+      type: componentId && node.group !== 2 ? 'function' : 'component',
       report: this.findReport(node.id, componentId),
       code: this.findCode(node.id, componentId)
     };
@@ -142,6 +143,7 @@ export class DataService {
         selectedNodes.push({
           id: componentId,
           label: name,
+          type: 'component',
           report: this.findReport(componentId),
           code: file.code
         });
