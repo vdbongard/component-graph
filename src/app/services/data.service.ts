@@ -3,6 +3,7 @@ import { BehaviorSubject, Subject } from 'rxjs';
 import {
   AstWithPath,
   FileMap,
+  FileTree,
   Graph,
   Import,
   Node,
@@ -125,6 +126,17 @@ export class DataService {
       code: this.findCode(node.id, componentId)
     };
     console.log('Select node: ', selectedNode);
+    this.selectedNode$.next(selectedNode);
+  }
+
+  selectFile(node: FileTree) {
+    const selectedNode = {
+      id: node.id,
+      label: node.name,
+      report: this.findReport(node.id),
+      code: this.findCode(node.id)
+    };
+    console.log('Select file: ', selectedNode);
     this.selectedNode$.next(selectedNode);
   }
 
@@ -301,7 +313,7 @@ export class DataService {
     );
   }
 
-  private findReport(nodeId: string, componentId: string) {
+  private findReport(nodeId: string, componentId?: string) {
     if (!this.report) {
       return;
     }
@@ -392,7 +404,7 @@ export class DataService {
     return dependency;
   }
 
-  private findCode(nodeId: string, componentId: string) {
+  private findCode(nodeId: string, componentId?: string) {
     const fileName =
       (componentId && componentId.split('#')[0]) || nodeId.split('#')[0];
     const file = this.fileMap$.value[fileName];

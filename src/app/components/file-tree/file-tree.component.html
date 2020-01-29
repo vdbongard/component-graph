@@ -8,6 +8,7 @@
         matTreeNodePadding
         [matTreeNodePaddingIndent]="28"
         [attr.aria-label]="'toggle ' + node.name"
+        (click)="dataService.selectFile(node)"
       >
         <mat-icon matListIcon>{{
           node.type === 'folder' ? 'folder' : node.type === 'file' && 'code'

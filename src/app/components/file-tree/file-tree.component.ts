@@ -158,6 +158,7 @@ const transformer = (node: FileTree, level: number) => {
     expandable: !!node.children && node.children.length > 0,
     name: node.name,
     type: node.type,
+    id: node.id,
     level
   };
 };
