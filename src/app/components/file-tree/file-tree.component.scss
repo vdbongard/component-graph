@@ -1,5 +1,13 @@
 mat-list-item {
   user-select: none;
+
+  &.selected {
+    background-color: rgba(0, 0, 0, 0.08);
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.12);
+    }
+  }
 }
 
 :host::ng-deep {

@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { FileMap, FileTree, FlatNode } from '../../interfaces';
+import { Component, Input, OnInit } from '@angular/core';
+import { FileMap, FileTree, FlatNode, NodeSelection } from '../../interfaces';
 import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material';
 import { FlatTreeControl } from '@angular/cdk/tree';
 import { DataService } from '../../services/data.service';
@@ -10,6 +10,8 @@ import { DataService } from '../../services/data.service';
   styleUrls: ['./file-tree.component.scss']
 })
 export class FileTreeComponent implements OnInit {
+  @Input() selectedNodes: NodeSelection[];
+
   treeControl = new FlatTreeControl<FlatNode>(
     node => node.level,
     node => node.expandable
