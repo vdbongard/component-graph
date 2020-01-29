@@ -1,15 +1,17 @@
 <div class="header-container">
   <h2 class="mat-h3 cell-header">
     Code Quality
-    <span *ngIf="selectedNode?.report?.aggregate" class="mat-h4">
-      {{ selectedNode.label || selectedNode.id }} (aggregate)</span
-    >
-    <span
-      *ngIf="selectedNode && !selectedNode.report?.aggregate"
-      class="mat-h4"
-    >
-      {{ selectedNode.label || selectedNode.id }}</span
-    >
+    <ng-container *ngIf="report">
+      <span *ngIf="selectedNode?.report?.aggregate" class="mat-h4">
+        {{ selectedNode.label || selectedNode.id }} (aggregate)</span
+      >
+      <span
+        *ngIf="selectedNode && !selectedNode.report?.aggregate"
+        class="mat-h4"
+      >
+        {{ selectedNode.label || selectedNode.id }}</span
+      >
+    </ng-container>
   </h2>
   <h3 *ngIf="selectedNode?.report?.maintainability" class="score mat-h4">
     Score
