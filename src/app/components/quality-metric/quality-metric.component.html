@@ -1,0 +1,11 @@
+<div class="quality-metric">
+  <span class="name">{{ name }}</span>
+  <span class="value">{{ value }}</span>
+  <mat-progress-bar
+    class="progress-bar"
+    [value]="progressValue"
+    [class.warn]="value >= threshold * 0.8 && value < threshold"
+    [class.error]="value >= threshold"
+  >
+  </mat-progress-bar>
+</div>

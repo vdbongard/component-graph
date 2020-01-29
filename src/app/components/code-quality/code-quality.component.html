@@ -1,21 +1,60 @@
-<h2 class="mat-h3 cell-header">
-  Code Quality
-  <span *ngIf="selectedNode?.report?.aggregate" class="mat-h4">
-    {{ selectedNode.label || selectedNode.id }} (aggregate)</span
-  >
-  <span *ngIf="selectedNode && !selectedNode.report?.aggregate" class="mat-h4">
-    {{ selectedNode.label || selectedNode.id }}</span
-  >
-</h2>
-<div *ngIf="selectedNode" class="content-inner">
-  <ng-container *ngIf="selectedNode.report?.aggregate">
-    <small style="display: block; margin-bottom: 4px;">
-      Maintainability: {{ selectedNode.report.maintainability }}
-    </small>
-    <pre style="margin: 0;">{{ selectedNode.report?.aggregate | json }}</pre>
-  </ng-container>
+<div class="header-container">
+  <h2 class="mat-h3 cell-header">
+    Code Quality
+    <span *ngIf="selectedNode?.report?.aggregate" class="mat-h4">
+      {{ selectedNode.label || selectedNode.id }} (aggregate)</span
+    >
+    <span
+      *ngIf="selectedNode && !selectedNode.report?.aggregate"
+      class="mat-h4"
+    >
+      {{ selectedNode.label || selectedNode.id }}</span
+    >
+  </h2>
+  <h3 *ngIf="selectedNode?.report?.maintainability" class="score mat-h4">
+    Score
+    <span
+      class="score-number mat-h3"
+      [class.warn]="
+        selectedNode.report.maintainability < 125 &&
+        selectedNode.report.maintainability >= 80
+      "
+      [class.error]="selectedNode.report.maintainability < 80"
+      >{{ selectedNode.report.maintainability | number: '1.0-0' }}</span
+    >
+  </h3>
+</div>
 
-  <pre *ngIf="!selectedNode.report?.aggregate" style="margin: 0;">{{
-    selectedNode.report | json
-  }}</pre>
+<div *ngIf="selectedNode" class="content-inner">
+  <ng-container *ngIf="report">
+    <app-quality-metric
+      name="Lines of Code"
+      [value]="report.sloc.physical"
+      [threshold]="200"
+    ></app-quality-metric>
+
+    <app-quality-metric
+      name="Lines of Code (logical)"
+      [value]="report.sloc.logical"
+      [threshold]="200"
+    ></app-quality-metric>
+
+    <app-quality-metric
+      name="Cyclomatic Complexity"
+      [value]="report.cyclomatic"
+      [threshold]="10"
+    ></app-quality-metric>
+
+    <app-quality-metric
+      name="Cyclomatic Density"
+      [value]="report.cyclomaticDensity"
+      [threshold]="100"
+    ></app-quality-metric>
+
+    <app-quality-metric
+      name="Halstead Difficulty"
+      [value]="report.halstead.difficulty"
+      [threshold]="30"
+    ></app-quality-metric>
+  </ng-container>
 </div>

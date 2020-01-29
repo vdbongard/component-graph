@@ -22,16 +22,15 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./graph.component.scss']
 })
 export class GraphComponent implements OnInit, OnDestroy {
-  private selectedNodeInternal: NodeSelection;
-
   @Input() set selectedNode(value: NodeSelection) {
     this.selectedNodeInternal = value;
     this.updateGraph();
   }
-
   get selectedNode(): NodeSelection {
     return this.selectedNodeInternal;
   }
+
+  private selectedNodeInternal: NodeSelection;
 
   @ViewChild('d3Root', { static: false }) d3Root: ElementRef;
 

@@ -30,6 +30,7 @@ import { SourceCodeComponent } from './components/source-code/source-code.compon
 import { FileTreeComponent } from './components/file-tree/file-tree.component';
 import { CodemirrorModule } from 'ng2-codemirror';
 import { AngularSplitModule } from 'angular-split';
+import { QualityMetricComponent } from './components/quality-metric/quality-metric.component';
 
 @NgModule({
   declarations: [
@@ -41,7 +42,8 @@ import { AngularSplitModule } from 'angular-split';
     GraphViewComponent,
     CodeQualityComponent,
     SourceCodeComponent,
-    FileTreeComponent
+    FileTreeComponent,
+    QualityMetricComponent
   ],
   imports: [
     BrowserModule,

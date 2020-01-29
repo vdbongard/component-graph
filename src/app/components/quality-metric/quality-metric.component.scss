@@ -1,0 +1,47 @@
+$height: 22px;
+
+.quality-metric {
+  position: relative;
+  height: $height;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 8px;
+}
+
+.name,
+.value {
+  font-size: 13px;
+  z-index: 1;
+}
+
+.value {
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.progress-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: $height;
+  border: 1px solid #bdbdbd;
+}
+
+::ng-deep {
+  .mat-progress-bar-fill::after {
+    background-color: hsla(120, 70%, 80%, 1);
+  }
+
+  .warn .mat-progress-bar-fill::after {
+    background-color: hsla(50, 70%, 80%, 1);
+  }
+
+  .error .mat-progress-bar-fill::after {
+    background-color: hsla(0, 70%, 80%, 1);
+  }
+
+  .mat-progress-bar-buffer {
+    background-color: white;
+  }
+}
