@@ -226,8 +226,7 @@ export class GraphComponent implements OnInit, OnDestroy {
 
   generateNodeSizes(nodes: Node[]) {
     return nodes.map(node => {
-      node.width = this.circleRadius * 2;
-      node.height = this.circleRadius * 2;
+      node.width = node.height = this.circleRadius * 2;
       return node;
     });
   }
@@ -306,8 +305,9 @@ export class GraphComponent implements OnInit, OnDestroy {
   private createSimulation(force?: number) {
     let simulation;
 
+    this.nodeData = this.generateNodeSizes(this.nodeData);
+
     if (this.settings.colaLayout) {
-      this.nodeData = this.generateNodeSizes(this.nodeData);
       simulation = d3adaptor(d3)
         .size([
           this.d3Root.nativeElement.clientWidth,
@@ -343,7 +343,10 @@ export class GraphComponent implements OnInit, OnDestroy {
             this.d3Root.nativeElement.clientHeight / 2
           )
         )
-        .force('collide', d3.forceCollide().radius(this.circleRadius * 1.2));
+        .force(
+          'collide',
+          d3.forceCollide().radius((d: Node) => d.width)
+        );
     }
 
     simulation
@@ -358,7 +361,7 @@ export class GraphComponent implements OnInit, OnDestroy {
             return (
               d.source.x +
               (diffX / distance) *
-                (distance - this.circleRadius - this.circleStrokeWidth / 2)
+                (distance - d.target.width / 2 - this.circleStrokeWidth / 2)
             );
           })
           .attr('y2', d => {
@@ -368,7 +371,7 @@ export class GraphComponent implements OnInit, OnDestroy {
             return (
               d.source.y +
               (diffY / distance) *
-                (distance - this.circleRadius - this.circleStrokeWidth / 2)
+                (distance - d.target.width / 2 - this.circleStrokeWidth / 2)
             );
           });
 
@@ -456,7 +459,7 @@ export class GraphComponent implements OnInit, OnDestroy {
 
     nodes
       .append('circle')
-      .attr('r', this.circleRadius)
+      .attr('r', d => d.width / 2)
       .attr('fill', d =>
         this.calculateBrightenedColor(d, this.circleFillBrightness)
       )
@@ -469,7 +472,7 @@ export class GraphComponent implements OnInit, OnDestroy {
         .text(d => d.label || d.id)
         .style('font-size', `${this.normalTextSize}px`)
         .style('dominant-baseline', 'central')
-        .attr('x', this.circleRadius * 1.1);
+        .attr('x', d => (d.width / 2) * 1.1);
 
       if (this.settings.textCenter) {
         nodes
