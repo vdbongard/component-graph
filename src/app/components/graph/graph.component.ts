@@ -542,7 +542,7 @@ export class GraphComponent implements OnInit, OnDestroy {
 
     const scale = Math.min(
       paddingPercent / Math.max(width / fullWidth, height / fullHeight),
-      2 // max auto zoom
+      3 // max auto zoom
     );
     const translate = [
       fullWidth / 2 - scale * midX,
