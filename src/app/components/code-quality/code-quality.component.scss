@@ -6,7 +6,6 @@
 .header-container {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 8px;
 }
 
 .cell-header {
@@ -15,9 +14,11 @@
 
 .score {
   color: #989898;
+
   .score-number {
     color: hsla(120, 90%, 50%, 1);
-    font-weight: 500;
+    font-size: 20px;
+    font-weight: 600;
 
     &.warn {
       color: hsla(50, 90%, 50%, 1);
