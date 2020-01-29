@@ -1,4 +1,4 @@
-$height: 22px;
+$height: 24px;
 
 .quality-metric {
   position: relative;
@@ -24,7 +24,7 @@ $height: 22px;
   position: absolute;
   top: 0;
   left: 0;
-  height: $height;
+  height: 100%;
   border: 1px solid #bdbdbd;
 }
 
