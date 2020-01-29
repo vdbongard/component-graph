@@ -20,23 +20,20 @@ mat-list-item {
     height: 32px;
   }
 
-  .mat-list-base[dense]
-    .mat-list-item.mat-list-item-with-avatar
-    .mat-list-item-content
-    .mat-list-text,
-  .mat-list-base[dense]
-    .mat-list-item.mat-list-option
-    .mat-list-item-content
-    .mat-list-text,
-  .mat-list-base[dense]
-    .mat-list-option.mat-list-item-with-avatar
-    .mat-list-item-content
-    .mat-list-text,
-  .mat-list-base[dense]
-    .mat-list-option.mat-list-option
-    .mat-list-item-content
-    .mat-list-text {
-    padding-left: 4px;
+  .mat-list-base[dense] {
+    $padding-left: 4px;
+    .mat-list-item {
+      &.mat-list-item-with-avatar .mat-list-item-content .mat-list-text,
+      &.mat-list-option .mat-list-item-content .mat-list-text {
+        padding-left: $padding-left;
+      }
+    }
+    .mat-list-option {
+      &.mat-list-item-with-avatar .mat-list-item-content .mat-list-text,
+      &.mat-list-option .mat-list-item-content .mat-list-text {
+        padding-left: $padding-left;
+      }
+    }
   }
 
   .mat-list-base[dense] .mat-list-item {
