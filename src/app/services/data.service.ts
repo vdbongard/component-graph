@@ -34,7 +34,7 @@ export class DataService {
   report;
 
   graphData$ = new Subject<Graph>();
-  selectedNode$ = new BehaviorSubject<NodeSelection>(undefined);
+  selectedNodes$ = new BehaviorSubject<NodeSelection[]>(undefined);
   progress$ = new BehaviorSubject<number>(undefined);
   fileMap$ = new BehaviorSubject<FileMap>(undefined);
 
@@ -126,7 +126,7 @@ export class DataService {
       code: this.findCode(node.id, componentId)
     };
     console.log('Select node: ', selectedNode);
-    this.selectedNode$.next(selectedNode);
+    this.selectedNodes$.next([selectedNode]);
   }
 
   selectFile(node: FileTree) {
@@ -137,7 +137,7 @@ export class DataService {
       code: this.findCode(node.id)
     };
     console.log('Select file: ', selectedNode);
-    this.selectedNode$.next(selectedNode);
+    this.selectedNodes$.next([selectedNode]);
   }
 
   private generateAppGraph(fileMap: FileMap): Graph {

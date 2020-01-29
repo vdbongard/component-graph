@@ -22,15 +22,15 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./graph.component.scss']
 })
 export class GraphComponent implements OnInit, OnDestroy {
-  @Input() set selectedNode(value: NodeSelection) {
-    this.selectedNodeInternal = value;
+  @Input() set selectedNodes(value: NodeSelection[]) {
+    this.selectedNodesInternal = value;
     this.updateGraph();
   }
-  get selectedNode(): NodeSelection {
-    return this.selectedNodeInternal;
+  get selectedNodes(): NodeSelection[] {
+    return this.selectedNodesInternal;
   }
 
-  private selectedNodeInternal: NodeSelection;
+  private selectedNodesInternal: NodeSelection[];
 
   @ViewChild('d3Root', { static: false }) d3Root: ElementRef;
 
@@ -56,7 +56,7 @@ export class GraphComponent implements OnInit, OnDestroy {
   private graphDataSub: Subscription;
   private settingsSub: Subscription;
   private queryParamsSub: Subscription;
-  private selectedNodeSub: Subscription;
+  private selectedNodesSub: Subscription;
   private progressSub: Subscription;
 
   // Settings
@@ -202,13 +202,15 @@ export class GraphComponent implements OnInit, OnDestroy {
     this.svgZoomGroup
       .selectAll('.node circle')
       .attr('stroke-width', (d: Node) => {
-        return d.id === this.selectedNode.id
+        return this.selectedNodes &&
+          this.selectedNodes.find(node => node.id === d.id)
           ? this.selectedCircleStrokeWidth
           : this.circleStrokeWidth;
       })
       .attr('fill', (d: Node) => {
         const brightness =
-          d.id === this.selectedNode.id
+          this.selectedNodes &&
+          this.selectedNodes.find(node => node.id === d.id)
             ? this.selectedCircleFillBrightness
             : this.circleFillBrightness;
 
@@ -600,7 +602,7 @@ export class GraphComponent implements OnInit, OnDestroy {
     this.stopGraph();
     this.settingsSub.unsubscribe();
     this.queryParamsSub.unsubscribe();
-    this.selectedNodeSub.unsubscribe();
+    this.selectedNodesSub.unsubscribe();
     this.progressSub.unsubscribe();
     if (this.graphDataSub) {
       this.graphDataSub.unsubscribe();

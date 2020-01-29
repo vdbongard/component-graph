@@ -12,7 +12,7 @@ import { FileWithPath } from '../../helper/getFilesAsync';
   styleUrls: ['./graph-view.component.scss']
 })
 export class GraphViewComponent implements OnInit, OnDestroy {
-  selectedNode: NodeSelection;
+  selectedNodes: NodeSelection[];
   id: string;
   progress: number;
   gutterSize = 8;
@@ -29,15 +29,17 @@ export class GraphViewComponent implements OnInit, OnDestroy {
   ngOnInit() {
     window.onbeforeunload = () => this.dataService.saveToLocalStorage();
 
-    this.selectedNodeSub = this.dataService.selectedNode$.subscribe(node => {
-      if (!node) {
+    this.selectedNodeSub = this.dataService.selectedNodes$.subscribe(nodes => {
+      if (!nodes) {
         return;
       }
-      if (node.report && node.report.aggregate) {
-        node.report.aggregate.halstead.operands.identifiers = ['...'];
-        node.report.aggregate.halstead.operators.identifiers = ['...'];
+      for (const node of nodes) {
+        if (node.report && node.report.aggregate) {
+          node.report.aggregate.halstead.operands.identifiers = ['...'];
+          node.report.aggregate.halstead.operators.identifiers = ['...'];
+        }
       }
-      this.selectedNode = node;
+      this.selectedNodes = nodes;
     });
 
     this.progressSub = this.dataService.progress$.subscribe(

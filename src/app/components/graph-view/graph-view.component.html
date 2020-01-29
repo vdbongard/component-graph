@@ -16,15 +16,19 @@
       <app-file-tree></app-file-tree>
     </as-split-area>
     <as-split-area size="*" order="2">
-      <app-graph [selectedNode]="selectedNode"></app-graph>
+      <app-graph [selectedNodes]="selectedNodes"></app-graph>
     </as-split-area>
     <as-split-area size="575" order="3" [visible]="!settings.fullScreen">
       <as-split unit="percent" direction="vertical" [gutterSize]="gutterSize">
         <as-split-area size="30">
-          <app-code-quality [selectedNode]="selectedNode"></app-code-quality>
+          <app-code-quality
+            [selectedNode]="selectedNodes && selectedNodes[0]"
+          ></app-code-quality>
         </as-split-area>
         <as-split-area size="70">
-          <app-source-code [code]="selectedNode?.code"></app-source-code>
+          <app-source-code
+            [code]="selectedNodes && selectedNodes[0].code"
+          ></app-source-code>
         </as-split-area>
       </as-split>
     </as-split-area>
