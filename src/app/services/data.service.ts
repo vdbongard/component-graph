@@ -130,14 +130,26 @@ export class DataService {
   }
 
   selectFile(node: FileTree) {
-    const selectedNode = {
-      id: node.id,
-      label: node.name,
-      report: this.findReport(node.id),
-      code: this.findCode(node.id)
-    };
-    console.log('Select file: ', selectedNode);
-    this.selectedNodes$.next([selectedNode]);
+    const fileName = node.id;
+
+    const file = this.fileMap$.value[fileName];
+
+    const selectedNodes: NodeSelection[] = [];
+
+    if (file && file.components) {
+      Object.keys(file.components).forEach(name => {
+        const componentId = `${fileName}#${name}`;
+        selectedNodes.push({
+          id: componentId,
+          label: name,
+          report: this.findReport(componentId),
+          code: file.code
+        });
+      });
+    }
+
+    console.log('Select file -> nodes: ', selectedNodes);
+    this.selectedNodes$.next(selectedNodes);
   }
 
   private generateAppGraph(fileMap: FileMap): Graph {
