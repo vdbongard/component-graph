@@ -327,7 +327,7 @@ export class DataService {
     );
   }
 
-  private findReport(nodeId: string, componentId?: string) {
+  findReport(nodeId: string, componentId?: string) {
     if (!this.report) {
       return;
     }

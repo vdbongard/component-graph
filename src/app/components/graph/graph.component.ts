@@ -70,6 +70,7 @@ export class GraphComponent implements OnInit, OnDestroy {
   linkStrokeWidth = 0.8;
   maxLinkStrokeWidth = 1.6;
   dragAlphaTarget = 0.3; // how much the dragged node influences other nodes
+  enableNodeSizeBasedOnMetric = false;
 
   normalTextSize: number;
   maxTextSize: number;
@@ -226,7 +227,23 @@ export class GraphComponent implements OnInit, OnDestroy {
 
   generateNodeSizes(nodes: Node[]) {
     return nodes.map(node => {
-      node.width = node.height = this.circleRadius * 2;
+      if (!this.enableNodeSizeBasedOnMetric) {
+        node.width = node.height = this.circleRadius * 2;
+        return node;
+      }
+
+      const report = this.dataService.findReport(node.id, this.id);
+      if (report && node.group !== 2) {
+        const metrics = report.aggregate ? report.aggregate : report;
+        const loc = metrics.sloc.physical;
+        node.width = node.height = 24 + loc / 4;
+      } else {
+        if (!report) {
+          console.error('Report not found:', node.id, this.id);
+        }
+        node.width = node.height = this.circleRadius * 2;
+      }
+
       return node;
     });
   }
