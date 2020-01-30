@@ -23,7 +23,7 @@ export class CodeQualityComponent implements OnInit {
   }
 
   private selectedNodeInternal: NodeSelection;
-  private report;
+  report;
 
   constructor() {}
 

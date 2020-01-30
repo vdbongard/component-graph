@@ -17,7 +17,7 @@ export class QualityMetricComponent implements OnInit {
   }
 
   private valueInternal: number;
-  private progressValue: number;
+  progressValue: number;
 
   constructor() {}
 

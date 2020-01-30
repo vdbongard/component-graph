@@ -26,7 +26,7 @@ export class FileTreeComponent implements OnInit {
 
   dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
 
-  constructor(private dataService: DataService) {}
+  constructor(public dataService: DataService) {}
 
   ngOnInit(): void {
     this.dataService.fileMap$.subscribe(fileMap => {
