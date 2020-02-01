@@ -76,10 +76,11 @@ export class SourceCodeComponent implements OnInit, AfterViewInit, OnChanges, On
     );
     this.editor.instance.scrollTo(null, top);
 
-    this.timeoutId = setTimeout(() => {
-      this.editor.instance.setCursor({ line: actualLineStart, ch: 0 });
-      this.timeoutId = null;
-    }, 1000);
+    // automatic deselection
+    // this.timeoutId = setTimeout(() => {
+    //   this.editor.instance.setCursor({ line: actualLineStart, ch: 0 });
+    //   this.timeoutId = null;
+    // }, 1000);
   }
 
   ngOnDestroy(): void {
