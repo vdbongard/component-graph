@@ -20,9 +20,7 @@ export class SettingsModalComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.settingsForm = this.formBuilder.group(
-      this.settingsService.fullSettings
-    );
+    this.settingsForm = this.formBuilder.group(this.settingsService.fullSettings);
   }
 
   onNoClick(): void {

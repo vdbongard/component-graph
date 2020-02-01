@@ -38,17 +38,12 @@ export function traverse(asts: AstWithPath[], fileName: string) {
       }
     },
     'FunctionExpression|ArrowFunctionExpression': path => {
-      if (
-        !path.parentPath.isVariableDeclarator() &&
-        !path.parentPath.isCallExpression()
-      ) {
+      if (!path.parentPath.isVariableDeclarator() && !path.parentPath.isCallExpression()) {
         return;
       }
       if (isReactFunctionComponent(path)) {
         path.skip();
-        const functionComponentName = path.findParent(p =>
-          p.isVariableDeclarator()
-        ).node.id.name;
+        const functionComponentName = path.findParent(p => p.isVariableDeclarator()).node.id.name;
         components[functionComponentName] = traverseFunctionComponent(
           path,
           functionComponentName,
@@ -188,9 +183,7 @@ function traverseClassComponent(componentPath, name, fileName, asts) {
     },
     MemberExpression: path => {
       if (isThisMemberExpression(path.node)) {
-        let parentPath = path.findParent(
-          p => p.isClassMethod() || p.isClassProperty()
-        );
+        let parentPath = path.findParent(p => p.isClassMethod() || p.isClassProperty());
         if (!parentPath) {
           return;
         }
@@ -259,9 +252,7 @@ function traverseFunctionComponent(componentPath, name, fileName, asts) {
             id: path.parentPath
               ? `${path.parentPath.node.id.name}#${path.parentPath.node.id.loc.start.line}`
               : `${path.node.id.name}#${path.node.id.loc.start.line}`,
-            label: path.parentPath
-              ? path.parentPath.node.id.name
-              : path.node.id.name,
+            label: path.parentPath ? path.parentPath.node.id.name : path.node.id.name,
             group: 1
           });
         }
@@ -290,8 +281,7 @@ function traverseFunctionComponent(componentPath, name, fileName, asts) {
 
         const parent = path.findParent(
           p =>
-            (isFunction(p.node) && p.parentPath.isVariableDeclarator()) ||
-            p.isFunctionDeclaration()
+            (isFunction(p.node) && p.parentPath.isVariableDeclarator()) || p.isFunctionDeclaration()
         );
 
         if (!parent) {
@@ -342,13 +332,8 @@ function postProcessing(graph: Graph, aliases: { [p: string]: string }) {
   filterInvalidLinks(graph);
 }
 
-function mergeAliasesWithOriginals(
-  graph: Graph,
-  aliases: { [alias: string]: string }
-) {
-  graph.nodes = graph.nodes.filter(
-    node => !Object.keys(aliases).includes(node.id)
-  );
+function mergeAliasesWithOriginals(graph: Graph, aliases: { [alias: string]: string }) {
+  graph.nodes = graph.nodes.filter(node => !Object.keys(aliases).includes(node.id));
 
   graph.links = graph.links
     .map(link => {
@@ -390,10 +375,7 @@ export function pushUniqueLink(link: Link, links: Link[]) {
   }
 
   if (
-    links.find(
-      searchLink =>
-        searchLink.source === link.source && searchLink.target === link.target
-    )
+    links.find(searchLink => searchLink.source === link.source && searchLink.target === link.target)
   ) {
     return;
   }
@@ -401,19 +383,11 @@ export function pushUniqueLink(link: Link, links: Link[]) {
   links.push(link);
 }
 
-function pushUniqueDependencies(
-  newDependencies: Import[],
-  dependencies: Import[]
-) {
-  newDependencies.forEach(dependency =>
-    pushUniqueDependency(dependency, dependencies)
-  );
+function pushUniqueDependencies(newDependencies: Import[], dependencies: Import[]) {
+  newDependencies.forEach(dependency => pushUniqueDependency(dependency, dependencies));
 }
 
-export function pushUniqueDependency(
-  dependency: Import,
-  dependencies: Import[]
-) {
+export function pushUniqueDependency(dependency: Import, dependencies: Import[]) {
   if (!dependency) {
     return;
   }
@@ -421,8 +395,7 @@ export function pushUniqueDependency(
   if (
     dependencies.find(
       searchDependency =>
-        searchDependency.source === dependency.source &&
-        searchDependency.name === dependency.name
+        searchDependency.source === dependency.source && searchDependency.name === dependency.name
     )
   ) {
     return;
@@ -448,24 +421,14 @@ function getImportBindingPath(path, importName) {
   return getImportPathFromBinding(binding);
 }
 
-function getImportPath(
-  path,
-  importName: string,
-  asts: AstWithPath[],
-  fileName?: string
-) {
+function getImportPath(path, importName: string, asts: AstWithPath[], fileName?: string) {
   const importBindingPath = getImportBindingPath(path, importName);
 
   if (!importBindingPath) {
     return;
   }
 
-  return getImportPathFromImportSpecifier(
-    importBindingPath,
-    importName,
-    asts,
-    fileName
-  );
+  return getImportPathFromImportSpecifier(importBindingPath, importName, asts, fileName);
 }
 
 function getImportPathFromImportSpecifier(
@@ -576,10 +539,7 @@ function isReactClassComponent(path, asts: AstWithPath[], fileName: string) {
     }
 
     // check if extends Component/PureComponent
-    if (
-      importPath === 'react' &&
-      ['Component', 'PureComponent'].includes(superClassName)
-    ) {
+    if (importPath === 'react' && ['Component', 'PureComponent'].includes(superClassName)) {
       return true;
     }
 
@@ -605,9 +565,7 @@ function isReactClassComponent(path, asts: AstWithPath[], fileName: string) {
       }
     });
 
-    return superClassPath
-      ? isReactClassComponent(superClassPath, asts, fileName)
-      : false;
+    return superClassPath ? isReactClassComponent(superClassPath, asts, fileName) : false;
   }
   // check if extends <Import>.<Class>
   else if (
@@ -628,11 +586,7 @@ function isReactClassComponent(path, asts: AstWithPath[], fileName: string) {
 
   const renderMethodPath = path
     .get('body.body')
-    .find(
-      method =>
-        method.isClassMethod() &&
-        method.get('key').isIdentifier({ name: 'render' })
-    );
+    .find(method => method.isClassMethod() && method.get('key').isIdentifier({ name: 'render' }));
 
   return renderMethodPath && isReturningJSX(renderMethodPath);
 }
@@ -691,10 +645,7 @@ function isReturningJSX(path) {
             returnStatementPath.stop();
             return;
           }
-        } else if (
-          callBind.path.isVariableDeclarator() &&
-          isFunction(callBind.path.node.init)
-        ) {
+        } else if (callBind.path.isVariableDeclarator() && isFunction(callBind.path.node.init)) {
           returnsJSXOrNull = isReturningJSX(callBind.path.get('init'));
           if (!returnsJSXOrNull) {
             returnStatementPath.stop();
@@ -740,8 +691,7 @@ function isInnerFunction(path, functionComponentName: string) {
     (isFunction(path.node) &&
       path.parentPath.isVariableDeclarator() &&
       path.parentPath.node.id.name === functionComponentName) ||
-    (path.isFunctionDeclaration() &&
-      path.node.id.name === functionComponentName)
+    (path.isFunctionDeclaration() && path.node.id.name === functionComponentName)
   );
 }
 
@@ -760,11 +710,7 @@ function getComponentDependencies(path, fileName: string, asts: AstWithPath[]) {
         return;
       }
 
-      const innerDependency = getComponentDependency(
-        identifierPath,
-        fileName,
-        asts
-      );
+      const innerDependency = getComponentDependency(identifierPath, fileName, asts);
       if (innerDependency) {
         dependencies.push(innerDependency);
       }
@@ -793,12 +739,9 @@ function getComponentDependency(path, fileName: string, asts: AstWithPath[]) {
 
   // check if dependency is in the same file
   if (
-    (binding.path.isVariableDeclarator() &&
-      isReactFunctionComponent(binding.path.get('init'))) ||
-    (binding.path.isClassDeclaration() &&
-      isReactClassComponent(binding.path, asts, fileName)) ||
-    (binding.path.isFunctionDeclaration() &&
-      isReactFunctionComponent(binding.path))
+    (binding.path.isVariableDeclarator() && isReactFunctionComponent(binding.path.get('init'))) ||
+    (binding.path.isClassDeclaration() && isReactClassComponent(binding.path, asts, fileName)) ||
+    (binding.path.isFunctionDeclaration() && isReactFunctionComponent(binding.path))
   ) {
     return {
       name: importName,
@@ -842,10 +785,7 @@ function isComponentFileImport(importPath: string, asts: AstWithPath[]) {
   return !!getComponentFileFromImportPath(importPath, asts);
 }
 
-function getComponentFileFromImportPath(
-  importPath: string,
-  asts: AstWithPath[]
-): AstWithPath {
+function getComponentFileFromImportPath(importPath: string, asts: AstWithPath[]): AstWithPath {
   if (!importPath.startsWith('/')) {
     const searchString = '/src/';
     const index = asts[0].srcPath.indexOf(searchString);
@@ -858,15 +798,11 @@ function getComponentFileFromImportPath(
 
   const filePath = importPath.includes('.') ? importPath : importPath + '.';
 
-  let file = asts.find(componentFile =>
-    componentFile.srcPath.startsWith(filePath)
-  );
+  let file = asts.find(componentFile => componentFile.srcPath.startsWith(filePath));
 
   if (!file) {
     const indexPath = importPath + '/index.';
-    file = asts.find(componentFile =>
-      componentFile.srcPath.startsWith(indexPath)
-    );
+    file = asts.find(componentFile => componentFile.srcPath.startsWith(indexPath));
   }
 
   return file;

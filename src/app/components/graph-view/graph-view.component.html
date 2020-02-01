@@ -1,9 +1,5 @@
 <div class="container" appDropTarget (fileDropped)="onFileDropped($event)">
-  <mat-progress-bar
-    *ngIf="progress !== undefined"
-    class="progress-bar"
-    [value]="progress"
-  >
+  <mat-progress-bar *ngIf="progress !== undefined" class="progress-bar" [value]="progress">
   </mat-progress-bar>
 
   <as-split
@@ -21,14 +17,10 @@
     <as-split-area size="575" order="3" [visible]="!settings.fullScreen">
       <as-split unit="percent" direction="vertical" [gutterSize]="gutterSize">
         <as-split-area size="30">
-          <app-code-quality
-            [selectedNode]="selectedNodes && selectedNodes[0]"
-          ></app-code-quality>
+          <app-code-quality [selectedNode]="selectedNodes && selectedNodes[0]"></app-code-quality>
         </as-split-area>
         <as-split-area size="70">
-          <app-source-code
-            [code]="selectedNodes && selectedNodes[0].code"
-          ></app-source-code>
+          <app-source-code [code]="selectedNodes && selectedNodes[0].code"></app-source-code>
         </as-split-area>
       </as-split>
     </as-split-area>

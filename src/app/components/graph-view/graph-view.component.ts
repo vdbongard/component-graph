@@ -42,9 +42,7 @@ export class GraphViewComponent implements OnInit, OnDestroy {
       this.selectedNodes = nodes;
     });
 
-    this.progressSub = this.dataService.progress$.subscribe(
-      progress => (this.progress = progress)
-    );
+    this.progressSub = this.dataService.progress$.subscribe(progress => (this.progress = progress));
   }
 
   ngOnDestroy() {

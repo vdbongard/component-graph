@@ -19,9 +19,7 @@ export async function getFilesAsync(dataTransfer: DataTransfer) {
     }
   }
 
-  (await Promise.all(entryContentPromises)).map(entryContent =>
-    files.push(...entryContent)
-  );
+  (await Promise.all(entryContentPromises)).map(entryContent => files.push(...entryContent));
 
   return files;
 }
@@ -66,9 +64,7 @@ function readEntryContentAsync(entry: FileSystemEntry) {
   });
 }
 
-function isDirectory(
-  entry: FileSystemEntry
-): entry is FileSystemDirectoryEntry {
+function isDirectory(entry: FileSystemEntry): entry is FileSystemDirectoryEntry {
   return entry.isDirectory;
 }
 
@@ -89,10 +85,7 @@ interface FileSystemEntry {
 }
 
 interface FileSystemFileEntry extends FileSystemEntry {
-  file(
-    successCallback: (file: File) => void,
-    errorCallback?: (error: Error) => void
-  ): void;
+  file(successCallback: (file: File) => void, errorCallback?: (error: Error) => void): void;
 }
 
 interface FileSystemDirectoryEntry extends FileSystemEntry {

@@ -11,12 +11,7 @@
   </button>
 </div>
 <div class="action-buttons right">
-  <button
-    mat-icon-button
-    aria-label="Zoom to fit"
-    (click)="zoomToFit()"
-    matTooltip="Zoom to fit"
-  >
+  <button mat-icon-button aria-label="Zoom to fit" (click)="zoomToFit()" matTooltip="Zoom to fit">
     <mat-icon>all_out</mat-icon>
   </button>
   <button
@@ -25,8 +20,6 @@
     (click)="settingsService.setSettings({ fullScreen: !settings.fullScreen })"
     [matTooltip]="settings.fullScreen ? 'Exit fullscreen' : 'Enter fullscreen'"
   >
-    <mat-icon>{{
-      settings.fullScreen ? 'fullscreen_exit' : 'fullscreen'
-    }}</mat-icon>
+    <mat-icon>{{ settings.fullScreen ? 'fullscreen_exit' : 'fullscreen' }}</mat-icon>
   </button>
 </div>

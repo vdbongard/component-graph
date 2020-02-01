@@ -1,10 +1,4 @@
-import {
-  AfterViewInit,
-  Component,
-  Input,
-  OnInit,
-  ViewChild
-} from '@angular/core';
+import { AfterViewInit, Component, Input, OnInit, ViewChild } from '@angular/core';
 import 'codemirror/mode/jsx/jsx.js';
 import { CodemirrorComponent } from 'ng2-codemirror';
 
