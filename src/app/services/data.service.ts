@@ -343,7 +343,21 @@ export class DataService {
     if (report) {
       // ClassComponent
       if (functionName && functionName !== componentName) {
-        return report.methods.find(method => method.name === functionName);
+        const classFunctionReport = report.methods.find(method => method.name === functionName);
+
+        if (!classFunctionReport) {
+          const component = this.fileMap$.value[fileName].components[componentName];
+          const functionNode = component.graph.nodes.find(node => node.id === functionName);
+
+          if (!functionNode) {
+            return;
+          }
+
+          const lineStart = functionNode.lineStart;
+          return report.methods.find(method => method.lineStart === lineStart);
+        }
+
+        return classFunctionReport;
       }
       return report;
     } else {
@@ -358,7 +372,7 @@ export class DataService {
           return;
         }
 
-        lineStart = +componentNode.id.split('#')[1];
+        lineStart = parseInt(componentNode.id.split('#')[1], 10);
       } else if (functionName.includes('#')) {
         lineStart = parseInt(functionName.split('#')[1], 10);
       }
