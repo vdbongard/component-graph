@@ -263,7 +263,7 @@ function traverseFunctionComponent(componentPath, name, fileName, asts) {
       if (path.parentPath.isVariableDeclarator()) {
         const functionParentPath = path.getFunctionParent();
 
-        if (isInnerFunction(functionParentPath, state.name)) {
+        if (isFunctionWithName(functionParentPath, state.name)) {
           // Node: InnerFunction
           graph.nodes.push({
             id: path.parentPath
@@ -294,13 +294,19 @@ function traverseFunctionComponent(componentPath, name, fileName, asts) {
         return;
       }
 
-      if (isInnerFunction(functionParentPath, state.name)) {
+      if (isFunctionWithName(functionParentPath, state.name)) {
         const target = path.node.name;
         const targetLine = binding.identifier.loc.start.line;
 
         const parent = path.findParent(
           p =>
-            (isFunction(p.node) && p.parentPath.isVariableDeclarator()) || p.isFunctionDeclaration()
+            // is function with declaration
+            ((isFunction(p.node) && p.parentPath.isVariableDeclarator()) ||
+              p.isFunctionDeclaration()) &&
+            // is inner function in FunctionComponent
+            (isFunctionWithName(p.getFunctionParent(), state.name) ||
+              // is FunctionComponent
+              isFunctionWithName(p, state.name))
         );
 
         if (!parent) {
@@ -707,12 +713,13 @@ function isReturningJSX(path) {
   return returnsAtLeastOnce && returnsJSXOrNull && returnsJSXOnce;
 }
 
-function isInnerFunction(path, functionComponentName: string) {
+function isFunctionWithName(path, functionComponentName: string) {
   return (
-    (isFunction(path.node) &&
+    path &&
+    ((isFunction(path.node) &&
       path.parentPath.isVariableDeclarator() &&
       path.parentPath.node.id.name === functionComponentName) ||
-    (path.isFunctionDeclaration() && path.node.id.name === functionComponentName)
+      (path.isFunctionDeclaration() && path.node.id.name === functionComponentName))
   );
 }
 
