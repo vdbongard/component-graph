@@ -1,11 +1,4 @@
-import {
-  Component,
-  ElementRef,
-  Input,
-  OnDestroy,
-  OnInit,
-  ViewChild
-} from '@angular/core';
+import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
 import { Node, NodeSelection, RefLink, Settings } from '../../interfaces';
 import { DataService } from '../../services/data.service';
@@ -124,31 +117,29 @@ export class GraphComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.queryParamsSub = this.activatedRoute.queryParams.subscribe(
-      queryParams => {
-        if (queryParams.upload) {
-          this.id = undefined;
-          this.router.navigate([], {
-            relativeTo: this.activatedRoute
-          });
-          this.queryParamWasUpload = true;
-          this.queryParamIsInitial = false;
-          return;
-        }
-        // skip graph update, wait for uploaded files being analyzed
-        if (this.queryParamWasUpload) {
-          this.queryParamWasUpload = false;
-          return;
-        }
-        if (this.queryParamIsInitial) {
-          this.queryParamIsInitial = false;
-          this.dataService.restoreFromLocalStorage();
-        }
-
-        this.id = queryParams.id;
-        this.dataService.setComponentGraph(queryParams.id);
+    this.queryParamsSub = this.activatedRoute.queryParams.subscribe(queryParams => {
+      if (queryParams.upload) {
+        this.id = undefined;
+        this.router.navigate([], {
+          relativeTo: this.activatedRoute
+        });
+        this.queryParamWasUpload = true;
+        this.queryParamIsInitial = false;
+        return;
       }
-    );
+      // skip graph update, wait for uploaded files being analyzed
+      if (this.queryParamWasUpload) {
+        this.queryParamWasUpload = false;
+        return;
+      }
+      if (this.queryParamIsInitial) {
+        this.queryParamIsInitial = false;
+        this.dataService.restoreFromLocalStorage();
+      }
+
+      this.id = queryParams.id;
+      this.dataService.setComponentGraph(queryParams.id);
+    });
   }
 
   private initGraph() {
@@ -203,15 +194,13 @@ export class GraphComponent implements OnInit, OnDestroy {
     this.svgZoomGroup
       .selectAll('.node circle')
       .attr('stroke-width', (d: Node) => {
-        return this.selectedNodes &&
-          this.selectedNodes.find(node => node.id === d.id)
+        return this.selectedNodes && this.selectedNodes.find(node => node.id === d.id)
           ? this.selectedCircleStrokeWidth
           : this.circleStrokeWidth;
       })
       .attr('fill', (d: Node) => {
         const brightness =
-          this.selectedNodes &&
-          this.selectedNodes.find(node => node.id === d.id)
+          this.selectedNodes && this.selectedNodes.find(node => node.id === d.id)
             ? this.selectedCircleFillBrightness
             : this.circleFillBrightness;
 
@@ -232,7 +221,7 @@ export class GraphComponent implements OnInit, OnDestroy {
         return node;
       }
 
-      const report = this.dataService.findReport(node.id, this.id);
+      const report = this.dataService.findReportById(this.id, node.id);
       if (report && node.group !== 2) {
         const metrics = report.aggregate ? report.aggregate : report;
         const loc = metrics.sloc.physical;
@@ -256,14 +245,8 @@ export class GraphComponent implements OnInit, OnDestroy {
           .select('text')
           .style('font-size', `${this.maxTextSize / d3.event.transform.k}px`);
       }
-      if (
-        this.linkStrokeWidth * d3.event.transform.k >
-        this.maxLinkStrokeWidth
-      ) {
-        this.links.style(
-          'stroke-width',
-          this.maxLinkStrokeWidth / d3.event.transform.k
-        );
+      if (this.linkStrokeWidth * d3.event.transform.k > this.maxLinkStrokeWidth) {
+        this.links.style('stroke-width', this.maxLinkStrokeWidth / d3.event.transform.k);
       }
     });
 
@@ -326,10 +309,7 @@ export class GraphComponent implements OnInit, OnDestroy {
 
     if (this.settings.colaLayout) {
       simulation = d3adaptor(d3)
-        .size([
-          this.d3Root.nativeElement.clientWidth,
-          this.d3Root.nativeElement.clientHeight
-        ])
+        .size([this.d3Root.nativeElement.clientWidth, this.d3Root.nativeElement.clientHeight])
         .nodes(this.nodeData)
         .links(this.linkData as ColaLink<ColaNode>[])
         .avoidOverlaps(true)
@@ -377,8 +357,7 @@ export class GraphComponent implements OnInit, OnDestroy {
             const distance = Math.sqrt(Math.pow(diffX, 2) + Math.pow(diffY, 2));
             return (
               d.source.x +
-              (diffX / distance) *
-                (distance - d.target.width / 2 - this.circleStrokeWidth / 2)
+              (diffX / distance) * (distance - d.target.width / 2 - this.circleStrokeWidth / 2)
             );
           })
           .attr('y2', d => {
@@ -387,8 +366,7 @@ export class GraphComponent implements OnInit, OnDestroy {
             const distance = Math.sqrt(Math.pow(diffX, 2) + Math.pow(diffY, 2));
             return (
               d.source.y +
-              (diffY / distance) *
-                (distance - d.target.width / 2 - this.circleStrokeWidth / 2)
+              (diffY / distance) * (distance - d.target.width / 2 - this.circleStrokeWidth / 2)
             );
           });
 
@@ -477,9 +455,7 @@ export class GraphComponent implements OnInit, OnDestroy {
     nodes
       .append('circle')
       .attr('r', d => d.width / 2)
-      .attr('fill', d =>
-        this.calculateBrightenedColor(d, this.circleFillBrightness)
-      )
+      .attr('fill', d => this.calculateBrightenedColor(d, this.circleFillBrightness))
       .attr('stroke', d => this.scale(d.group ? d.group.toString() : '1'))
       .attr('stroke-width', this.circleStrokeWidth);
 
@@ -521,17 +497,11 @@ export class GraphComponent implements OnInit, OnDestroy {
         return;
       }
 
-      nodes
-        .transition()
-        .style('opacity', o =>
-          opacity === 1 || isConnected(d, o) ? 1 : opacity
-        );
+      nodes.transition().style('opacity', o => (opacity === 1 || isConnected(d, o) ? 1 : opacity));
 
       links
         .transition()
-        .attr('opacity', o =>
-          opacity === 1 || o.source === d || o.target === d ? 1 : opacity
-        );
+        .attr('opacity', o => (opacity === 1 || o.source === d || o.target === d ? 1 : opacity));
     }
 
     return nodes;
@@ -564,10 +534,7 @@ export class GraphComponent implements OnInit, OnDestroy {
       paddingPercent / Math.max(width / fullWidth, height / fullHeight),
       3 // max auto zoom
     );
-    const translate = [
-      fullWidth / 2 - scale * midX,
-      fullHeight / 2 - scale * midY
-    ];
+    const translate = [fullWidth / 2 - scale * midX, fullHeight / 2 - scale * midY];
 
     this.removeTransition();
 

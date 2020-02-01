@@ -1,23 +1,11 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
-import {
-  AstWithPath,
-  FileMap,
-  FileTree,
-  Graph,
-  Import,
-  Node,
-  NodeSelection
-} from '../interfaces';
+import { AstWithPath, FileMap, FileTree, Graph, Import, Node, NodeSelection } from '../interfaces';
 import { FileWithPath } from '../helper/getFilesAsync';
 import { excludedFolders, supportedExtensions } from '../constants/files';
 import escomplexProject from 'typhonjs-escomplex-project';
 import { parse } from '../helper/parser';
-import {
-  filterInvalidLinks,
-  pushUniqueLink,
-  traverse
-} from '../helper/traverser';
+import { filterInvalidLinks, pushUniqueLink, traverse } from '../helper/traverser';
 import data from '../constants/data';
 
 @Injectable({
@@ -100,9 +88,7 @@ export class DataService {
         this.fileMap$.value[fileName] &&
         this.fileMap$.value[fileName].components[componentName]
       ) {
-        this.graphData$.next(
-          this.fileMap$.value[fileName].components[componentName].graph
-        );
+        this.graphData$.next(this.fileMap$.value[fileName].components[componentName].graph);
         return;
       }
     }
@@ -123,7 +109,7 @@ export class DataService {
       id: node.id,
       label: node.label,
       type: componentId && node.group !== 2 ? 'function' : 'component',
-      report: this.findReport(node.id, componentId),
+      report: this.findReportById(componentId, node.id),
       code: this.findCode(node.id, componentId)
     };
     console.log('Select node: ', selectedNode);
@@ -138,13 +124,12 @@ export class DataService {
     const selectedNodes: NodeSelection[] = [];
 
     if (file && file.components) {
-      Object.keys(file.components).forEach(name => {
-        const componentId = `${fileName}#${name}`;
+      Object.keys(file.components).forEach(componentName => {
         selectedNodes.push({
-          id: componentId,
-          label: name,
+          id: `${fileName}#${componentName}`,
+          label: componentName,
           type: 'component',
-          report: this.findReport(componentId),
+          report: this.findReport(fileName, componentName),
           code: file.code
         });
       });
@@ -162,9 +147,7 @@ export class DataService {
       if (!file.components) {
         return;
       }
-      for (const [componentName, component] of Object.entries(
-        file.components
-      )) {
+      for (const [componentName, component] of Object.entries(file.components)) {
         nodes.push({
           id: `${fileName}#${componentName}`,
           label: componentName
@@ -174,18 +157,12 @@ export class DataService {
         });
 
         if (component.extends) {
-          component.extends.source = this.getCompleteFilePath(
-            component.extends.source,
-            fileName
-          );
+          component.extends.source = this.getCompleteFilePath(component.extends.source, fileName);
         }
 
         component.dependencies = [...component.dependencies]
           .map(dependency => {
-            dependency.source = this.getCompleteFilePath(
-              dependency.source,
-              fileName
-            );
+            dependency.source = this.getCompleteFilePath(dependency.source, fileName);
             return dependency.source && dependency;
           })
           .filter(d => d);
@@ -195,21 +172,13 @@ export class DataService {
             return;
           }
 
-          if (
-            !Object.keys(fileMap).find(name =>
-              name.startsWith(dependency.source)
-            )
-          ) {
+          if (!Object.keys(fileMap).find(name => name.startsWith(dependency.source))) {
             console.warn('Dependency not found:', dependency);
             return;
           }
 
           if (dependency.name === 'default') {
-            const defaultDependency = this.getDefaultExport(
-              fileMap,
-              dependency,
-              fileName
-            );
+            const defaultDependency = this.getDefaultExport(fileMap, dependency, fileName);
 
             if (!defaultDependency) {
               return;
@@ -245,10 +214,7 @@ export class DataService {
     if (this.report) {
       console.log('Saving to local storage...');
       window.localStorage.setItem('graph', JSON.stringify(this.appGraph));
-      window.localStorage.setItem(
-        'components',
-        JSON.stringify(this.fileMap$.value)
-      );
+      window.localStorage.setItem('components', JSON.stringify(this.fileMap$.value));
       window.localStorage.setItem('report', JSON.stringify(this.report));
     }
   }
@@ -259,9 +225,7 @@ export class DataService {
     if (window.localStorage.getItem('graph')) {
       this.appGraph = JSON.parse(window.localStorage.getItem('graph'));
 
-      this.fileMap$.next(
-        JSON.parse(window.localStorage.getItem('components')) || {}
-      );
+      this.fileMap$.next(JSON.parse(window.localStorage.getItem('components')) || {});
       console.log('FileMap: ', this.fileMap$.value);
 
       this.report = JSON.parse(window.localStorage.getItem('report'));
@@ -300,15 +264,11 @@ export class DataService {
     const hasExtension = importPath.includes('.');
     const filePath = hasExtension ? importPath : importPath + '.';
 
-    let file = this.componentFiles.find(componentFile =>
-      componentFile.path.startsWith(filePath)
-    );
+    let file = this.componentFiles.find(componentFile => componentFile.path.startsWith(filePath));
 
     if (!file && !hasExtension) {
       const indexPath = importPath + '/index.';
-      file = this.componentFiles.find(componentFile =>
-        componentFile.path.startsWith(indexPath)
-      );
+      file = this.componentFiles.find(componentFile => componentFile.path.startsWith(indexPath));
     }
 
     if (!file && importPath.startsWith('/')) {
@@ -327,73 +287,65 @@ export class DataService {
     );
   }
 
-  findReport(nodeId: string, componentId?: string) {
+  findReportById(componentId: string, nodeId?: string) {
     if (!this.report) {
       return;
     }
 
-    if (!componentId && this.hasSingleComponent()) {
-      const fileName = Object.keys(this.fileMap$.value)[0];
-      const componentName = Object.keys(
-        Object.values(this.fileMap$.value)[0].components
-      )[0];
+    let fileName: string;
+    let componentName: string;
+    let functionName: string;
 
-      componentId = `${fileName}#${componentName}`;
+    if (this.hasSingleComponent()) {
+      fileName = Object.keys(this.fileMap$.value)[0];
+      componentName = Object.keys(this.fileMap$.value[fileName].components)[0];
+      functionName = nodeId;
+    } else if (componentId) {
+      [fileName, componentName] = componentId.split('#');
+      functionName = nodeId;
+    } else if (nodeId) {
+      [fileName, componentName] = nodeId.split('#');
     }
 
-    if (componentId) {
-      const fileName = componentId.split('#')[0];
-      const componentName = componentId.split('#')[1];
+    return this.findReport(fileName, componentName, functionName);
+  }
 
-      const moduleReport = this.report.modules.find(
-        module => module.srcPath === fileName
-      );
-      const report = moduleReport.classes.find(
-        classReport => classReport.name === componentName
-      );
+  private findReport(fileName: string, componentName: string, functionName?: string) {
+    const moduleReport = this.report.modules.find(module => module.srcPath === fileName);
+    const report = moduleReport.classes.find(classReport => classReport.name === componentName);
 
-      if (report) {
-        if (nodeId === componentName) {
-          return report;
-        } else if (nodeId) {
-          return report.methods.find(method => method.name === nodeId);
-        }
-      } else {
-        if (nodeId.includes('#')) {
-          const lineStart = parseInt(nodeId.split('#')[1], 10);
-          return moduleReport.methods.find(
-            method => method.lineStart === lineStart
-          );
-        } else {
-          return moduleReport;
-        }
+    if (report) {
+      // ClassComponent
+      if (functionName && functionName !== componentName) {
+        return report.methods.find(method => method.name === functionName);
       }
+      return report;
     } else {
-      const fileName = nodeId.split('#')[0];
-      const componentName = nodeId.split('#')[1];
+      // FunctionComponent
+      let lineStart: number;
 
-      const moduleReport = this.report.modules.find(
-        module => module.srcPath === fileName
-      );
-      return moduleReport.classes.find(
-        classReport => classReport.name === componentName
-      );
+      if (!functionName) {
+        const component = this.fileMap$.value[fileName].components[componentName];
+        const componentNode = component.graph.nodes.find(node => node.label === componentName);
+
+        if (!componentNode) {
+          return;
+        }
+
+        lineStart = +componentNode.id.split('#')[1];
+      } else if (functionName.includes('#')) {
+        lineStart = parseInt(functionName.split('#')[1], 10);
+      }
+
+      return moduleReport.methods.find(method => method.lineStart === lineStart);
     }
   }
 
-  private getDefaultExport(
-    fileMap: FileMap,
-    dependency: Import,
-    currentFileName: string
-  ): Import {
-    const fileName = Object.keys(fileMap).find(
-      name => name === dependency.source
-    );
+  private getDefaultExport(fileMap: FileMap, dependency: Import, currentFileName: string): Import {
+    const fileName = Object.keys(fileMap).find(name => name === dependency.source);
 
     if (!fileName || !fileMap[fileName].defaultExport) {
-      console.error(
-        `Default export not found: ${dependency.source} (${currentFileName})`
-      );
+      console.error(`Default export not found: ${dependency.source} (${currentFileName})`);
       return;
     }
 
@@ -419,8 +371,14 @@ export class DataService {
   }
 
   private findCode(nodeId: string, componentId?: string) {
-    const fileName =
-      (componentId && componentId.split('#')[0]) || nodeId.split('#')[0];
+    let fileName: string;
+
+    if (this.hasSingleComponent()) {
+      fileName = Object.keys(this.fileMap$.value)[0];
+    } else {
+      fileName = (componentId && componentId.split('#')[0]) || nodeId.split('#')[0];
+    }
+
     const file = this.fileMap$.value[fileName];
     return file && file.code;
   }
