@@ -43,6 +43,8 @@ export interface NodeSelection {
   label?: string;
   report: any;
   code?: string;
+  lineStart?: number;
+  lineEnd?: number;
 }
 
 export interface FileMap {
@@ -58,6 +60,8 @@ export interface ComponentMap {
     graph?: Graph;
     extends?: Import;
     dependencies?: Import[];
+    lineStart?: number;
+    lineEnd?: number;
   };
 }
 
@@ -82,4 +86,9 @@ export interface FlatNode {
   expandable: boolean;
   name: string;
   level: number;
+}
+
+export interface Selection {
+  start: number;
+  end: number;
 }

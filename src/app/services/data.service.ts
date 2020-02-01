@@ -105,12 +105,16 @@ export class DataService {
   }
 
   selectNode(node: Node, componentId: string) {
+    const component = this.findComponentById(componentId, node.id);
+
     const selectedNode: NodeSelection = {
       id: node.id,
       label: node.label,
       type: componentId && node.group !== 2 ? 'function' : 'component',
       report: this.findReportById(componentId, node.id),
-      code: this.findCode(node.id, componentId)
+      code: this.findCode(node.id, componentId),
+      lineStart: component.lineStart,
+      lineEnd: component.lineEnd
     };
     console.log('Select node: ', selectedNode);
     this.selectedNodes$.next([selectedNode]);
@@ -130,7 +134,9 @@ export class DataService {
           label: componentName,
           type: 'component',
           report: this.findReport(fileName, componentName),
-          code: file.code
+          code: file.code,
+          lineStart: file.components[componentName].lineStart,
+          lineEnd: file.components[componentName].lineEnd
         });
       });
     }

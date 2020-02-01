@@ -140,6 +140,8 @@ function traverseClassComponent(componentPath, name, fileName, asts) {
   const dependencies: Import[] = [];
   // SuperClass
   const superClass: Import = getSuperClass(componentPath, fileName, asts);
+  const lineStart: number = componentPath.node.loc.start.line;
+  const lineEnd: number = componentPath.node.loc.end.line;
 
   // Node: Class
   graph.nodes.push({ id: name, group: 2 });
@@ -222,7 +224,9 @@ function traverseClassComponent(componentPath, name, fileName, asts) {
   return {
     graph,
     dependencies,
-    extends: superClass
+    extends: superClass,
+    lineStart,
+    lineEnd
   };
 }
 
@@ -233,6 +237,8 @@ function traverseFunctionComponent(componentPath, name, fileName, asts) {
   };
   const aliases: { [alias: string]: string } = {};
   const dependencies: Import[] = [];
+  const lineStart: number = componentPath.node.loc.start.line;
+  const lineEnd: number = componentPath.node.loc.end.line;
 
   // Node: FunctionComponent
   graph.nodes.push({
@@ -323,7 +329,9 @@ function traverseFunctionComponent(componentPath, name, fileName, asts) {
 
   return {
     graph,
-    dependencies
+    dependencies,
+    lineStart,
+    lineEnd
   };
 }
 

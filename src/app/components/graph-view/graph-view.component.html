@@ -20,7 +20,11 @@
           <app-code-quality [selectedNode]="selectedNodes && selectedNodes[0]"></app-code-quality>
         </as-split-area>
         <as-split-area size="70">
-          <app-source-code [code]="selectedNodes && selectedNodes[0].code"></app-source-code>
+          <app-source-code
+            *ngIf="selectedNodes && selectedNodes.length === 1"
+            [code]="selectedNodes[0].code"
+            [selection]="{ start: selectedNodes[0].lineStart, end: selectedNodes[0].lineEnd }"
+          ></app-source-code>
         </as-split-area>
       </as-split>
     </as-split-area>
