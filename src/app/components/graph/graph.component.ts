@@ -214,6 +214,8 @@ export class GraphComponent implements OnInit, OnDestroy {
   }
 
   generateNodeSizes(nodes: Node[]) {
+    const nodeSizeMultiplier = this.id || this.dataService.hasSingleComponent() ? 3.5 : 2;
+
     return nodes.map(node => {
       if (!this.settings.nodeSizesBasedOnMetrics) {
         node.width = node.height = this.circleRadius * 2;
@@ -225,7 +227,7 @@ export class GraphComponent implements OnInit, OnDestroy {
         const metrics = report.aggregate ? report.aggregate : report;
         const loc = metrics.sloc.physical;
         // circle area relative to metric (not circle radius)
-        node.width = node.height = 2 * Math.sqrt((16 * loc) / Math.PI);
+        node.width = node.height = nodeSizeMultiplier * Math.sqrt((16 * loc) / Math.PI);
       } else {
         if (!report) {
           console.error('Report not found:', node.id, this.id);

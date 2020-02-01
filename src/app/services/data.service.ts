@@ -285,7 +285,7 @@ export class DataService {
     return file ? file.path : importPath;
   }
 
-  private hasSingleComponent() {
+  hasSingleComponent() {
     return (
       Object.keys(this.fileMap$.value).length === 1 &&
       Object.values(this.fileMap$.value)[0].components &&
