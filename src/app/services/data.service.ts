@@ -287,11 +287,7 @@ export class DataService {
     );
   }
 
-  findReportById(componentId: string, nodeId?: string) {
-    if (!this.report) {
-      return;
-    }
-
+  findNamesById(componentId: string, nodeId?: string) {
     let fileName: string;
     let componentName: string;
     let functionName: string;
@@ -307,6 +303,19 @@ export class DataService {
       [fileName, componentName] = nodeId.split('#');
     }
 
+    return { fileName, componentName, functionName };
+  }
+
+  findComponentById(componentId: string, nodeId?: string) {
+    const { fileName, componentName } = this.findNamesById(componentId, nodeId);
+    return this.fileMap$.value[fileName].components[componentName];
+  }
+
+  findReportById(componentId: string, nodeId?: string) {
+    if (!this.report) {
+      return;
+    }
+    const { fileName, componentName, functionName } = this.findNamesById(componentId, nodeId);
     return this.findReport(fileName, componentName, functionName);
   }
 
@@ -377,14 +386,7 @@ export class DataService {
   }
 
   private findCode(nodeId: string, componentId?: string) {
-    let fileName: string;
-
-    if (this.hasSingleComponent()) {
-      fileName = Object.keys(this.fileMap$.value)[0];
-    } else {
-      fileName = (componentId && componentId.split('#')[0]) || nodeId.split('#')[0];
-    }
-
+    const { fileName } = this.findNamesById(componentId, nodeId);
     const file = this.fileMap$.value[fileName];
     return file && file.code;
   }
