@@ -63,7 +63,6 @@ export class GraphComponent implements OnInit, OnDestroy {
   linkStrokeWidth = 0.8;
   maxLinkStrokeWidth = 1.6;
   dragAlphaTarget = 0.3; // how much the dragged node influences other nodes
-  enableNodeSizeBasedOnMetric = false;
 
   normalTextSize: number;
   maxTextSize: number;
