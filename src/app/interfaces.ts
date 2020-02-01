@@ -34,6 +34,7 @@ export interface Settings {
   fade?: boolean;
   fullScreen?: boolean;
   colaLayout?: boolean;
+  nodeSizesBasedOnMetrics?: boolean;
 }
 
 export interface NodeSelection {

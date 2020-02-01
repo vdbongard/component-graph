@@ -11,7 +11,8 @@ export class SettingsService {
     text: true,
     fade: true,
     fullScreen: false,
-    colaLayout: false
+    colaLayout: false,
+    nodeSizesBasedOnMetrics: true
   };
   fullSettings: Settings = this.defaultSettings;
   settings$ = new BehaviorSubject(this.defaultSettings);
