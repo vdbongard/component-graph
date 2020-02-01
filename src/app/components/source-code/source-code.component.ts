@@ -75,7 +75,7 @@ export class SourceCodeComponent implements OnInit, AfterViewInit, OnChanges, On
     this.timeoutId = setTimeout(() => {
       this.editor.instance.setCursor({ line: actualLineStart, ch: 0 });
       this.timeoutId = null;
-    }, 2000);
+    }, 1000);
   }
 
   ngOnDestroy(): void {
