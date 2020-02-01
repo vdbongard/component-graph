@@ -312,6 +312,12 @@ export class DataService {
 
   private findReport(fileName: string, componentName: string, functionName?: string) {
     const moduleReport = this.report.modules.find(module => module.srcPath === fileName);
+
+    if (!moduleReport) {
+      console.error('File report not found', fileName);
+      return;
+    }
+
     const report = moduleReport.classes.find(classReport => classReport.name === componentName);
 
     if (report) {
