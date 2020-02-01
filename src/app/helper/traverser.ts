@@ -144,7 +144,7 @@ function traverseClassComponent(componentPath, name, fileName, asts) {
   const lineEnd: number = componentPath.node.loc.end.line;
 
   // Node: Class
-  graph.nodes.push({ id: name, group: 2 });
+  graph.nodes.push({ id: name, group: 2, lineStart, lineEnd });
 
   const classComponentTraverse = {
     ClassMethod: path => {
@@ -154,7 +154,12 @@ function traverseClassComponent(componentPath, name, fileName, asts) {
       const methodName = path.node.key.name;
       const isReactMethod = reactMethods.includes(methodName);
       // Node: ClassMethod
-      graph.nodes.push({ id: methodName, group: isReactMethod ? 3 : 1 });
+      graph.nodes.push({
+        id: methodName,
+        group: isReactMethod ? 3 : 1,
+        lineStart: path.node.loc.start.line,
+        lineEnd: path.node.loc.end.line
+      });
       // Link: Class -> ReactMethod
       if (isReactMethod) {
         graph.links.push({
@@ -179,7 +184,11 @@ function traverseClassComponent(componentPath, name, fileName, asts) {
           aliases[node.key.name] = node.value.body.callee.property.name; // pipe function name
         } else {
           // Node classProperty = () => {}
-          graph.nodes.push({ id: node.key.name });
+          graph.nodes.push({
+            id: node.key.name,
+            lineStart: node.loc.start.line,
+            lineEnd: node.loc.end.line
+          });
         }
       }
     },
@@ -244,7 +253,9 @@ function traverseFunctionComponent(componentPath, name, fileName, asts) {
   graph.nodes.push({
     id: `${name}#${componentPath.node.loc.start.line}`,
     label: name,
-    group: 2
+    group: 2,
+    lineStart,
+    lineEnd
   });
 
   const functionComponentTraverse = {
@@ -259,7 +270,9 @@ function traverseFunctionComponent(componentPath, name, fileName, asts) {
               ? `${path.parentPath.node.id.name}#${path.parentPath.node.id.loc.start.line}`
               : `${path.node.id.name}#${path.node.id.loc.start.line}`,
             label: path.parentPath ? path.parentPath.node.id.name : path.node.id.name,
-            group: 1
+            group: 1,
+            lineStart: path.node.loc.start.line,
+            lineEnd: path.node.loc.end.line
           });
         }
       }

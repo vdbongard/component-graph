@@ -105,7 +105,7 @@ export class DataService {
   }
 
   selectNode(node: Node, componentId: string) {
-    const component = this.findComponentById(componentId, node.id);
+    const componentOrFunction = this.findComponentOrFunctionById(componentId, node.id);
 
     const selectedNode: NodeSelection = {
       id: node.id,
@@ -113,8 +113,8 @@ export class DataService {
       type: componentId && node.group !== 2 ? 'function' : 'component',
       report: this.findReportById(componentId, node.id),
       code: this.findCode(node.id, componentId),
-      lineStart: component.lineStart,
-      lineEnd: component.lineEnd
+      lineStart: componentOrFunction.lineStart,
+      lineEnd: componentOrFunction.lineEnd
     };
     console.log('Select node: ', selectedNode);
     this.selectedNodes$.next([selectedNode]);
@@ -312,9 +312,14 @@ export class DataService {
     return { fileName, componentName, functionName };
   }
 
-  findComponentById(componentId: string, nodeId?: string) {
-    const { fileName, componentName } = this.findNamesById(componentId, nodeId);
-    return this.fileMap$.value[fileName].components[componentName];
+  findComponentOrFunctionById(componentId: string, nodeId?: string) {
+    const { fileName, componentName, functionName } = this.findNamesById(componentId, nodeId);
+    const component = this.fileMap$.value[fileName].components[componentName];
+
+    if (functionName) {
+      return component.graph.nodes.find(n => n.id === functionName);
+    }
+    return component;
   }
 
   findReportById(componentId: string, nodeId?: string) {

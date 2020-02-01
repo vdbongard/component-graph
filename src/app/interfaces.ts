@@ -14,6 +14,8 @@ export interface Node extends SimulationNodeDatum {
   group?: number;
   width?: number;
   height?: number;
+  lineStart?: number;
+  lineEnd?: number;
 }
 
 export interface Link {
