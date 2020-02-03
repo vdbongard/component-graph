@@ -3,6 +3,7 @@ import { FileMap, FileTree, FlatNode, NodeSelection } from '../../interfaces';
 import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material';
 import { FlatTreeControl } from '@angular/cdk/tree';
 import { DataService } from '../../services/data.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-file-tree',
@@ -26,7 +27,7 @@ export class FileTreeComponent implements OnInit {
 
   dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
 
-  constructor(public dataService: DataService) {}
+  constructor(public dataService: DataService, public router: Router) {}
 
   ngOnInit(): void {
     this.dataService.fileMap$.subscribe(fileMap => {
@@ -153,6 +154,10 @@ export class FileTreeComponent implements OnInit {
 
     return 0;
   };
+
+  routeToAppGraph() {
+    this.router.navigate(['graph'], { queryParams: { id: null } });
+  }
 }
 
 const transformer = (node: FileTree, level: number) => {

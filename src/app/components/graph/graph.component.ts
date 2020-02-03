@@ -166,6 +166,7 @@ export class GraphComponent implements OnInit, OnDestroy {
     this.simulation = this.createSimulation(force);
     this.links = this.createLinks();
     this.nodes = this.createNodes();
+    this.updateGraph();
   }
 
   private stopGraph() {
@@ -463,9 +464,7 @@ export class GraphComponent implements OnInit, OnDestroy {
     nodes
       .append('circle')
       .attr('r', d => d.width / 2)
-      .attr('fill', d => this.calculateBrightenedColor(d, this.circleFillBrightness))
-      .attr('stroke', d => colorScheme[d.group - 1])
-      .attr('stroke-width', this.circleStrokeWidth);
+      .attr('stroke', d => colorScheme[d.group - 1]);
 
     if (this.settings.text) {
       nodes
