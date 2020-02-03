@@ -8,7 +8,8 @@
         matTreeNodePadding
         [matTreeNodePaddingIndent]="28"
         [attr.aria-label]="'toggle ' + node.name"
-        (click)="routeToAppGraph(); dataService.selectFile(node)"
+        (click)="onFileClick(node)"
+        (dblclick)="onFileDoubleClick(node)"
         [class.selected]="selectedNodes && selectedNodes[0].id.split('#')[0] === node.id"
       >
         <mat-icon matListIcon>{{

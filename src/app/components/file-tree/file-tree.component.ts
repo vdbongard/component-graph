@@ -27,6 +27,10 @@ export class FileTreeComponent implements OnInit {
 
   dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
 
+  timer: number;
+  doubleClickDelay = 100;
+  preventClickEvent = false;
+
   constructor(public dataService: DataService, public router: Router) {}
 
   ngOnInit(): void {
@@ -157,6 +161,37 @@ export class FileTreeComponent implements OnInit {
 
   routeToAppGraph() {
     this.router.navigate(['graph'], { queryParams: { id: null } });
+  }
+
+  routeToComponentGraph(fileName: string) {
+    const componentName = this.dataService.getComponentName(fileName);
+
+    if (!componentName) {
+      return;
+    }
+
+    this.router.navigate(['graph'], {
+      queryParams: { id: `${fileName}#${componentName}` },
+      queryParamsHandling: 'merge'
+    });
+  }
+
+  onFileClick(node: FileTree) {
+    this.preventClickEvent = false;
+    this.timer = setTimeout(() => {
+      if (!this.preventClickEvent) {
+        this.routeToAppGraph();
+        this.dataService.selectFile(node);
+      }
+    }, this.doubleClickDelay);
+  }
+
+  onFileDoubleClick(node: FileTree) {
+    clearTimeout(this.timer);
+    this.preventClickEvent = true;
+
+    this.dataService.selectFile(node);
+    this.routeToComponentGraph(node.id);
   }
 }
 

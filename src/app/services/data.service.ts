@@ -416,4 +416,13 @@ export class DataService {
     const file = this.fileMap$.value[fileName];
     return file && file.code;
   }
+
+  getComponentName(fileName: string) {
+    const file = this.fileMap$.value[fileName];
+
+    if (!file || Object.keys(file.components).length !== 1) {
+      return;
+    }
+    return Object.keys(file.components)[0];
+  }
 }
