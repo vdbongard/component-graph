@@ -177,7 +177,7 @@ export class FileTreeComponent implements OnInit {
 
   onFileClick(node: FileTree) {
     if (!this.isSelected(node)) {
-      this.dataService.selectFile(node);
+      this.dataService.selectFile(node.id);
     }
 
     if (this.timer) {

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
-import { AstWithPath, FileMap, FileTree, Graph, Import, Node, NodeSelection } from '../interfaces';
+import { AstWithPath, FileMap, Graph, Import, Node, NodeSelection } from '../interfaces';
 import { FileWithPath } from '../helper/getFilesAsync';
 import { excludedFolders, supportedExtensions } from '../constants/files';
 import escomplexProject from 'typhonjs-escomplex-project';
@@ -120,9 +120,7 @@ export class DataService {
     this.selectedNodes$.next([selectedNode]);
   }
 
-  selectFile(node: FileTree) {
-    const fileName = node.id;
-
+  selectFile(fileName: string) {
     const file = this.fileMap$.value[fileName];
 
     const selectedNodes: NodeSelection[] = [];

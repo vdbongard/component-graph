@@ -139,6 +139,12 @@ export class GraphComponent implements OnInit, OnDestroy {
 
       this.id = queryParams.id;
       this.dataService.setComponentGraph(queryParams.id);
+
+      if (this.id) {
+        setTimeout(() => {
+          this.dataService.selectFile(this.id.split('#')[0]);
+        }, 0);
+      }
     });
   }
 
