@@ -9,6 +9,8 @@
   position: absolute;
   top: 8px;
   color: #808080;
+  display: flex;
+  align-items: center;
 
   &.left {
     left: 8px;
@@ -16,6 +18,10 @@
 
   &.right {
     right: 8px;
+  }
+
+  > * {
+    height: 40px;
   }
 }
 
