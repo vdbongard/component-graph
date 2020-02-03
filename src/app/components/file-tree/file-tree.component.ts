@@ -28,8 +28,7 @@ export class FileTreeComponent implements OnInit {
   dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
 
   timer: number;
-  doubleClickDelay = 100;
-  preventClickEvent = false;
+  doubleClickDelay = 500;
 
   constructor(public dataService: DataService, public router: Router) {}
 
@@ -177,21 +176,30 @@ export class FileTreeComponent implements OnInit {
   }
 
   onFileClick(node: FileTree) {
-    this.preventClickEvent = false;
+    if (!this.isSelected(node)) {
+      this.dataService.selectFile(node);
+    }
+
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
+
     this.timer = setTimeout(() => {
-      if (!this.preventClickEvent) {
-        this.routeToAppGraph();
-        this.dataService.selectFile(node);
-      }
+      this.timer = null;
+
+      this.routeToAppGraph();
     }, this.doubleClickDelay);
   }
 
   onFileDoubleClick(node: FileTree) {
     clearTimeout(this.timer);
-    this.preventClickEvent = true;
+    this.timer = null;
 
-    this.dataService.selectFile(node);
     this.routeToComponentGraph(node.id);
+  }
+
+  isSelected(node: FileTree) {
+    return this.selectedNodes && this.selectedNodes[0].id.split('#')[0] === node.id;
   }
 }
 
