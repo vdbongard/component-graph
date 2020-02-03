@@ -45,6 +45,7 @@ export class GraphComponent implements OnInit, OnDestroy {
   isWheelZooming = false;
   queryParamWasUpload = false;
   queryParamIsInitial = true;
+  zoomLevel: number;
 
   private graphDataSub: Subscription;
   private settingsSub: Subscription;
@@ -241,6 +242,8 @@ export class GraphComponent implements OnInit, OnDestroy {
 
   private createSVG() {
     this.zoom = d3.zoom().on('zoom', () => {
+      this.zoomLevel = Math.round(d3.event.transform.k * 100);
+
       this.svgZoomGroup.attr('transform', d3.event.transform);
       if (this.normalTextSize * d3.event.transform.k > this.maxTextSize) {
         this.nodes
@@ -517,7 +520,7 @@ export class GraphComponent implements OnInit, OnDestroy {
     );
   }
 
-  zoomToFit(paddingPercent = 0.95) {
+  zoomToFit(paddingPercent = 0.95, forceScale?: number) {
     const bounds = this.svgZoomGroup.node().getBBox();
     const parent = this.svgZoomGroup.node().parentElement;
     const fullWidth = parent.clientWidth;
@@ -532,10 +535,12 @@ export class GraphComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const scale = Math.min(
-      paddingPercent / Math.max(width / fullWidth, height / fullHeight),
-      3 // max auto zoom
-    );
+    const scale =
+      forceScale ||
+      Math.min(
+        paddingPercent / Math.max(width / fullWidth, height / fullHeight),
+        3 // max auto zoom
+      );
     const translate = [fullWidth / 2 - scale * midX, fullHeight / 2 - scale * midY];
 
     this.removeTransition();

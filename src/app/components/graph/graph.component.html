@@ -11,6 +11,14 @@
   </button>
 </div>
 <div class="action-buttons right">
+  <button
+    mat-button
+    (click)="zoomToFit(null, 1)"
+    matTooltip="Zoom to 100%"
+    aria-label="Zoom to 100%"
+  >
+    {{ zoomLevel || 100 }}%
+  </button>
   <button mat-icon-button aria-label="Zoom to fit" (click)="zoomToFit()" matTooltip="Zoom to fit">
     <mat-icon>all_out</mat-icon>
   </button>
