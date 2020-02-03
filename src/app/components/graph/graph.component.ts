@@ -58,7 +58,7 @@ export class GraphComponent implements OnInit, OnDestroy {
   fadeOpacity = 0.1;
   zoomTransition = '0.1s ease-out';
   selectedCircleStrokeWidth = 2;
-  selectedCircleFillBrightness = 0.8;
+  selectedCircleFillBrightness = 0.5;
   linkColor = '#999';
   linkOpacity = 0.6;
   linkStrokeWidth = 0.8;
