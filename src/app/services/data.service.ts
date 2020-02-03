@@ -152,13 +152,17 @@ export class DataService {
         return;
       }
       for (const [componentName, component] of Object.entries(file.components)) {
+        const functions = [...component.graph.nodes].sort((a, b) => a.group - b.group);
+        functions.shift(); // remove component node
+
         nodes.push({
           id: `${fileName}#${componentName}`,
           label: componentName
             .split('/')
             .pop()
             .split('.')[0],
-          group: 1
+          group: 1,
+          functions
         });
 
         if (component.extends) {

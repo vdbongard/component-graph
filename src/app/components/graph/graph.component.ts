@@ -64,6 +64,7 @@ export class GraphComponent implements OnInit, OnDestroy {
   linkStrokeWidth = 0.8;
   maxLinkStrokeWidth = 1.6;
   dragAlphaTarget = 0.3; // how much the dragged node influences other nodes
+  previewCircleRadius = 3;
 
   normalTextSize: number;
   maxTextSize: number;
@@ -199,7 +200,7 @@ export class GraphComponent implements OnInit, OnDestroy {
     }
 
     this.svgZoomGroup
-      .selectAll('.node circle')
+      .selectAll('.node circle.circle-node')
       .attr('stroke-width', (d: Node) => {
         return this.selectedNodes && this.selectedNodes.find(node => node.id === d.id)
           ? this.selectedCircleStrokeWidth
@@ -239,6 +240,10 @@ export class GraphComponent implements OnInit, OnDestroy {
         const loc = metrics.sloc.physical;
         // circle area relative to metric (not circle radius)
         node.width = node.height = nodeSizeMultiplier * Math.sqrt((16 * loc) / Math.PI);
+        if (!isComponentView) {
+          node.width += this.getCirclePreviewWidth();
+          node.height += this.getCirclePreviewWidth();
+        }
       } else {
         if (!report) {
           console.error('Report not found:', node.id, this.id);
@@ -370,19 +375,19 @@ export class GraphComponent implements OnInit, OnDestroy {
             const diffX = d.target.x - d.source.x;
             const diffY = d.target.y - d.source.y;
             const distance = Math.sqrt(Math.pow(diffX, 2) + Math.pow(diffY, 2));
-            return (
-              d.source.x +
-              (diffX / distance) * (distance - d.target.width / 2 - this.circleStrokeWidth / 2)
-            );
+            const targetRadius =
+              this.getMainCircleRadiusWithoutStrokeWidth(d.target) + this.circleStrokeWidth / 2;
+            const actualDistance = distance - targetRadius;
+            return d.source.x + (diffX / distance) * actualDistance;
           })
           .attr('y2', d => {
             const diffX = d.target.x - d.source.x;
             const diffY = d.target.y - d.source.y;
             const distance = Math.sqrt(Math.pow(diffX, 2) + Math.pow(diffY, 2));
-            return (
-              d.source.y +
-              (diffY / distance) * (distance - d.target.width / 2 - this.circleStrokeWidth / 2)
-            );
+            const targetRadius =
+              this.getMainCircleRadiusWithoutStrokeWidth(d.target) + this.circleStrokeWidth / 2;
+            const actualDistance = distance - targetRadius;
+            return d.source.y + (diffY / distance) * actualDistance;
           });
 
         this.nodes.attr('transform', d => `translate(${d.x}, ${d.y})`);
@@ -469,8 +474,46 @@ export class GraphComponent implements OnInit, OnDestroy {
 
     nodes
       .append('circle')
-      .attr('r', d => d.width / 2)
+      .attr('class', 'circle-node')
+      .attr('r', d => this.getMainCircleRadiusWithoutStrokeWidth(d))
       .attr('stroke', d => colorScheme[d.group - 1]);
+
+    nodes
+      .append('g')
+      .selectAll('circle')
+      .data(d => {
+        return d.functions
+          ? d.functions.map(f => {
+              f.width = d.width;
+              return f;
+            })
+          : [];
+      })
+      .join('circle')
+      .attr('class', 'function')
+      .attr('r', this.previewCircleRadius)
+      .attr('fill', (d: Node) => {
+        return this.calculateBrightenedColor(d, 0.5);
+      })
+      .attr('stroke-width', this.circleStrokeWidth)
+      .attr('stroke', d => colorScheme[d.group - 1])
+      .attr('cx', (d, i) => {
+        const r = this.getOuterCircleRadius(d);
+        return r * Math.cos(this.getCircleIndexValue(i, r) - Math.PI * 0.5);
+      })
+      .attr('cy', (d, i) => {
+        const r = this.getOuterCircleRadius(d);
+        return r * Math.sin(this.getCircleIndexValue(i, r) - Math.PI * 0.5);
+      })
+      .attr('opacity', 0.5)
+      .style('display', (d, i) => {
+        const r = this.getOuterCircleRadius(d);
+        const circleIndexValue = this.getCircleIndexValue(i + 1, r);
+        // hide if bigger than one full circle
+        return circleIndexValue > Math.PI * 2 ? 'none' : null;
+      })
+      .append('title')
+      .text(d => d.id);
 
     if (this.settings.text) {
       nodes
@@ -598,6 +641,34 @@ export class GraphComponent implements OnInit, OnDestroy {
       queryParams: { id: null },
       queryParamsHandling: 'merge'
     });
+  }
+
+  private getCircleIndexValue(i: number, r: number) {
+    return (i / r) * (this.previewCircleRadius + this.circleStrokeWidth / 2) * 2;
+  }
+
+  private getCirclePreviewWidth() {
+    return (this.previewCircleRadius + this.circleStrokeWidth / 2) * 4;
+  }
+
+  private getMainCircleRadiusWithoutStrokeWidth(d: Node) {
+    const isComponentView = this.id || this.dataService.hasSingleComponent();
+
+    let circleWidth = d.width;
+
+    if (!isComponentView) {
+      circleWidth -= this.getCirclePreviewWidth();
+    }
+
+    return circleWidth / 2;
+  }
+
+  private getOuterCircleRadius(d: Node) {
+    return (
+      this.getMainCircleRadiusWithoutStrokeWidth(d) +
+      this.circleStrokeWidth / 2 +
+      this.getCirclePreviewWidth() / 4
+    );
   }
 
   ngOnDestroy() {
