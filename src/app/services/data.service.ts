@@ -110,7 +110,7 @@ export class DataService {
     const selectedNode: NodeSelection = {
       id: node.id,
       label: node.label,
-      type: componentId && node.group !== 2 ? 'function' : 'component',
+      type: componentId && node.group !== 1 ? 'function' : 'component',
       report: this.findReportById(componentId, node.id),
       code: this.findCode(node.id, componentId),
       lineStart: componentOrFunction.lineStart,
@@ -146,7 +146,7 @@ export class DataService {
   }
 
   private generateAppGraph(fileMap: FileMap): Graph {
-    const nodes = [];
+    const nodes: Node[] = [];
     const links = [];
 
     for (const [fileName, file] of Object.entries(fileMap)) {
@@ -159,7 +159,8 @@ export class DataService {
           label: componentName
             .split('/')
             .pop()
-            .split('.')[0]
+            .split('.')[0],
+          group: 1
         });
 
         if (component.extends) {

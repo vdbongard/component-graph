@@ -30,11 +30,11 @@ $height: 24px;
 
 :host::ng-deep {
   .mat-progress-bar-fill::after {
-    background-color: hsla(120, 70%, 80%, 1);
+    background-color: hsla(110, 70%, 80%, 1);
   }
 
   .warn .mat-progress-bar-fill::after {
-    background-color: hsla(50, 70%, 80%, 1);
+    background-color: hsla(40, 70%, 80%, 1);
   }
 
   .error .mat-progress-bar-fill::after {

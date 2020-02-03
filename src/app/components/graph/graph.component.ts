@@ -8,6 +8,7 @@ import { d3adaptor, Layout, Link as ColaLink, Node as ColaNode } from 'webcola';
 import { ID3StyleLayoutAdaptor } from 'webcola/dist/src/d3adaptor';
 import { generateLinkReferences } from '../../helper/generateLinkReferences';
 import { Subscription } from 'rxjs';
+import { colorScheme } from '../../constants/colors';
 
 @Component({
   selector: 'app-graph',
@@ -37,7 +38,6 @@ export class GraphComponent implements OnInit, OnDestroy {
   nodes: d3.Selection<any, any, any, any>;
   zoom: d3.ZoomBehavior<any, any>;
 
-  scale = d3.scaleOrdinal(d3.schemeCategory10);
   dragging = false;
   firstSimulation = true;
   id: string;
@@ -91,7 +91,7 @@ export class GraphComponent implements OnInit, OnDestroy {
           this.normalTextSize = 14;
           this.maxTextSize = 20;
           this.circleRadius = 24;
-          this.circleFillBrightness = 0.8;
+          this.circleFillBrightness = 0.75;
           this.circleStrokeWidth = 1;
           this.minChargeForce = -200;
           this.linkDistance = 100;
@@ -209,13 +209,14 @@ export class GraphComponent implements OnInit, OnDestroy {
   }
 
   private calculateBrightenedColor(d: Node, brightness: number) {
-    const color = d3.hsl(this.scale(d.group ? d.group.toString() : '1'));
+    const color = d3.hsl(colorScheme[d.group - 1]);
     color.l += (1 - color.l) * brightness;
     return color.toString();
   }
 
   generateNodeSizes(nodes: Node[]) {
-    const nodeSizeMultiplier = this.id || this.dataService.hasSingleComponent() ? 3.5 : 2;
+    const isComponentView = this.id || this.dataService.hasSingleComponent();
+    const nodeSizeMultiplier = isComponentView ? 3.5 : 2;
 
     return nodes.map(node => {
       if (!this.settings.nodeSizesBasedOnMetrics) {
@@ -224,7 +225,9 @@ export class GraphComponent implements OnInit, OnDestroy {
       }
 
       const report = this.dataService.findReportById(this.id, node.id);
-      if (report && node.group !== 2) {
+
+      // fixed size for component node in component view
+      if (report && !(isComponentView && node.group === 1)) {
         const metrics = report.aggregate ? report.aggregate : report;
         const loc = metrics.sloc.physical;
         // circle area relative to metric (not circle radius)
@@ -461,7 +464,7 @@ export class GraphComponent implements OnInit, OnDestroy {
       .append('circle')
       .attr('r', d => d.width / 2)
       .attr('fill', d => this.calculateBrightenedColor(d, this.circleFillBrightness))
-      .attr('stroke', d => this.scale(d.group ? d.group.toString() : '1'))
+      .attr('stroke', d => colorScheme[d.group - 1])
       .attr('stroke-width', this.circleStrokeWidth);
 
     if (this.settings.text) {

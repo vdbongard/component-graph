@@ -16,12 +16,12 @@
   color: #989898;
 
   .score-number {
-    color: hsla(120, 90%, 50%, 1);
+    color: hsla(110, 90%, 50%, 1);
     font-size: 20px;
     font-weight: 600;
 
     &.warn {
-      color: hsla(50, 90%, 50%, 1);
+      color: hsla(40, 90%, 50%, 1);
     }
 
     &.error {

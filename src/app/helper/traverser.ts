@@ -144,7 +144,7 @@ function traverseClassComponent(componentPath, name, fileName, asts) {
   const lineEnd: number = componentPath.node.loc.end.line;
 
   // Node: Class
-  graph.nodes.push({ id: name, group: 2, lineStart, lineEnd });
+  graph.nodes.push({ id: name, group: 1, lineStart, lineEnd });
 
   const classComponentTraverse = {
     ClassMethod: path => {
@@ -156,7 +156,7 @@ function traverseClassComponent(componentPath, name, fileName, asts) {
       // Node: ClassMethod
       graph.nodes.push({
         id: methodName,
-        group: isReactMethod ? 3 : 1,
+        group: isReactMethod ? 2 : 3,
         lineStart: path.node.loc.start.line,
         lineEnd: path.node.loc.end.line
       });
@@ -187,7 +187,8 @@ function traverseClassComponent(componentPath, name, fileName, asts) {
           graph.nodes.push({
             id: node.key.name,
             lineStart: node.loc.start.line,
-            lineEnd: node.loc.end.line
+            lineEnd: node.loc.end.line,
+            group: 3
           });
         }
       }
@@ -253,7 +254,7 @@ function traverseFunctionComponent(componentPath, name, fileName, asts) {
   graph.nodes.push({
     id: `${name}#${componentPath.node.loc.start.line}`,
     label: name,
-    group: 2,
+    group: 1,
     lineStart,
     lineEnd
   });
@@ -270,7 +271,7 @@ function traverseFunctionComponent(componentPath, name, fileName, asts) {
               ? `${path.parentPath.node.id.name}#${path.parentPath.node.id.loc.start.line}`
               : `${path.node.id.name}#${path.node.id.loc.start.line}`,
             label: path.parentPath ? path.parentPath.node.id.name : path.node.id.name,
-            group: 1,
+            group: 2,
             lineStart: path.node.loc.start.line,
             lineEnd: path.node.loc.end.line
           });
