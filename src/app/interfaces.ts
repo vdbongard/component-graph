@@ -69,14 +69,16 @@ export interface FileMap {
 }
 
 export interface ComponentMap {
-  [componentName: string]: {
-    graph?: Graph;
-    extends?: Import;
-    dependencies?: Import[];
-    lineStart?: number;
-    lineEnd?: number;
-    type?: 'function' | 'class';
-  };
+  [componentName: string]: Component;
+}
+
+export interface Component {
+  graph?: Graph;
+  extends?: Import;
+  dependencies?: Import[];
+  lineStart?: number;
+  lineEnd?: number;
+  type?: 'function' | 'class';
 }
 
 export interface AstWithPath {

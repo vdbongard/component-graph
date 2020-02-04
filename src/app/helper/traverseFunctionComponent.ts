@@ -1,4 +1,4 @@
-import { Graph, Import } from '../interfaces';
+import { Component, Graph, Import } from '../interfaces';
 import {
   getComponentDependencies,
   isFunction,
@@ -8,7 +8,7 @@ import {
   pushUniqueLink
 } from './traverseHelper';
 
-export function traverseFunctionComponent(componentPath, name, fileName, asts) {
+export function traverseFunctionComponent(componentPath, name, fileName, asts): Component {
   const graph: Graph = {
     nodes: [],
     links: []

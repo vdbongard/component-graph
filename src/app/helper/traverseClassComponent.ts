@@ -1,6 +1,6 @@
 import * as t from '@babel/types';
 import { reactMethods } from '../constants/special-methods';
-import { Graph, Import } from '../interfaces';
+import { Component, Graph, Import } from '../interfaces';
 import {
   getComponentDependencies,
   getParentClassName,
@@ -14,7 +14,7 @@ import {
   pushUniqueLink
 } from './traverseHelper';
 
-export function traverseClassComponent(componentPath, name, fileName, asts) {
+export function traverseClassComponent(componentPath, name, fileName, asts): Component {
   const graph: Graph = {
     nodes: [],
     links: []
