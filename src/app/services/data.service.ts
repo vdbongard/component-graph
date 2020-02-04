@@ -5,7 +5,8 @@ import data from '../constants/data';
 import { excludedFolders, supportedExtensions } from '../constants/files';
 import { FileWithPath } from '../helper/getFilesAsync';
 import { parse } from '../helper/parser';
-import { filterInvalidLinks, pushUniqueLink, traverse } from '../helper/traverser';
+import { traverse } from '../helper/traverse';
+import { filterInvalidLinks, pushUniqueLink } from '../helper/traverseHelper';
 import { AstWithPath, FileMap, Graph, Import, Node, NodeSelection } from '../interfaces';
 
 @Injectable({
