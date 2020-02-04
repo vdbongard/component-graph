@@ -36,21 +36,22 @@ export class DataService {
     console.log('Component files:', this.componentFiles);
     const asts: AstWithPath[] = [];
     let fileMap: FileMap = {};
+    const progressPercent = (1 / this.componentFiles.length) * 50;
 
-    for (const [index, file] of this.componentFiles.entries()) {
+    for (const file of this.componentFiles) {
       const { ast, code } = await this.setFile(file);
       asts.push({ ast, srcPath: file.path });
       fileMap[file.path] = { code };
-      this.progress$.next(((index + 1) / this.componentFiles.length) * 50);
+      await this.increaseProgress(progressPercent);
     }
 
-    for (const [index, file] of this.componentFiles.entries()) {
+    for (const file of this.componentFiles) {
       const { components, defaultExport } = await new Promise(resolve =>
         setTimeout(() => resolve(traverse(asts, file.path)), 0)
       );
       fileMap[file.path].components = components;
       fileMap[file.path].defaultExport = defaultExport;
-      this.progress$.next(((index + 1) / this.componentFiles.length) * 50 + 50);
+      await this.increaseProgress(progressPercent);
     }
 
     // filter out files that have no components or default component export
@@ -257,6 +258,15 @@ export class DataService {
       nodes: [],
       links: []
     };
+  }
+
+  private async increaseProgress(progressPercent: number) {
+    return new Promise(resolve =>
+      setTimeout(
+        () => resolve(this.progress$.next((this.progress$.value || 0) + progressPercent)),
+        0
+      )
+    );
   }
 
   private isComponentFile(file: FileWithPath): boolean {
