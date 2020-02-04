@@ -19,6 +19,7 @@ export interface Node extends SimulationNodeDatum {
   functions?: Node[];
   inherits?: boolean;
   icons?: NodeIcon[];
+  type?: 'function' | 'class';
 }
 
 export interface NodeIcon {
@@ -73,6 +74,7 @@ export interface ComponentMap {
     dependencies?: Import[];
     lineStart?: number;
     lineEnd?: number;
+    type?: 'function' | 'class';
   };
 }
 

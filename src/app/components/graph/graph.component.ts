@@ -200,21 +200,20 @@ export class GraphComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.svgZoomGroup
-      .selectAll('.node circle.circle-node')
-      .attr('stroke-width', (d: Node) => {
-        return this.selectedNodes && this.selectedNodes.find(node => node.id === d.id)
-          ? this.selectedCircleStrokeWidth
-          : this.circleStrokeWidth;
-      })
-      .attr('fill', (d: Node) => {
-        const brightness =
-          this.selectedNodes && this.selectedNodes.find(node => node.id === d.id)
-            ? this.selectedCircleFillBrightness
-            : this.circleFillBrightness;
+    this.svgZoomGroup.selectAll('.node circle.circle-overlay').attr('stroke-width', (d: Node) => {
+      return this.selectedNodes && this.selectedNodes.find(node => node.id === d.id)
+        ? this.selectedCircleStrokeWidth
+        : this.circleStrokeWidth;
+    });
 
-        return this.calculateBrightenedColor(d, brightness);
-      });
+    this.svgZoomGroup.selectAll('.node circle.circle-node').attr('fill', (d: Node) => {
+      const brightness =
+        this.selectedNodes && this.selectedNodes.find(node => node.id === d.id)
+          ? this.selectedCircleFillBrightness
+          : this.circleFillBrightness;
+
+      return this.calculateBrightenedColor(d, brightness);
+    });
   }
 
   private calculateBrightenedColor(d: Node, brightness: number) {
@@ -456,6 +455,12 @@ export class GraphComponent implements OnInit, OnDestroy {
     nodes
       .append('circle')
       .attr('class', 'circle-node')
+      .attr('r', d => this.getMainCircleRadiusWithoutStrokeWidth(d));
+
+    nodes
+      .append('circle')
+      .attr('class', 'circle-overlay')
+      .attr('fill', d => (d.type === 'class' ? 'url(#diagonalHatch)' : 'transparent'))
       .attr('r', d => this.getMainCircleRadiusWithoutStrokeWidth(d))
       .attr('stroke', d => colorScheme[d.group - 1]);
 

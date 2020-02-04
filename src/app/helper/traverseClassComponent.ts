@@ -27,7 +27,7 @@ export function traverseClassComponent(componentPath, name, fileName, asts) {
   const lineEnd: number = componentPath.node.loc.end.line;
 
   // Node: Class
-  graph.nodes.push({ id: name, group: 1, lineStart, lineEnd });
+  graph.nodes.push({ id: name, group: 1, lineStart, lineEnd, type: 'class' });
 
   const classComponentTraverse = {
     ClassMethod: path => {
@@ -119,6 +119,7 @@ export function traverseClassComponent(componentPath, name, fileName, asts) {
     dependencies,
     extends: superClass,
     lineStart,
-    lineEnd
+    lineEnd,
+    type: 'class'
   };
 }

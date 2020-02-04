@@ -163,7 +163,8 @@ export class DataService {
             .pop()
             .split('.')[0],
           group: 1,
-          functions
+          functions,
+          type: component.type
         });
 
         if (component.extends) {

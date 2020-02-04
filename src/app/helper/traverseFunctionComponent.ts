@@ -24,7 +24,8 @@ export function traverseFunctionComponent(componentPath, name, fileName, asts) {
     label: name,
     group: 1,
     lineStart,
-    lineEnd
+    lineEnd,
+    type: 'function'
   });
 
   const functionComponentTraverse = {
@@ -119,6 +120,7 @@ export function traverseFunctionComponent(componentPath, name, fileName, asts) {
     graph,
     dependencies,
     lineStart,
-    lineEnd
+    lineEnd,
+    type: 'function'
   };
 }
