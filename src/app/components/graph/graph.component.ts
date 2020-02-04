@@ -31,8 +31,8 @@ export class GraphComponent implements OnInit, OnDestroy {
   nodeData: Node[];
   linkData: RefLink[];
 
-  svg: d3.Selection<SVGElement, any, any, any>;
-  svgZoomGroup: d3.Selection<SVGGElement, any, any, any>;
+  svg: d3.Selection<any, any, any, any>;
+  svgZoomGroup: d3.Selection<any, any, any, any>;
   simulation: d3.Simulation<any, any> | (Layout & ID3StyleLayoutAdaptor);
   links: d3.Selection<any, any, any, any>;
   nodes: d3.Selection<any, any, any, any>;
@@ -185,7 +185,7 @@ export class GraphComponent implements OnInit, OnDestroy {
     this.links = null;
     this.nodes = null;
     this.svgZoomGroup = null;
-    d3.select('#d3-root')
+    d3.select('#d3-root svg #zoomGroup')
       .selectAll('*')
       .remove();
   }
@@ -272,12 +272,7 @@ export class GraphComponent implements OnInit, OnDestroy {
     });
 
     this.svg = d3
-      .select('#d3-root')
-      .append('svg')
-      .attr(
-        'style',
-        'width: 100%; height: 100%; user-select: none; display: block; position: absolute;'
-      )
+      .select('#d3-root svg')
       .on('wheel', () => {
         this.addTransition();
       })
@@ -287,22 +282,7 @@ export class GraphComponent implements OnInit, OnDestroy {
       .call(this.zoom)
       .on('dblclick.zoom', null);
 
-    this.svg
-      .append('defs')
-      .append('marker')
-      .attr('id', 'arrowhead')
-      .attr('viewBox', '-0 -5 10 10')
-      .attr('refX', 9)
-      .attr('refY', 0)
-      .attr('orient', 'auto')
-      .attr('markerWidth', 8)
-      .attr('markerHeight', 8)
-      .append('svg:path')
-      .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
-      .attr('fill', '#999')
-      .style('stroke', 'none');
-
-    return this.svg.append('g');
+    return this.svg.select('#zoomGroup');
   }
 
   private addTransition() {
