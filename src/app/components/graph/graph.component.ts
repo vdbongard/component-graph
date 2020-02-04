@@ -310,7 +310,7 @@ export class GraphComponent implements OnInit, OnDestroy {
       this.isWheelZooming = true;
       this.svgZoomGroup.style('transition', `transform ${this.zoomTransition}`);
       this.svgZoomGroup
-        .selectAll('.node text')
+        .selectAll('.node text.node-label')
         .style('transition', `font-size ${this.zoomTransition}`);
     }
   }
@@ -319,7 +319,7 @@ export class GraphComponent implements OnInit, OnDestroy {
     if (this.isWheelZooming) {
       this.isWheelZooming = false;
       this.svgZoomGroup.style('transition', null);
-      this.svgZoomGroup.selectAll('.node text').style('transition', null);
+      this.svgZoomGroup.selectAll('.node text.node-label').style('transition', null);
     }
   }
 
