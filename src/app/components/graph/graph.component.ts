@@ -64,6 +64,7 @@ export class GraphComponent implements OnInit, OnDestroy {
   linkStrokeWidth = 0.8;
   maxLinkStrokeWidth = 1.6;
   dragAlphaTarget = 0.3; // how much the dragged node influences other nodes
+  nodeIconOffsetX = 16;
   previewCircleRadius = 3;
 
   normalTextSize: number;
@@ -262,7 +263,7 @@ export class GraphComponent implements OnInit, OnDestroy {
       this.svgZoomGroup.attr('transform', d3.event.transform);
       if (this.normalTextSize * d3.event.transform.k > this.maxTextSize) {
         this.nodes
-          .select('text')
+          .select('text.node-label')
           .style('font-size', `${this.maxTextSize / d3.event.transform.k}px`);
       }
       if (this.linkStrokeWidth * d3.event.transform.k > this.maxLinkStrokeWidth) {
@@ -515,9 +516,40 @@ export class GraphComponent implements OnInit, OnDestroy {
       .append('title')
       .text(d => d.id);
 
+    nodes
+      .append('g')
+      .attr('class', 'circle-icons')
+      .attr('style', d =>
+        d.icons
+          ? `transform: translateX(${-((d.icons.length - 1) * this.nodeIconOffsetX) / 2}px)`
+          : null
+      )
+      .selectAll('text.icon')
+      .data(d => {
+        return d.icons
+          ? d.icons.map(i => {
+              i.width = d.width;
+              return i;
+            })
+          : [];
+      })
+      .join('text')
+      .attr('class', d => 'icon ' + d.class)
+      .text(d => d.icon)
+      .attr('x', (d, i) => {
+        return this.nodeIconOffsetX * i;
+      })
+      .attr('y', d => {
+        return Math.max(
+          this.getMainCircleRadiusWithoutStrokeWidth(d) / 2,
+          this.normalTextSize * 0.9
+        );
+      });
+
     if (this.settings.text) {
       nodes
         .append('text')
+        .attr('class', 'node-label')
         .text(d => d.label || d.id)
         .style('font-size', `${this.normalTextSize}px`)
         .style('dominant-baseline', 'central')
@@ -525,7 +557,7 @@ export class GraphComponent implements OnInit, OnDestroy {
 
       if (this.settings.textCenter) {
         nodes
-          .select('text')
+          .select('text.node-label')
           .style('text-anchor', 'middle')
           .attr('x', null);
       }
@@ -651,7 +683,7 @@ export class GraphComponent implements OnInit, OnDestroy {
     return (this.previewCircleRadius + this.circleStrokeWidth / 2) * 4;
   }
 
-  private getMainCircleRadiusWithoutStrokeWidth(d: Node) {
+  private getMainCircleRadiusWithoutStrokeWidth(d: { width?: number }) {
     const isComponentView = this.id || this.dataService.hasSingleComponent();
 
     let circleWidth = d.width;

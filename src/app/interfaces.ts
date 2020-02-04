@@ -17,6 +17,14 @@ export interface Node extends SimulationNodeDatum {
   lineStart?: number;
   lineEnd?: number;
   functions?: Node[];
+  inherits?: boolean;
+  icons?: NodeIcon[];
+}
+
+export interface NodeIcon {
+  icon: string;
+  class: string;
+  width?: number;
 }
 
 export interface Link {

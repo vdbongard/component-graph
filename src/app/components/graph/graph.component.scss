@@ -28,3 +28,20 @@
 #d3-root {
   height: 100%;
 }
+
+::ng-deep {
+  text.icon {
+    font-family: 'Material Icons', monospace;
+    font-size: 14px;
+    text-anchor: middle;
+    dominant-baseline: central;
+
+    &.warn {
+      fill: hsla(40, 90%, 50%, 1);
+    }
+
+    &.error {
+      fill: hsla(0, 90%, 50%, 1);
+    }
+  }
+}
