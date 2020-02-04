@@ -1,5 +1,5 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { FileTree, FlatNode, NodeSelection } from '../../interfaces';
+import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { FileTree, FlatNode, Node, NodeSelection } from '../../interfaces';
 import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material';
 import { FlatTreeControl } from '@angular/cdk/tree';
 import { DataService } from '../../services/data.service';
@@ -11,7 +11,7 @@ import { extractFileTree } from '../../helper/extractFileTree';
   templateUrl: './file-tree.component.html',
   styleUrls: ['./file-tree.component.scss']
 })
-export class FileTreeComponent implements OnInit {
+export class FileTreeComponent implements OnInit, OnChanges {
   @Input() selectedNodes: NodeSelection[];
 
   treeControl = new FlatTreeControl<FlatNode>(
@@ -47,6 +47,34 @@ export class FileTreeComponent implements OnInit {
         .filter(node => node.level <= 1)
         .forEach(node => this.treeControl.expand(node));
     });
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    // expand closed tree nodes for selected file
+    if (changes.selectedNodes && changes.selectedNodes.currentValue) {
+      const selectedNodes: Node[] = changes.selectedNodes.currentValue;
+      selectedNodes.forEach(selectedNode => {
+        const fileName = selectedNode.id.split('#')[0];
+        this.expandTreeByFileName(fileName);
+      });
+    }
+  }
+
+  expandTreeByFileName(fileName: string) {
+    const parts = fileName.split('/');
+    parts.shift(); // remove first empty string element (fileName always starts with '/')
+
+    for (let i = 0; i < parts.length; i++) {
+      const part = parts[i];
+
+      const dataNode = this.treeControl.dataNodes.find(
+        node => node.expandable && node.name === part && node.level === i
+      );
+
+      if (dataNode && !this.treeControl.isExpanded(dataNode)) {
+        this.treeControl.expand(dataNode);
+      }
+    }
   }
 
   hasChild = (_: number, node: FlatNode) => node.expandable;
