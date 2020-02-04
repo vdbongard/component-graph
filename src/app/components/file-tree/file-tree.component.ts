@@ -1,10 +1,10 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { FileTree, FlatNode, Node, NodeSelection } from '../../interfaces';
-import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material';
 import { FlatTreeControl } from '@angular/cdk/tree';
-import { DataService } from '../../services/data.service';
+import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material';
 import { Router } from '@angular/router';
 import { extractFileTree } from '../../helper/extractFileTree';
+import { FileTree, FlatNode, Node, NodeSelection } from '../../interfaces';
+import { DataService } from '../../services/data.service';
 
 @Component({
   selector: 'app-file-tree',

@@ -1,12 +1,6 @@
-import { BrowserModule } from '@angular/platform-browser';
+import { A11yModule } from '@angular/cdk/a11y';
 import { NgModule } from '@angular/core';
-
-import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { GraphComponent } from './components/graph/graph.component';
-import { UploadViewComponent } from './components/upload-view/upload-view.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {
   MatButtonModule,
   MatCardModule,
@@ -20,17 +14,23 @@ import {
   MatTooltipModule,
   MatTreeModule
 } from '@angular/material';
-import { DropTargetDirective } from './directives/drop-target.directive';
-import { SettingsModalComponent } from './components/settings-modal/settings-modal.component';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { A11yModule } from '@angular/cdk/a11y';
-import { GraphViewComponent } from './components/graph-view/graph-view.component';
-import { CodeQualityComponent } from './components/code-quality/code-quality.component';
-import { SourceCodeComponent } from './components/source-code/source-code.component';
-import { FileTreeComponent } from './components/file-tree/file-tree.component';
-import { CodemirrorModule } from 'ng2-codemirror';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AngularSplitModule } from 'angular-split';
+import { CodemirrorModule } from 'ng2-codemirror';
+
+import { AppRoutingModule } from './app-routing.module';
+import { AppComponent } from './app.component';
+import { CodeQualityComponent } from './components/code-quality/code-quality.component';
+import { FileTreeComponent } from './components/file-tree/file-tree.component';
+import { GraphViewComponent } from './components/graph-view/graph-view.component';
+import { GraphComponent } from './components/graph/graph.component';
 import { QualityMetricComponent } from './components/quality-metric/quality-metric.component';
+import { SettingsModalComponent } from './components/settings-modal/settings-modal.component';
+import { SourceCodeComponent } from './components/source-code/source-code.component';
+import { UploadViewComponent } from './components/upload-view/upload-view.component';
+import { DropTargetDirective } from './directives/drop-target.directive';
 
 @NgModule({
   declarations: [

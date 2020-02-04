@@ -1,14 +1,14 @@
 import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import * as d3 from 'd3';
-import { Node, NodeSelection, RefLink, Settings } from '../../interfaces';
-import { DataService } from '../../services/data.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { SettingsService } from '../../services/settings.service';
+import * as d3 from 'd3';
+import { Subscription } from 'rxjs';
 import { d3adaptor, Layout, Link as ColaLink, Node as ColaNode } from 'webcola';
 import { ID3StyleLayoutAdaptor } from 'webcola/dist/src/d3adaptor';
-import { generateLinkReferences } from '../../helper/generateLinkReferences';
-import { Subscription } from 'rxjs';
 import { colorScheme } from '../../constants/colors';
+import { generateLinkReferences } from '../../helper/generateLinkReferences';
+import { Node, NodeSelection, RefLink, Settings } from '../../interfaces';
+import { DataService } from '../../services/data.service';
+import { SettingsService } from '../../services/settings.service';
 
 @Component({
   selector: 'app-graph',

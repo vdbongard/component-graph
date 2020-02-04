@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material';
+import { Router } from '@angular/router';
 import { SettingsModalComponent } from './components/settings-modal/settings-modal.component';
 import { SettingsService } from './services/settings.service';
-import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-root',

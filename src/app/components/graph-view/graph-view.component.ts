@@ -1,10 +1,10 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { DataService } from '../../services/data.service';
 import { Router } from '@angular/router';
-import { NodeSelection } from '../../interfaces';
 import { Subscription } from 'rxjs';
-import { SettingsService } from '../../services/settings.service';
 import { FileWithPath } from '../../helper/getFilesAsync';
+import { NodeSelection } from '../../interfaces';
+import { DataService } from '../../services/data.service';
+import { SettingsService } from '../../services/settings.service';
 
 @Component({
   selector: 'app-graph-view',

@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
-import { AstWithPath, FileMap, Graph, Import, Node, NodeSelection } from '../interfaces';
-import { FileWithPath } from '../helper/getFilesAsync';
-import { excludedFolders, supportedExtensions } from '../constants/files';
 import escomplexProject from 'typhonjs-escomplex-project';
+import data from '../constants/data';
+import { excludedFolders, supportedExtensions } from '../constants/files';
+import { FileWithPath } from '../helper/getFilesAsync';
 import { parse } from '../helper/parser';
 import { filterInvalidLinks, pushUniqueLink, traverse } from '../helper/traverser';
-import data from '../constants/data';
+import { AstWithPath, FileMap, Graph, Import, Node, NodeSelection } from '../interfaces';
 
 @Injectable({
   providedIn: 'root'

@@ -1,4 +1,4 @@
-import { Link, RefLink, Node } from '../interfaces';
+import { Link, Node, RefLink } from '../interfaces';
 
 export function generateLinkReferences(links: Link[], nodes: Node[]): RefLink[] {
   return links.map(link => {

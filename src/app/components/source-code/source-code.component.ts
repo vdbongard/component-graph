@@ -8,11 +8,11 @@ import {
   SimpleChanges,
   ViewChild
 } from '@angular/core';
-import 'codemirror/mode/jsx/jsx.js';
+import 'codemirror/addon/dialog/dialog';
+import 'codemirror/addon/search/jump-to-line';
 import 'codemirror/addon/search/search';
 import 'codemirror/addon/search/searchcursor';
-import 'codemirror/addon/search/jump-to-line';
-import 'codemirror/addon/dialog/dialog';
+import 'codemirror/mode/jsx/jsx.js';
 import { CodemirrorComponent } from 'ng2-codemirror';
 import { Selection } from '../../interfaces';
 

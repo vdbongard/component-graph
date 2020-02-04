@@ -1,5 +1,5 @@
-import { SimulationNodeDatum } from 'd3-force';
 import { File as BabelFile } from '@babel/types';
+import { SimulationNodeDatum } from 'd3-force';
 
 export interface RefLink extends SimulationNodeDatum {
   source: number | Node;
