@@ -210,7 +210,8 @@ export class DataService {
           pushUniqueLink(
             {
               source: `${source}#${name}`,
-              target: `${fileName}#${componentName}`
+              target: `${fileName}#${componentName}`,
+              inherits: true
             },
             links
           );

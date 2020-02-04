@@ -6,6 +6,7 @@ export interface RefLink extends SimulationNodeDatum {
   target: number | Node;
   value?: number;
   id?: string;
+  inherits?: boolean;
 }
 
 export interface Node extends SimulationNodeDatum {
@@ -17,7 +18,6 @@ export interface Node extends SimulationNodeDatum {
   lineStart?: number;
   lineEnd?: number;
   functions?: Node[];
-  inherits?: boolean;
   icons?: NodeIcon[];
   type?: 'function' | 'class';
 }
@@ -33,6 +33,7 @@ export interface Link {
   target: string;
   value?: number;
   id?: string;
+  inherits?: boolean;
 }
 
 export interface Graph {

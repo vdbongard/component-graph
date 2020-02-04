@@ -398,6 +398,7 @@ export class GraphComponent implements OnInit, OnDestroy {
       .join('line')
       .style('transition', `stroke-width ${this.zoomTransition}`)
       .attr('stroke-width', this.linkStrokeWidth)
+      .attr('stroke-dasharray', d => (d.inherits ? '4 2' : null))
       .attr('marker-end', 'url(#arrowhead)');
   }
 
