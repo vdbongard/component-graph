@@ -281,6 +281,11 @@ export class GraphComponent implements OnInit, OnDestroy {
       .call(this.zoom)
       .on('dblclick.zoom', null);
 
+    d3.select('#diagonalHatch line')
+      .style('stroke', colorScheme[0])
+      .style('stroke-width', Math.max(this.circleStrokeWidth * 2, 1))
+      .style('opacity', 0.6);
+
     return this.svg.select('#zoomGroup');
   }
 
