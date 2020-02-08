@@ -1,0 +1,52 @@
+diff --git a/node_modules/typhonjs-escomplex-commons/dist/utils/ast/astSyntax.js b/node_modules/typhonjs-escomplex-commons/dist/utils/ast/astSyntax.js
+index f699007..a665534 100644
+--- a/node_modules/typhonjs-escomplex-commons/dist/utils/ast/astSyntax.js
++++ b/node_modules/typhonjs-escomplex-commons/dist/utils/ast/astSyntax.js
+@@ -896,7 +896,9 @@ exports.default = {
+ 
+       state.output.write(' ' + node.operator + ' ');
+ 
+-      this[node.right.type](node.right, state);
++      if (typeof this[node.right.type] === 'function') {
++        this[node.right.type](node.right, state);
++      }
+ 
+       state.output.operators.push(node.operator);
+    },
+@@ -905,7 +907,9 @@ exports.default = {
+ 
+       state.output.write(' = ');
+ 
+-      this[node.right.type](node.right, state);
++      if (typeof this[node.right.type] === 'function') {
++         this[node.right.type](node.right, state);
++      }
+ 
+       state.output.operators.push('=');
+    },
+diff --git a/node_modules/typhonjs-escomplex-commons/src/utils/ast/astSyntax.js b/node_modules/typhonjs-escomplex-commons/src/utils/ast/astSyntax.js
+index 4d790c3..1c525f6 100644
+--- a/node_modules/typhonjs-escomplex-commons/src/utils/ast/astSyntax.js
++++ b/node_modules/typhonjs-escomplex-commons/src/utils/ast/astSyntax.js
+@@ -965,7 +965,9 @@ export default {
+ 
+       state.output.write(` ${node.operator} `);
+ 
+-      this[node.right.type](node.right, state);
++      if (typeof this[node.right.type] === 'function') {
++         this[node.right.type](node.right, state);
++      }
+ 
+       state.output.operators.push(node.operator);
+    },
+@@ -976,7 +978,9 @@ export default {
+ 
+       state.output.write(' = ');
+ 
+-      this[node.right.type](node.right, state);
++      if (typeof this[node.right.type] === 'function') {
++         this[node.right.type](node.right, state);
++      }
+ 
+       state.output.operators.push('=');
+    },
