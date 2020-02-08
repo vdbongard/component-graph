@@ -26,7 +26,7 @@ export class GraphComponent implements OnInit, OnDestroy {
 
   private selectedNodesInternal: NodeSelection[];
 
-  @ViewChild('d3Root', { static: false }) d3Root: ElementRef;
+  @ViewChild('d3Root') d3Root: ElementRef;
 
   nodeData: Node[];
   linkData: RefLink[];

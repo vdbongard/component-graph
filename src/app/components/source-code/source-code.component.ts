@@ -25,7 +25,7 @@ export class SourceCodeComponent implements OnInit, AfterViewInit, OnChanges, On
   @Input() code: string;
   @Input() selection: Selection;
 
-  @ViewChild('editor', { static: false }) editor: CodemirrorComponent;
+  @ViewChild('editor') editor: CodemirrorComponent;
 
   config = {
     mode: { name: 'jsx' },
