@@ -2,9 +2,9 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
 import escomplexProject from 'typhonjs-escomplex-project';
 import data from '../constants/data';
-import { excludedFolders, supportedExtensions } from '../constants/files';
 import { generateAppGraph } from '../helper/generateAppGraph';
 import { FileWithPath } from '../helper/getFilesAsync';
+import { isComponentFile } from '../helper/isComponentFile';
 import { parse } from '../helper/parser';
 import { traverse } from '../helper/traverse';
 import { AstWithPath, FileMap, Graph, Node, NodeSelection } from '../interfaces';
@@ -32,7 +32,7 @@ export class DataService {
   async setFiles(files: FileWithPath[]) {
     console.log('Loaded files count:', files.length);
     this.resetData();
-    this.componentFiles = files.filter(this.isComponentFile);
+    this.componentFiles = files.filter(isComponentFile);
     console.log('Component files:', this.componentFiles);
     const asts: AstWithPath[] = [];
     let fileMap: FileMap = {};
@@ -188,19 +188,6 @@ export class DataService {
         () => resolve(this.progress$.next((this.progress$.value || 0) + progressPercent)),
         0
       )
-    );
-  }
-
-  private isComponentFile(file: FileWithPath): boolean {
-    if (excludedFolders.some(folder => file.path.includes(folder))) {
-      return;
-    }
-
-    const fileParts = file.path.split('.');
-    return (
-      fileParts.length >= 2 &&
-      fileParts[fileParts.length - 2] !== 'test' &&
-      supportedExtensions.includes(fileParts[fileParts.length - 1])
     );
   }
 
