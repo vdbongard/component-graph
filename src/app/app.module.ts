@@ -11,6 +11,7 @@ import {
   MatProgressBarModule,
   MatRippleModule,
   MatSlideToggleModule,
+  MatSnackBarModule,
   MatTooltipModule,
   MatTreeModule
 } from '@angular/material';
@@ -65,7 +66,8 @@ import { DropTargetDirective } from './directives/drop-target.directive';
     AngularSplitModule.forRoot(),
     MatListModule,
     MatTreeModule,
-    MatRippleModule
+    MatRippleModule,
+    MatSnackBarModule
   ],
   entryComponents: [SettingsModalComponent],
   providers: [],

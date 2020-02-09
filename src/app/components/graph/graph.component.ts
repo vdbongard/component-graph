@@ -1,10 +1,12 @@
 import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
 import * as d3 from 'd3';
 import { Subscription } from 'rxjs';
 import { d3adaptor, Layout, Link as ColaLink, Node as ColaNode } from 'webcola';
 import { ID3StyleLayoutAdaptor } from 'webcola/dist/src/d3adaptor';
 import { colorScheme } from '../../constants/colors';
+import { getCookie, setCookie } from '../../helper/cookie';
 import { generateLinkReferences } from '../../helper/generateLinkReferences';
 import { Node, NodeSelection, RefLink, Settings } from '../../interfaces';
 import { DataService } from '../../services/data.service';
@@ -79,7 +81,8 @@ export class GraphComponent implements OnInit, OnDestroy {
     public dataService: DataService,
     public settingsService: SettingsService,
     private router: Router,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit() {
@@ -154,6 +157,30 @@ export class GraphComponent implements OnInit, OnDestroy {
     this.graphDataSub = this.dataService.graphData$.subscribe(graph => {
       if (graph) {
         console.log('Graph:', graph);
+
+        if (
+          graph.nodes.length > 30 &&
+          this.settings.colaLayout &&
+          !getCookie('toastDisableFlowLayout')
+        ) {
+          setCookie('toastDisableFlowLayout', 1, 365 * 10);
+          this.snackBar
+            .open('Tip: Try out disabling flow layout on large graphs', 'Change now', {
+              duration: 8000
+            })
+            .onAction()
+            .subscribe(() => {
+              this.settingsService.setSettings({ colaLayout: false });
+              this.snackBar
+                .open('Changed graph layout', 'Undo', {
+                  duration: 8000
+                })
+                .onAction()
+                .subscribe(() => {
+                  this.settingsService.setSettings({ colaLayout: true });
+                });
+            });
+        }
 
         this.nodeData = JSON.parse(JSON.stringify(graph.nodes));
         // clone data to prevent simulation changes from getting saved to localStorage
