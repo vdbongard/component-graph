@@ -69,13 +69,7 @@ export class DataService {
     for (const [fileName, file] of Object.entries(fileMap)) {
       for (const [componentName, component] of Object.entries(file.components || {})) {
         component.graph.nodes = component.graph.nodes.map(node => {
-          node.report = findReport(
-            this.report,
-            this.fileMap$.value,
-            fileName,
-            componentName,
-            node.id
-          );
+          node.report = findReport(this.report, fileMap, fileName, componentName, node.id);
           return node;
         });
       }
@@ -85,7 +79,7 @@ export class DataService {
     console.log('FileMap:', this.fileMap$.value);
 
     if (!this.hasSingleComponent()) {
-      this.appGraph = generateAppGraph(this.fileMap$.value, this.componentFiles, this.report);
+      this.appGraph = generateAppGraph(fileMap, this.componentFiles, this.report);
     }
     this.progress$.next(undefined);
     this.setComponentGraph();
