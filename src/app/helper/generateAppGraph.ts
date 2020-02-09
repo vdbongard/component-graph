@@ -1,8 +1,13 @@
 import { FileMap, Graph, Import, Node } from '../interfaces';
+import { findReport } from './findReport';
 import { FileWithPath } from './getFilesAsync';
 import { filterInvalidLinks, pushUniqueLink } from './traverseHelper';
 
-export function generateAppGraph(fileMap: FileMap, componentFiles: FileWithPath[]): Graph {
+export function generateAppGraph(
+  fileMap: FileMap,
+  componentFiles: FileWithPath[],
+  fullReport: any
+): Graph {
   const nodes: Node[] = [];
   const links = [];
 
@@ -22,7 +27,8 @@ export function generateAppGraph(fileMap: FileMap, componentFiles: FileWithPath[
           .split('.')[0],
         group: 1,
         functions,
-        type: component.type
+        type: component.type,
+        report: findReport(fullReport, fileMap, fileName, componentName)
       });
 
       if (component.extends) {

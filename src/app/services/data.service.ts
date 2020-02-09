@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
 import escomplexProject from 'typhonjs-escomplex-project';
 import data from '../constants/data';
+import { findReport } from '../helper/findReport';
 import { generateAppGraph } from '../helper/generateAppGraph';
 import { FileWithPath } from '../helper/getFilesAsync';
 import { isComponentFile } from '../helper/isComponentFile';
@@ -20,7 +21,7 @@ export class DataService {
 
   private componentFiles: FileWithPath[];
   private appGraph: Graph = { nodes: [], links: [] };
-  private report;
+  private report: any;
 
   constructor() {}
 
@@ -33,6 +34,7 @@ export class DataService {
     let fileMap: FileMap = {};
     const progressPercent = (1 / this.componentFiles.length) * 50;
 
+    // parse files
     for (const file of this.componentFiles) {
       const { ast, code } = await this.parseFile(file);
       asts.push({ ast, srcPath: file.path });
@@ -40,6 +42,7 @@ export class DataService {
       await this.increaseProgress(progressPercent);
     }
 
+    // traverse files
     for (const file of this.componentFiles) {
       const { components, defaultExport } = await new Promise(resolve =>
         setTimeout(() => resolve(traverse(asts, file.path)), 0)
@@ -59,13 +62,30 @@ export class DataService {
       // Object.fromEntries
       .reduce((acc, [key, val]) => Object.assign(acc, { [key]: val }), {});
 
-    this.fileMap$.next(fileMap);
-
-    console.log('FileMap:', this.fileMap$.value);
     this.report = escomplexProject.analyze(asts);
     console.log('Report:', this.report);
+
+    // add report to component graph nodes
+    for (const [fileName, file] of Object.entries(fileMap)) {
+      for (const [componentName, component] of Object.entries(file.components || {})) {
+        component.graph.nodes = component.graph.nodes.map(node => {
+          node.report = findReport(
+            this.report,
+            this.fileMap$.value,
+            fileName,
+            componentName,
+            node.id
+          );
+          return node;
+        });
+      }
+    }
+
+    this.fileMap$.next(fileMap);
+    console.log('FileMap:', this.fileMap$.value);
+
     if (!this.hasSingleComponent()) {
-      this.appGraph = generateAppGraph(this.fileMap$.value, this.componentFiles);
+      this.appGraph = generateAppGraph(this.fileMap$.value, this.componentFiles, this.report);
     }
     this.progress$.next(undefined);
     this.setComponentGraph();
@@ -102,7 +122,7 @@ export class DataService {
       id: node.id,
       label: node.label,
       type: componentId && node.group !== 1 ? 'function' : 'component',
-      report: this.findReportById(componentId, node.id),
+      report: node.report,
       code: this.findCode(node.id, componentId),
       lineStart: componentOrFunction.lineStart,
       lineEnd: componentOrFunction.lineEnd
@@ -122,7 +142,7 @@ export class DataService {
           id: `${fileName}#${componentName}`,
           label: componentName,
           type: 'component',
-          report: this.findReport(fileName, componentName),
+          report: findReport(this.report, this.fileMap$.value, fileName, componentName),
           code: file.code,
           lineStart: file.components[componentName].lineStart,
           lineEnd: file.components[componentName].lineEnd
@@ -230,68 +250,6 @@ export class DataService {
       return component.graph.nodes.find(n => n.id === functionName);
     }
     return component;
-  }
-
-  // TODO make private once it is not used in graph component anymore
-  findReportById(componentId: string, nodeId?: string) {
-    if (!this.report) {
-      return;
-    }
-    const { fileName, componentName, functionName } = this.findNamesById(componentId, nodeId);
-    return this.findReport(fileName, componentName, functionName);
-  }
-
-  private findReport(fileName: string, componentName: string, functionName?: string) {
-    const moduleReport = this.report.modules.find(module => module.srcPath === fileName);
-
-    if (!moduleReport) {
-      console.error('File report not found', fileName);
-      return;
-    }
-
-    const classReport = moduleReport.classes.find(report => report.name === componentName);
-
-    if (classReport) {
-      // ClassComponent
-      if (functionName && functionName !== componentName) {
-        const classFunctionReport = classReport.methods.find(
-          method => method.name === functionName
-        );
-
-        if (!classFunctionReport) {
-          const component = this.fileMap$.value[fileName].components[componentName];
-          const functionNode = component.graph.nodes.find(node => node.id === functionName);
-
-          if (!functionNode) {
-            return;
-          }
-
-          const lineStart = functionNode.lineStart;
-          return classReport.methods.find(method => method.lineStart === lineStart);
-        }
-
-        return classFunctionReport;
-      }
-      return classReport;
-    } else {
-      // FunctionComponent
-      let lineStart: number;
-
-      if (!functionName) {
-        const component = this.fileMap$.value[fileName].components[componentName];
-        const componentNode = component.graph.nodes.find(node => node.label === componentName);
-
-        if (!componentNode) {
-          return;
-        }
-
-        lineStart = parseInt(componentNode.id.split('#')[1], 10);
-      } else if (functionName.includes('#')) {
-        lineStart = parseInt(functionName.split('#')[1], 10);
-      }
-
-      return moduleReport.methods.find(method => method.lineStart === lineStart);
-    }
   }
 
   private findCode(nodeId: string, componentId?: string) {
