@@ -3,11 +3,11 @@ import { BehaviorSubject, Subject } from 'rxjs';
 import escomplexProject from 'typhonjs-escomplex-project';
 import data from '../constants/data';
 import { excludedFolders, supportedExtensions } from '../constants/files';
+import { generateAppGraph } from '../helper/generateAppGraph';
 import { FileWithPath } from '../helper/getFilesAsync';
 import { parse } from '../helper/parser';
 import { traverse } from '../helper/traverse';
-import { filterInvalidLinks, pushUniqueLink } from '../helper/traverseHelper';
-import { AstWithPath, FileMap, Graph, Import, Node, NodeSelection } from '../interfaces';
+import { AstWithPath, FileMap, Graph, Node, NodeSelection } from '../interfaces';
 
 @Injectable({
   providedIn: 'root'
@@ -70,7 +70,7 @@ export class DataService {
     this.report = escomplexProject.analyze(asts);
     console.log('Report:', this.report);
     if (!this.hasSingleComponent()) {
-      this.appGraph = this.generateAppGraph(this.fileMap$.value);
+      this.appGraph = generateAppGraph(this.fileMap$.value, this.componentFiles);
     }
     this.progress$.next(undefined);
     this.setComponentGraph();
@@ -145,106 +145,6 @@ export class DataService {
     this.selectedNodes$.next(selectedNodes);
   }
 
-  private generateAppGraph(fileMap: FileMap): Graph {
-    const nodes: Node[] = [];
-    const links = [];
-
-    for (const [fileName, file] of Object.entries(fileMap)) {
-      if (!file.components) {
-        return;
-      }
-      for (const [componentName, component] of Object.entries(file.components)) {
-        const functions = [...component.graph.nodes].sort((a, b) => {
-          if (a.group !== b.group) {
-            return a.group - b.group;
-          }
-
-          // React functions
-          if (a.returnsJSX && a.group === 2) {
-            return 1;
-          }
-
-          if (b.returnsJSX && b.group === 2) {
-            return -1;
-          }
-
-          // other functions
-          if (a.returnsJSX && a.group === 3) {
-            return -1;
-          }
-
-          if (b.returnsJSX && b.group === 3) {
-            return 1;
-          }
-        });
-        functions.shift(); // remove component node
-
-        nodes.push({
-          id: `${fileName}#${componentName}`,
-          label: componentName
-            .split('/')
-            .pop()
-            .split('.')[0],
-          group: 1,
-          functions,
-          type: component.type
-        });
-
-        if (component.extends) {
-          component.extends.source = this.getCompleteFilePath(component.extends.source, fileName);
-        }
-
-        component.dependencies = [...component.dependencies]
-          .map(dependency => {
-            dependency.source = this.getCompleteFilePath(dependency.source, fileName);
-            return dependency.source && dependency;
-          })
-          .filter(d => d);
-
-        component.dependencies.forEach(dependency => {
-          if (!dependency.source.startsWith('/')) {
-            return;
-          }
-
-          if (!Object.keys(fileMap).find(name => name.startsWith(dependency.source))) {
-            console.warn('Dependency not found:', dependency);
-            return;
-          }
-
-          if (dependency.name === 'default') {
-            const defaultDependency = this.getDefaultExport(fileMap, dependency, fileName);
-
-            if (!defaultDependency) {
-              return;
-            }
-
-            dependency = defaultDependency;
-          }
-
-          const source = `${fileName}#${componentName}`;
-          const target = `${dependency.source}#${dependency.name}`;
-          pushUniqueLink({ source, target }, links);
-        });
-
-        if (component.extends) {
-          const name = component.extends.name;
-          const source = component.extends.source;
-
-          pushUniqueLink(
-            {
-              source: `${source}#${name}`,
-              target: `${fileName}#${componentName}`,
-              inherits: true
-            },
-            links
-          );
-        }
-      }
-    }
-
-    return filterInvalidLinks({ nodes, links }, true);
-  }
-
   saveToLocalStorage() {
     if (this.report) {
       console.log('Saving to local storage...');
@@ -302,25 +202,6 @@ export class DataService {
       fileParts[fileParts.length - 2] !== 'test' &&
       supportedExtensions.includes(fileParts[fileParts.length - 1])
     );
-  }
-
-  private getCompleteFilePath(importPath: string, fileName: string) {
-    const hasExtension = importPath.includes('.');
-    const filePath = hasExtension ? importPath : importPath + '.';
-
-    let file = this.componentFiles.find(componentFile => componentFile.path.startsWith(filePath));
-
-    if (!file && !hasExtension) {
-      const indexPath = importPath + '/index.';
-      file = this.componentFiles.find(componentFile => componentFile.path.startsWith(indexPath));
-    }
-
-    if (!file && importPath.startsWith('/')) {
-      console.error(`File path not found: ${importPath} (${fileName})`);
-      return;
-    }
-
-    return file ? file.path : importPath;
   }
 
   hasSingleComponent() {
@@ -417,35 +298,6 @@ export class DataService {
 
       return moduleReport.methods.find(method => method.lineStart === lineStart);
     }
-  }
-
-  private getDefaultExport(fileMap: FileMap, dependency: Import, currentFileName: string): Import {
-    const fileName = Object.keys(fileMap).find(name => name === dependency.source);
-
-    if (!fileName || !fileMap[fileName].defaultExport) {
-      console.error(`Default export not found: ${dependency.source} (${currentFileName})`);
-      return;
-    }
-
-    const defaultExport = fileMap[fileName].defaultExport;
-
-    // default export is an import
-    if (defaultExport.startsWith('/')) {
-      const parts = defaultExport.split('#');
-      const importPath = parts[0];
-      const importName = parts[1];
-
-      if (importName === 'default') {
-        return this.getDefaultExport(
-          fileMap,
-          { source: importPath, name: importName },
-          currentFileName
-        );
-      }
-    }
-
-    dependency.name = defaultExport;
-    return dependency;
   }
 
   private findCode(nodeId: string, componentId?: string) {
