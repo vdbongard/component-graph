@@ -21,6 +21,7 @@ export interface Node extends SimulationNodeDatum {
   icons?: NodeIcon[];
   type?: 'function' | 'class';
   returnsJSX?: boolean;
+  componentId?: string;
 }
 
 export interface NodeIcon {

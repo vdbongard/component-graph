@@ -403,6 +403,15 @@ export class GraphComponent implements OnInit, OnDestroy {
   }
 
   private createNodes() {
+    const onNodeClick = d => {
+      if (d3.event.ctrlKey) {
+        this.removeNode(d);
+        this.restartGraph();
+        return;
+      }
+      this.dataService.selectNode(d, this.id);
+    };
+
     const nodes = this.svgZoomGroup
       .append('g')
       .selectAll('.node')
@@ -410,14 +419,6 @@ export class GraphComponent implements OnInit, OnDestroy {
       .join('g')
       .attr('class', 'node')
       .attr('style', 'cursor: pointer; outline: none; opacity: 1;')
-      .on('click', d => {
-        if (d3.event.ctrlKey) {
-          this.removeNode(d);
-          this.restartGraph();
-          return;
-        }
-        this.dataService.selectNode(d, this.id);
-      })
       .on('dblclick', d => {
         if (d.id.startsWith('/')) {
           this.router.navigate([], {
@@ -466,6 +467,7 @@ export class GraphComponent implements OnInit, OnDestroy {
     nodes
       .append('circle')
       .attr('class', 'circle-overlay')
+      .on('click', onNodeClick)
       .attr('fill', d => (d.type === 'class' ? 'url(#diagonalHatch)' : 'transparent'))
       .attr('r', d => this.getMainCircleRadiusWithoutStrokeWidth(d))
       .attr('stroke', d => colorScheme[d.group - 1]);
@@ -485,12 +487,16 @@ export class GraphComponent implements OnInit, OnDestroy {
         return d.functions
           ? d.functions.map(f => {
               f.width = d.width;
+              f.componentId = d.id;
               return f;
             })
           : [];
       })
       .join('circle')
       .attr('class', 'function')
+      .on('click', d => {
+        this.dataService.selectNode(d, d.componentId);
+      })
       .attr('r', this.previewCircleRadius)
       .attr('fill', (d: Node) => {
         return d.returnsJSX
@@ -551,6 +557,7 @@ export class GraphComponent implements OnInit, OnDestroy {
       nodes
         .append('text')
         .attr('class', 'node-label')
+        .on('click', onNodeClick)
         .text(d => d.label || d.id)
         .style('font-size', `${this.normalTextSize}px`)
         .style('dominant-baseline', 'central')
