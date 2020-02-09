@@ -232,6 +232,7 @@ export class GraphComponent implements OnInit, OnDestroy {
         return node;
       }
 
+      // TODO set node report once in the data service not here
       const report = this.dataService.findReportById(this.id, node.id);
 
       // fixed size for component node in component view

@@ -13,19 +13,14 @@ import { AstWithPath, FileMap, Graph, Node, NodeSelection } from '../interfaces'
   providedIn: 'root'
 })
 export class DataService {
-  files: FileWithPath[] = [];
-  componentFiles: FileWithPath[];
-
-  appGraph: Graph = {
-    nodes: [],
-    links: []
-  };
-  report;
-
   graphData$ = new Subject<Graph>();
   selectedNodes$ = new BehaviorSubject<NodeSelection[]>(undefined);
   progress$ = new BehaviorSubject<number>(undefined);
   fileMap$ = new BehaviorSubject<FileMap>(undefined);
+
+  private componentFiles: FileWithPath[];
+  private appGraph: Graph = { nodes: [], links: [] };
+  private report;
 
   constructor() {}
 
@@ -39,7 +34,7 @@ export class DataService {
     const progressPercent = (1 / this.componentFiles.length) * 50;
 
     for (const file of this.componentFiles) {
-      const { ast, code } = await this.setFile(file);
+      const { ast, code } = await this.parseFile(file);
       asts.push({ ast, srcPath: file.path });
       fileMap[file.path] = { code };
       await this.increaseProgress(progressPercent);
@@ -74,12 +69,6 @@ export class DataService {
     }
     this.progress$.next(undefined);
     this.setComponentGraph();
-  }
-
-  async setFile(file: FileWithPath) {
-    const code = await file.file.text();
-    const ast = parse(code, file.path);
-    return { ast, code };
   }
 
   setComponentGraph(componentId?: string) {
@@ -173,6 +162,29 @@ export class DataService {
     }
   }
 
+  hasSingleComponent() {
+    return (
+      Object.keys(this.fileMap$.value).length === 1 &&
+      Object.values(this.fileMap$.value)[0].components &&
+      Object.keys(Object.values(this.fileMap$.value)[0].components).length === 1
+    );
+  }
+
+  getComponentName(fileName: string) {
+    const file = this.fileMap$.value[fileName];
+
+    if (!file || Object.keys(file.components).length !== 1) {
+      return;
+    }
+    return Object.keys(file.components)[0];
+  }
+
+  private async parseFile(file: FileWithPath) {
+    const code = await file.file.text();
+    const ast = parse(code, file.path);
+    return { ast, code };
+  }
+
   private resetData(): void {
     this.componentFiles = [];
     this.fileMap$.next({});
@@ -182,24 +194,16 @@ export class DataService {
     };
   }
 
-  private async increaseProgress(progressPercent: number) {
+  private async increaseProgress(amountInPercent: number) {
     return new Promise(resolve =>
       setTimeout(
-        () => resolve(this.progress$.next((this.progress$.value || 0) + progressPercent)),
+        () => resolve(this.progress$.next((this.progress$.value || 0) + amountInPercent)),
         0
       )
     );
   }
 
-  hasSingleComponent() {
-    return (
-      Object.keys(this.fileMap$.value).length === 1 &&
-      Object.values(this.fileMap$.value)[0].components &&
-      Object.keys(Object.values(this.fileMap$.value)[0].components).length === 1
-    );
-  }
-
-  findNamesById(componentId: string, nodeId?: string) {
+  private findNamesById(componentId: string, nodeId?: string) {
     let fileName: string;
     let componentName: string;
     let functionName: string;
@@ -218,7 +222,7 @@ export class DataService {
     return { fileName, componentName, functionName };
   }
 
-  findComponentOrFunctionById(componentId: string, nodeId?: string) {
+  private findComponentOrFunctionById(componentId: string, nodeId?: string) {
     const { fileName, componentName, functionName } = this.findNamesById(componentId, nodeId);
     const component = this.fileMap$.value[fileName].components[componentName];
 
@@ -228,6 +232,7 @@ export class DataService {
     return component;
   }
 
+  // TODO make private once it is not used in graph component anymore
   findReportById(componentId: string, nodeId?: string) {
     if (!this.report) {
       return;
@@ -244,12 +249,14 @@ export class DataService {
       return;
     }
 
-    const report = moduleReport.classes.find(classReport => classReport.name === componentName);
+    const classReport = moduleReport.classes.find(report => report.name === componentName);
 
-    if (report) {
+    if (classReport) {
       // ClassComponent
       if (functionName && functionName !== componentName) {
-        const classFunctionReport = report.methods.find(method => method.name === functionName);
+        const classFunctionReport = classReport.methods.find(
+          method => method.name === functionName
+        );
 
         if (!classFunctionReport) {
           const component = this.fileMap$.value[fileName].components[componentName];
@@ -260,12 +267,12 @@ export class DataService {
           }
 
           const lineStart = functionNode.lineStart;
-          return report.methods.find(method => method.lineStart === lineStart);
+          return classReport.methods.find(method => method.lineStart === lineStart);
         }
 
         return classFunctionReport;
       }
-      return report;
+      return classReport;
     } else {
       // FunctionComponent
       let lineStart: number;
@@ -291,14 +298,5 @@ export class DataService {
     const { fileName } = this.findNamesById(componentId, nodeId);
     const file = this.fileMap$.value[fileName];
     return file && file.code;
-  }
-
-  getComponentName(fileName: string) {
-    const file = this.fileMap$.value[fileName];
-
-    if (!file || Object.keys(file.components).length !== 1) {
-      return;
-    }
-    return Object.keys(file.components)[0];
   }
 }
