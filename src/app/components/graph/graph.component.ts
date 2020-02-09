@@ -459,11 +459,13 @@ export class GraphComponent implements OnInit, OnDestroy {
         });
     }
 
+    // main circle
     nodes
       .append('circle')
       .attr('class', 'circle-node')
       .attr('r', d => this.getMainCircleRadiusWithoutStrokeWidth(d));
 
+    // overlay circle
     nodes
       .append('circle')
       .attr('class', 'circle-overlay')
@@ -472,6 +474,7 @@ export class GraphComponent implements OnInit, OnDestroy {
       .attr('r', d => this.getMainCircleRadiusWithoutStrokeWidth(d))
       .attr('stroke', d => colorScheme[d.group - 1]);
 
+    // inner circle stroke (for functions returning jsx)
     nodes
       .filter(d => d.returnsJSX)
       .append('circle')
@@ -480,6 +483,7 @@ export class GraphComponent implements OnInit, OnDestroy {
       .attr('stroke', d => colorScheme[d.group - 1])
       .attr('stroke-width', this.circleStrokeWidth);
 
+    // preview circles
     nodes
       .append('g')
       .selectAll('circle')
@@ -523,6 +527,7 @@ export class GraphComponent implements OnInit, OnDestroy {
       .append('title')
       .text(d => d.id);
 
+    // node warning and error icons
     nodes
       .append('g')
       .attr('class', 'circle-icons')
