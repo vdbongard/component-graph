@@ -154,7 +154,29 @@ export class DataService {
         return;
       }
       for (const [componentName, component] of Object.entries(file.components)) {
-        const functions = [...component.graph.nodes].sort((a, b) => a.group - b.group);
+        const functions = [...component.graph.nodes].sort((a, b) => {
+          if (a.group !== b.group) {
+            return a.group - b.group;
+          }
+
+          // React functions
+          if (a.returnsJSX && a.group === 2) {
+            return 1;
+          }
+
+          if (b.returnsJSX && b.group === 2) {
+            return -1;
+          }
+
+          // other functions
+          if (a.returnsJSX && a.group === 3) {
+            return -1;
+          }
+
+          if (b.returnsJSX && b.group === 3) {
+            return 1;
+          }
+        });
         functions.shift(); // remove component node
 
         nodes.push({

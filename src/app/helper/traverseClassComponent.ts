@@ -8,6 +8,7 @@ import {
   isClassPropertyFunction,
   isFunction,
   isFunctionBind,
+  isReturningJSX,
   isThisMemberExpression,
   postProcessing,
   pushUniqueDependencies,
@@ -41,7 +42,8 @@ export function traverseClassComponent(componentPath, name, fileName, asts): Com
         id: methodName,
         group: isReactMethod ? 2 : 3,
         lineStart: path.node.loc.start.line,
-        lineEnd: path.node.loc.end.line
+        lineEnd: path.node.loc.end.line,
+        returnsJSX: isReturningJSX(path, false)
       });
       // Link: Class -> ReactMethod
       if (isReactMethod) {
@@ -51,7 +53,8 @@ export function traverseClassComponent(componentPath, name, fileName, asts): Com
         });
       }
     },
-    ClassProperty: ({ node }) => {
+    ClassProperty: path => {
+      const { node } = path;
       if (isFunctionBind(node)) {
         const bindFunctionName = node.value.callee.object.property.name;
         const classPropertyName = node.key.name;
@@ -71,7 +74,8 @@ export function traverseClassComponent(componentPath, name, fileName, asts): Com
             id: node.key.name,
             lineStart: node.loc.start.line,
             lineEnd: node.loc.end.line,
-            group: 3
+            group: 3,
+            returnsJSX: isReturningJSX(path, false)
           });
         }
       }

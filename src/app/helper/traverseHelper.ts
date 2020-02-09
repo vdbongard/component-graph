@@ -274,7 +274,7 @@ export function isReactFunctionComponent(path) {
   );
 }
 
-export function isReturningJSX(path) {
+export function isReturningJSX(path, skipPath = true) {
   if (!t.isBlockStatement(path.node.body)) {
     return false;
   }
@@ -283,7 +283,10 @@ export function isReturningJSX(path) {
   let returnsJSXOrNull = true;
   let returnsJSXOnce = false;
 
-  path.skip();
+  if (skipPath) {
+    path.skip();
+  }
+
   path.traverse({
     ReturnStatement: returnStatementPath => {
       returnsAtLeastOnce = true;

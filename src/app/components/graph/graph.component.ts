@@ -471,6 +471,14 @@ export class GraphComponent implements OnInit, OnDestroy {
       .attr('stroke', d => colorScheme[d.group - 1]);
 
     nodes
+      .filter(d => d.returnsJSX)
+      .append('circle')
+      .attr('fill', 'none')
+      .attr('r', d => this.getMainCircleRadiusWithoutStrokeWidth(d) - 3)
+      .attr('stroke', d => colorScheme[d.group - 1])
+      .attr('stroke-width', this.circleStrokeWidth);
+
+    nodes
       .append('g')
       .selectAll('circle')
       .data(d => {
@@ -485,7 +493,9 @@ export class GraphComponent implements OnInit, OnDestroy {
       .attr('class', 'function')
       .attr('r', this.previewCircleRadius)
       .attr('fill', (d: Node) => {
-        return this.calculateBrightenedColor(d, 0.5);
+        return d.returnsJSX
+          ? this.calculateBrightenedColor(d, 0.15)
+          : this.calculateBrightenedColor(d, 0.7);
       })
       .attr('stroke-width', this.circleStrokeWidth)
       .attr('stroke', d => colorScheme[d.group - 1])
