@@ -24,35 +24,15 @@
 </div>
 
 <div *ngIf="selectedNode" class="content-inner">
-  <ng-container *ngIf="report">
+  <ng-container *ngFor="let id of Object.keys(qualityMetrics)">
     <app-quality-metric
-      name="Lines of Code"
-      [value]="report.sloc.physical"
-      [threshold]="selectedNode.type === 'component' ? 200 : 40"
-    ></app-quality-metric>
-
-    <app-quality-metric
-      name="Lines of Code (logical)"
-      [value]="report.sloc.logical"
-      [threshold]="selectedNode.type === 'component' ? 200 : 40"
-    ></app-quality-metric>
-
-    <app-quality-metric
-      name="Cyclomatic Complexity"
-      [value]="report.cyclomatic"
-      [threshold]="selectedNode.type === 'component' ? 20 : 5"
-    ></app-quality-metric>
-
-    <app-quality-metric
-      name="Cyclomatic Density"
-      [value]="report.cyclomaticDensity"
-      [threshold]="100"
-    ></app-quality-metric>
-
-    <app-quality-metric
-      name="Halstead Difficulty"
-      [value]="report.halstead.difficulty"
-      [threshold]="selectedNode.type === 'component' ? 30 : 8"
+      [threshold]="
+        qualityMetrics[id].thresholds[
+          selectedNode.type + '.' + (selectedNode.label || selectedNode.id)
+        ] || qualityMetrics[id].thresholds[selectedNode.type]
+      "
+      [name]="qualityMetrics[id].name"
+      [value]="report | nestedStringAccessor: id"
     ></app-quality-metric>
   </ng-container>
 </div>

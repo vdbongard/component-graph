@@ -111,3 +111,12 @@ export interface Selection {
   start: number;
   end: number;
 }
+
+export interface QualityMetrics {
+  [qualityMetric: string]: {
+    name: string;
+    thresholds: {
+      [thresholdType: string]: number; // e.g. 'component', 'function', 'function.render'
+    };
+  };
+}

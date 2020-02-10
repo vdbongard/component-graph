@@ -1,4 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { qualityMetrics } from '../../constants/quality-metrics';
 import { NodeSelection } from '../../interfaces';
 
 @Component({
@@ -21,9 +22,13 @@ export class CodeQualityComponent implements OnInit {
   }
 
   private selectedNodeInternal: NodeSelection;
-  report;
+  report: any;
+  qualityMetrics = qualityMetrics;
+  Object = Object;
 
-  constructor() {}
+  constructor() {
+    console.log(qualityMetrics);
+  }
 
   ngOnInit() {}
 }

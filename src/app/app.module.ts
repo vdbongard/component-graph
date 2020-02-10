@@ -32,6 +32,7 @@ import { SettingsModalComponent } from './components/settings-modal/settings-mod
 import { SourceCodeComponent } from './components/source-code/source-code.component';
 import { UploadViewComponent } from './components/upload-view/upload-view.component';
 import { DropTargetDirective } from './directives/drop-target.directive';
+import { NestedStringAccessorPipe } from './pipes/nested-string-accessor.pipe';
 
 @NgModule({
   declarations: [
@@ -44,7 +45,8 @@ import { DropTargetDirective } from './directives/drop-target.directive';
     CodeQualityComponent,
     SourceCodeComponent,
     FileTreeComponent,
-    QualityMetricComponent
+    QualityMetricComponent,
+    NestedStringAccessorPipe
   ],
   imports: [
     BrowserModule,
