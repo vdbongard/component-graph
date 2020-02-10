@@ -1,4 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
+import { nestedStringAccess } from '../helper/nestedStringAccess';
 
 @Pipe({
   name: 'nestedStringAccessor'
@@ -11,7 +12,7 @@ export class NestedStringAccessorPipe implements PipeTransform {
    * @param value The object to access
    * @param accessorString The accessor string in the format of 'foo.bar'
    */
-  transform(value: unknown, accessorString: string): unknown {
-    return accessorString.split('.').reduce((o, i) => o[i], value);
+  transform(value: object, accessorString: string): unknown {
+    return nestedStringAccess(value, accessorString);
   }
 }

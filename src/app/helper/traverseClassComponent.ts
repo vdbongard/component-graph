@@ -28,7 +28,14 @@ export function traverseClassComponent(componentPath, name, fileName, asts): Com
   const lineEnd: number = componentPath.node.loc.end.line;
 
   // Node: Class
-  graph.nodes.push({ id: name, group: 1, lineStart, lineEnd, type: 'class' });
+  graph.nodes.push({
+    id: name,
+    group: 1,
+    lineStart,
+    lineEnd,
+    type: 'component',
+    kind: 'ClassComponent'
+  });
 
   const classComponentTraverse = {
     ClassMethod: path => {
@@ -43,7 +50,8 @@ export function traverseClassComponent(componentPath, name, fileName, asts): Com
         group: isReactMethod ? 2 : 3,
         lineStart: path.node.loc.start.line,
         lineEnd: path.node.loc.end.line,
-        returnsJSX: isReturningJSX(path, false)
+        returnsJSX: isReturningJSX(path, false),
+        type: 'innerFunction'
       });
       // Link: Class -> ReactMethod
       if (isReactMethod) {
@@ -75,7 +83,8 @@ export function traverseClassComponent(componentPath, name, fileName, asts): Com
             lineStart: node.loc.start.line,
             lineEnd: node.loc.end.line,
             group: 3,
-            returnsJSX: isReturningJSX(path, false)
+            returnsJSX: isReturningJSX(path, false),
+            type: 'innerFunction'
           });
         }
       }
@@ -124,6 +133,6 @@ export function traverseClassComponent(componentPath, name, fileName, asts): Com
     extends: superClass,
     lineStart,
     lineEnd,
-    type: 'class'
+    kind: 'ClassComponent'
   };
 }

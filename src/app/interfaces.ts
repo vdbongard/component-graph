@@ -19,7 +19,8 @@ export interface Node extends SimulationNodeDatum {
   lineEnd?: number;
   functions?: Node[];
   icons?: NodeIcon[];
-  type?: 'function' | 'class';
+  type?: 'component' | 'innerFunction';
+  kind?: 'FunctionComponent' | 'ClassComponent';
   returnsJSX?: boolean;
   componentId?: string;
   report?: any;
@@ -55,7 +56,7 @@ export interface Settings {
 
 export interface NodeSelection {
   id: string;
-  type: 'component' | 'function';
+  type: 'component' | 'innerFunction';
   label?: string;
   report: any;
   code?: string;
@@ -81,7 +82,7 @@ export interface Component {
   dependencies?: Import[];
   lineStart?: number;
   lineEnd?: number;
-  type?: 'function' | 'class';
+  kind?: 'FunctionComponent' | 'ClassComponent';
 }
 
 export interface AstWithPath {
@@ -116,7 +117,7 @@ export interface QualityMetrics {
   [qualityMetric: string]: {
     name: string;
     thresholds: {
-      [thresholdType: string]: number; // e.g. 'component', 'function', 'function.render'
+      [thresholdType: string]: number; // e.g. 'component', 'innerFunction', 'innerFunction.render'
     };
   };
 }

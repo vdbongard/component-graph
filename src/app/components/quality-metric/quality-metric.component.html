@@ -4,7 +4,7 @@
   <mat-progress-bar
     class="progress-bar"
     [value]="(value / threshold) * 100"
-    [class.warn]="value >= threshold * 0.8 && value < threshold"
+    [class.warn]="value >= threshold * warningThreshold && value < threshold"
     [class.error]="value >= threshold"
   >
   </mat-progress-bar>

@@ -27,7 +27,8 @@ export function generateAppGraph(
           .split('.')[0],
         group: 1,
         functions,
-        type: component.type,
+        type: 'component',
+        kind: component.kind,
         report: findReport(fullReport, fileMap, fileName, componentName)
       });
 

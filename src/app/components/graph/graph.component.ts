@@ -6,9 +6,11 @@ import { Subscription } from 'rxjs';
 import { d3adaptor, Layout, Link as ColaLink, Node as ColaNode } from 'webcola';
 import { ID3StyleLayoutAdaptor } from 'webcola/dist/src/d3adaptor';
 import { colorScheme } from '../../constants/colors';
+import { qualityMetrics, warningThreshold } from '../../constants/quality-metrics';
 import { getCookie, setCookie } from '../../helper/cookie';
 import { generateLinkReferences } from '../../helper/generateLinkReferences';
-import { Node, NodeSelection, RefLink, Settings } from '../../interfaces';
+import { nestedStringAccess } from '../../helper/nestedStringAccess';
+import { Node, NodeIcon, NodeSelection, RefLink, Settings } from '../../interfaces';
 import { DataService } from '../../services/data.service';
 import { SettingsService } from '../../services/settings.service';
 
@@ -259,27 +261,65 @@ export class GraphComponent implements OnInit, OnDestroy {
         return node;
       }
 
-      const report = node.report;
+      const report = node.report?.aggregate || node.report;
+
+      if (!report) {
+        console.error('Report not found:', node.id, this.id);
+        return;
+      }
+
+      node.icons = this.getNodeIcons(node, report);
 
       // fixed size for component node in component view
-      if (report && !(isComponentView && node.group === 1)) {
-        const metrics = report.aggregate ? report.aggregate : report;
-        const loc = metrics.sloc.physical;
-        // circle area relative to metric (not circle radius)
-        node.width = node.height = nodeSizeMultiplier * Math.sqrt((16 * loc) / Math.PI);
-        if (!isComponentView) {
-          node.width += this.getCirclePreviewWidth();
-          node.height += this.getCirclePreviewWidth();
-        }
-      } else {
-        if (!report) {
-          console.error('Report not found:', node.id, this.id);
-        }
+      if (isComponentView && node.group === 1) {
         node.width = node.height = this.circleRadius * 2;
+        return node;
+      }
+
+      const loc = report.sloc.physical;
+
+      // circle area relative to metric (not circle radius)
+      node.width = node.height = nodeSizeMultiplier * Math.sqrt((16 * loc) / Math.PI);
+
+      if (!isComponentView) {
+        node.width += this.getCirclePreviewWidth();
+        node.height += this.getCirclePreviewWidth();
       }
 
       return node;
     });
+  }
+
+  getNodeIcons(node, report): NodeIcon[] {
+    const icons: NodeIcon[] = [];
+
+    for (const id of Object.keys(qualityMetrics)) {
+      const customThresholdName = node.type + '.' + (node.label || node.id);
+      const threshold =
+        qualityMetrics[id].thresholds[customThresholdName] !== undefined
+          ? qualityMetrics[id].thresholds[customThresholdName]
+          : qualityMetrics[id].thresholds[node.type];
+
+      if (!threshold) {
+        continue;
+      }
+
+      const value = nestedStringAccess(report, id);
+
+      if (value >= threshold * warningThreshold && value < threshold) {
+        icons.push({
+          icon: 'warning',
+          class: 'warn'
+        });
+      } else if (value >= threshold) {
+        icons.push({
+          icon: 'warning',
+          class: 'error'
+        });
+      }
+    }
+
+    return icons;
   }
 
   private createSVG() {
@@ -497,7 +537,7 @@ export class GraphComponent implements OnInit, OnDestroy {
       .append('circle')
       .attr('class', 'circle-overlay')
       .on('click', onNodeClick)
-      .attr('fill', d => (d.type === 'class' ? 'url(#diagonalHatch)' : 'transparent'))
+      .attr('fill', d => (d.kind === 'ClassComponent' ? 'url(#diagonalHatch)' : 'transparent'))
       .attr('r', d => this.getMainCircleRadiusWithoutStrokeWidth(d))
       .attr('stroke', d => colorScheme[d.group - 1]);
 

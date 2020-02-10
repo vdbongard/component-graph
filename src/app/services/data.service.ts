@@ -115,7 +115,7 @@ export class DataService {
     const selectedNode: NodeSelection = {
       id: node.id,
       label: node.label,
-      type: componentId && node.group !== 1 ? 'function' : 'component',
+      type: node.type,
       report: node.report,
       code: this.findCode(node.id, componentId),
       lineStart: componentOrFunction.lineStart,

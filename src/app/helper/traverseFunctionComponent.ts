@@ -25,7 +25,8 @@ export function traverseFunctionComponent(componentPath, name, fileName, asts): 
     group: 1,
     lineStart,
     lineEnd,
-    type: 'function'
+    type: 'component',
+    kind: 'FunctionComponent'
   });
 
   const functionComponentTraverse = {
@@ -42,7 +43,8 @@ export function traverseFunctionComponent(componentPath, name, fileName, asts): 
             label: path.parentPath ? path.parentPath.node.id.name : path.node.id.name,
             group: 2,
             lineStart: path.node.loc.start.line,
-            lineEnd: path.node.loc.end.line
+            lineEnd: path.node.loc.end.line,
+            type: 'innerFunction'
           });
         }
       }
@@ -121,6 +123,6 @@ export function traverseFunctionComponent(componentPath, name, fileName, asts): 
     dependencies,
     lineStart,
     lineEnd,
-    type: 'function'
+    kind: 'FunctionComponent'
   };
 }
