@@ -410,7 +410,16 @@ export function getComponentDependency(path, fileName: string, asts: AstWithPath
     return;
   }
 
-  const binding = path.scope.getBinding(importName);
+  return getComponentDependencyByName(importName, path, fileName, asts);
+}
+
+export function getComponentDependencyByName(
+  name: string,
+  path,
+  fileName: string,
+  asts: AstWithPath[]
+) {
+  const binding = path.scope.getBinding(name);
 
   if (!binding) {
     return;
@@ -423,9 +432,18 @@ export function getComponentDependency(path, fileName: string, asts: AstWithPath
     (binding.path.isFunctionDeclaration() && isReactFunctionComponent(binding.path))
   ) {
     return {
-      name: importName,
+      name,
       source: fileName
     };
+  }
+
+  // check if dependency has a type annotation
+  if (binding.path.isVariableDeclarator()) {
+    const typeName = binding.path.node?.id?.typeAnnotation?.typeAnnotation?.typeName?.name;
+
+    if (typeName) {
+      return getComponentDependencyByName(typeName, binding.path, fileName, asts);
+    }
   }
 
   const importBindingPath = getImportPathFromBinding(binding);
@@ -434,12 +452,7 @@ export function getComponentDependency(path, fileName: string, asts: AstWithPath
     return;
   }
 
-  const importPath = getImportPathFromImportSpecifier(
-    importBindingPath,
-    importName,
-    asts,
-    fileName
-  );
+  const importPath = getImportPathFromImportSpecifier(importBindingPath, name, asts, fileName);
 
   if (!importPath) {
     return;
@@ -455,7 +468,7 @@ export function getComponentDependency(path, fileName: string, asts: AstWithPath
   }
 
   return {
-    name: defaultImport ? 'default' : importName,
+    name: defaultImport ? 'default' : name,
     source: importPath
   };
 }

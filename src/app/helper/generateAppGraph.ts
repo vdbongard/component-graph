@@ -52,7 +52,7 @@ export function generateAppGraph(
         }
 
         if (!Object.keys(fileMap).find(name => name.startsWith(dependency.source))) {
-          console.warn('Dependency not found:', dependency);
+          // console.warn('Dependency not found:', dependency);
           return;
         }
 
