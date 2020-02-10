@@ -29,7 +29,11 @@
       [threshold]="
         qualityMetrics[id].thresholds[
           selectedNode.type + '.' + (selectedNode.label || selectedNode.id)
-        ] || qualityMetrics[id].thresholds[selectedNode.type]
+        ] !== undefined
+          ? qualityMetrics[id].thresholds[
+              selectedNode.type + '.' + (selectedNode.label || selectedNode.id)
+            ]
+          : qualityMetrics[id].thresholds[selectedNode.type]
       "
       [name]="qualityMetrics[id].name"
       [value]="report | nestedStringAccessor: id"
