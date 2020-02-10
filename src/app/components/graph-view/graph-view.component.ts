@@ -33,12 +33,6 @@ export class GraphViewComponent implements OnInit, OnDestroy {
       if (!nodes) {
         return;
       }
-      for (const node of nodes) {
-        if (node.report && node.report.aggregate) {
-          node.report.aggregate.halstead.operands.identifiers = ['...'];
-          node.report.aggregate.halstead.operators.identifiers = ['...'];
-        }
-      }
       this.selectedNodes = nodes;
     });
 

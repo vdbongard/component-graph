@@ -16,10 +16,10 @@
     </as-split-area>
     <as-split-area size="575" order="3" [visible]="!settings.fullScreen">
       <as-split unit="percent" direction="vertical" [gutterSize]="gutterSize">
-        <as-split-area size="30">
+        <as-split-area size="33">
           <app-code-quality [selectedNode]="selectedNodes && selectedNodes[0]"></app-code-quality>
         </as-split-area>
-        <as-split-area size="70">
+        <as-split-area size="67">
           <app-source-code
             *ngIf="selectedNodes && selectedNodes.length === 1"
             [code]="selectedNodes[0].code"
