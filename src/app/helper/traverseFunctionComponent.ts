@@ -44,7 +44,8 @@ export function traverseFunctionComponent(componentPath, name, fileName, asts): 
             group: 2,
             lineStart: path.node.loc.start.line,
             lineEnd: path.node.loc.end.line,
-            type: 'innerFunction'
+            type: 'innerFunction',
+            kind: 'FunctionComponent'
           });
         }
       }

@@ -328,6 +328,24 @@ export class GraphComponent implements OnInit, OnDestroy {
       });
     }
 
+    if (report.sloc.logical === 0) {
+      // empty function
+      icons.push({
+        icon: 'delete',
+        class: 'warn'
+      });
+    } else if (
+      node.kind === 'ClassComponent' &&
+      node.type === 'innerFunction' &&
+      !report.halstead.operators.identifiers.includes('this')
+    ) {
+      // no this reference -> helper function
+      icons.push({
+        icon: 'content_cut',
+        class: 'warn'
+      });
+    }
+
     return icons;
   }
 
@@ -546,7 +564,11 @@ export class GraphComponent implements OnInit, OnDestroy {
       .append('circle')
       .attr('class', 'circle-overlay')
       .on('click', onNodeClick)
-      .attr('fill', d => (d.kind === 'ClassComponent' ? 'url(#diagonalHatch)' : 'transparent'))
+      .attr('fill', d =>
+        d.type === 'component' && d.kind === 'ClassComponent'
+          ? 'url(#diagonalHatch)'
+          : 'transparent'
+      )
       .attr('r', d => this.getMainCircleRadiusWithoutStrokeWidth(d))
       .attr('stroke', d => colorScheme[d.group - 1]);
 

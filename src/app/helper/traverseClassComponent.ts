@@ -51,7 +51,8 @@ export function traverseClassComponent(componentPath, name, fileName, asts): Com
         lineStart: path.node.loc.start.line,
         lineEnd: path.node.loc.end.line,
         returnsJSX: isReturningJSX(path, false),
-        type: 'innerFunction'
+        type: 'innerFunction',
+        kind: 'ClassComponent'
       });
       // Link: Class -> ReactMethod
       if (isReactMethod) {
@@ -84,7 +85,8 @@ export function traverseClassComponent(componentPath, name, fileName, asts): Com
             lineEnd: node.loc.end.line,
             group: 3,
             returnsJSX: isReturningJSX(path, false),
-            type: 'innerFunction'
+            type: 'innerFunction',
+            kind: 'ClassComponent'
           });
         }
       }
