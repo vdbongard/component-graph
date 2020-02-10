@@ -1,6 +1,6 @@
 <div *ngIf="threshold" class="quality-metric">
   <span class="name">{{ name }}</span>
-  <span class="value">{{ value }}</span>
+  <span class="value" [title]="value + '/' + threshold">{{ value }}</span>
   <mat-progress-bar
     class="progress-bar"
     [value]="(value / threshold) * 100"
