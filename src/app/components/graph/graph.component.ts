@@ -292,6 +292,8 @@ export class GraphComponent implements OnInit, OnDestroy {
 
   getNodeIcons(node, report): NodeIcon[] {
     const icons: NodeIcon[] = [];
+    let hasWarning = false;
+    let hasError = false;
 
     for (const id of Object.keys(qualityMetrics)) {
       const customThresholdName = node.type + '.' + (node.label || node.id);
@@ -307,16 +309,23 @@ export class GraphComponent implements OnInit, OnDestroy {
       const value = nestedStringAccess(report, id);
 
       if (value >= threshold * warningThreshold && value < threshold) {
-        icons.push({
-          icon: 'warning',
-          class: 'warn'
-        });
+        hasWarning = true;
       } else if (value >= threshold) {
-        icons.push({
-          icon: 'warning',
-          class: 'error'
-        });
+        hasError = true;
+        break;
       }
+    }
+
+    if (hasError) {
+      icons.push({
+        icon: 'warning',
+        class: 'error'
+      });
+    } else if (hasWarning) {
+      icons.push({
+        icon: 'warning',
+        class: 'warn'
+      });
     }
 
     return icons;
