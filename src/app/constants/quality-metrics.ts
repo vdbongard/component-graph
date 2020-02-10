@@ -23,7 +23,7 @@ export const qualityMetrics: QualityMetrics = {
   },
   'halstead.effort': {
     name: 'Halstead Effort',
-    thresholds: { component: 120000, function: 15000 }
+    thresholds: { component: 150000, function: 15000 }
   },
   'halstead.length': {
     name: 'Halstead Length',
