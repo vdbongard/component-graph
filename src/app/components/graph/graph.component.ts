@@ -594,46 +594,36 @@ export class GraphComponent implements OnInit, OnDestroy {
       .append('title')
       .text(d => d.id);
 
-    // node warning and error icons
-    nodes
-      .append('g')
-      .attr('class', 'circle-icons')
-      .attr('style', d =>
-        d.icons
-          ? `transform: translateX(${-((d.icons.length - 1) * this.nodeIconOffsetX) / 2}px)`
-          : null
-      )
-      .selectAll('text.icon')
-      .data(d => {
-        return d.icons
-          ? d.icons.map(i => {
-              i.width = d.width;
-              return i;
-            })
-          : [];
-      })
-      .join('text')
-      .attr('class', d => 'icon ' + d.class)
-      .text(d => d.icon)
-      .attr('x', (d, i) => {
-        return this.nodeIconOffsetX * i;
-      })
-      .attr('y', d => {
-        return Math.max(
-          this.getMainCircleRadiusWithoutStrokeWidth(d) / 2,
-          this.normalTextSize * 0.9
-        );
-      });
-
     if (this.settings.text) {
-      nodes
+      const textNodes = nodes
         .append('text')
         .attr('class', 'node-label')
-        .on('click', onNodeClick)
-        .text(d => d.label || d.id)
         .style('font-size', `${this.normalTextSize}px`)
         .style('dominant-baseline', 'central')
         .attr('x', d => (d.width / 2) * 1.1);
+
+      textNodes
+        .append('tspan')
+        .on('click', onNodeClick)
+        .text(d => d.label || d.id);
+
+      // node warning and error icons
+      textNodes
+        .append('tspan')
+        .attr('dy', '1.2em')
+        .attr('x', '0')
+        .selectAll('tspan.icon')
+        .data(d => {
+          return d.icons
+            ? d.icons.map(i => {
+                i.width = d.width;
+                return i;
+              })
+            : [];
+        })
+        .join('tspan')
+        .attr('class', d => 'icon ' + d.class)
+        .text(d => d.icon);
 
       if (this.settings.textCenter) {
         nodes
