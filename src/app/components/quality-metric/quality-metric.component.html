@@ -1,5 +1,5 @@
 <div *ngIf="threshold" class="quality-metric">
-  <span class="name">{{ name }}</span>
+  <span class="name" [title]="description || ''">{{ name }}</span>
   <span class="value" [title]="value + '/' + threshold">{{ value }}</span>
   <mat-progress-bar
     class="progress-bar"

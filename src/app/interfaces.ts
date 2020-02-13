@@ -116,6 +116,7 @@ export interface Selection {
 export interface QualityMetrics {
   [qualityMetric: string]: {
     name: string;
+    description?: string;
     thresholds: {
       [thresholdType: string]: number; // e.g. 'component', 'innerFunction', 'innerFunction.render'
     };

@@ -10,6 +10,7 @@ export class QualityMetricComponent implements OnInit {
   @Input() name;
   @Input() threshold;
   @Input() value;
+  @Input() description;
 
   warningThreshold = warningThreshold;
 
