@@ -514,7 +514,7 @@ export class GraphComponent implements OnInit, OnDestroy {
       .attr('class', 'node')
       .attr('style', 'cursor: pointer; outline: none; opacity: 1;')
       .on('dblclick', d => {
-        if (d.id.startsWith('/')) {
+        if (d.id.startsWith('/') && d.functions.length >= 1) {
           this.router.navigate([], {
             relativeTo: this.activatedRoute,
             queryParams: { id: d.id },
