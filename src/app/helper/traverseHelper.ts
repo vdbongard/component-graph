@@ -502,3 +502,17 @@ export function getComponentFileFromImportPath(
 
   return file;
 }
+
+export function findCallExpressionInnerArgument(path) {
+  const identifierArgument = path.get('arguments').find(argument => argument.isIdentifier());
+
+  if (!identifierArgument) {
+    const innerCallExpression = path.get('arguments').find(argument => argument.isCallExpression());
+
+    if (innerCallExpression) {
+      return findCallExpressionInnerArgument(innerCallExpression);
+    }
+  }
+
+  return identifierArgument;
+}

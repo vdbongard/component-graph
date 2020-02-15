@@ -4,6 +4,7 @@ import { AstWithPath, ComponentMap } from '../interfaces';
 import { traverseClassComponent } from './traverseClassComponent';
 import { traverseFunctionComponent } from './traverseFunctionComponent';
 import {
+  findCallExpressionInnerArgument,
   getComponentDependency,
   getComponentFileFromImportPath,
   getImportPathFromImportSpecifier,
@@ -98,9 +99,8 @@ export function traverse(asts: AstWithPath[], fileName: string) {
 
         defaultExport = `${componentPath}#${name}`;
       } else if (path.get('declaration').isCallExpression()) {
-        const identifierArgument = path
-          .get('declaration.arguments')
-          .find(argument => argument.isIdentifier());
+        const identifierArgument = findCallExpressionInnerArgument(path.get('declaration'));
+
         if (identifierArgument) {
           defaultExport = identifierArgument.node.name;
         }
