@@ -41,7 +41,7 @@ export function traverseFunctionComponent(componentPath, name, fileName, asts): 
               ? `${path.parentPath.node.id.name}#${path.parentPath.node.id.loc.start.line}`
               : `${path.node.id.name}#${path.node.id.loc.start.line}`,
             label: path.parentPath ? path.parentPath.node.id.name : path.node.id.name,
-            group: 2,
+            group: 3,
             lineStart: path.node.loc.start.line,
             lineEnd: path.node.loc.end.line,
             type: 'innerFunction',
