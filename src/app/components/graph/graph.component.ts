@@ -346,6 +346,15 @@ export class GraphComponent implements OnInit, OnDestroy {
       });
     }
 
+    if (node.returnsJSX && node.id !== 'render') {
+      console.log(node);
+      // function besides the render function that returns JSX -> extract component
+      icons.push({
+        icon: 'content_cut',
+        class: 'warn'
+      });
+    }
+
     return icons;
   }
 
