@@ -46,7 +46,7 @@ export const qualityMetrics: QualityMetrics = {
   'halstead.vocabulary': {
     name: 'Halstead Vocabulary',
     description: 'The total number of unique operator and operand occurrences.',
-    thresholds: { component: 100, innerFunction: 45 }
+    thresholds: { component: 120, innerFunction: 60 }
   },
   'halstead.volume': {
     name: 'Halstead Volume',
@@ -63,7 +63,7 @@ export const qualityMetrics: QualityMetrics = {
     description:
       'The number of parameters, analysed statically from the function signature ' +
       '(ignoring the arguments object).',
-    thresholds: { component: 20, innerFunction: 5 }
+    thresholds: { component: 20, innerFunction: 6 }
   }
 };
 
