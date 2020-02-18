@@ -6,11 +6,11 @@ export const qualityMetrics: QualityMetrics = {
     description: 'The number of lines of code including comments.',
     thresholds: { component: 200, innerFunction: 40, 'innerFunction.render': 60 }
   },
-  'sloc.logical': {
-    name: 'Lines of Code (logical)',
-    description: 'The count of imperative statements.',
-    thresholds: { component: 150, innerFunction: 30, 'innerFunction.render': 45 }
-  },
+  // 'sloc.logical': {
+  //   name: 'Lines of Code (logical)',
+  //   description: 'The count of imperative statements.',
+  //   thresholds: { component: 150, innerFunction: 30, 'innerFunction.render': 45 }
+  // },
   cyclomatic: {
     name: 'Cyclomatic Complexity',
     description: 'The number of distinct paths through a block of code',
