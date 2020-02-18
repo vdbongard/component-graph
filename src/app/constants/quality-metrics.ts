@@ -26,23 +26,23 @@ export const qualityMetrics: QualityMetrics = {
     description: 'An estimate for the number of errors in the implementation.',
     thresholds: { component: 1, innerFunction: 0.4 }
   },
-  'halstead.effort': {
-    name: 'Halstead Effort',
-    description:
-      'Measures the amount of mental activity needed to translate the existing algorithm into implementation',
-    thresholds: { component: 150000, innerFunction: 15000 }
-  },
+  // 'halstead.effort': {
+  //   name: 'Halstead Effort',
+  //   description:
+  //     'Measures the amount of mental activity needed to translate the existing algorithm into implementation',
+  //   thresholds: { component: 150000, innerFunction: 15000 }
+  // },
   'halstead.length': {
     name: 'Halstead Length',
     description: 'The total number of operator and operand occurrences.',
     thresholds: { component: 500, innerFunction: 200 }
   },
-  'halstead.time': {
-    name: 'Halstead Time',
-    description:
-      'Shows time (in seconds) needed to translate the existing algorithm into implementation',
-    thresholds: { component: 7000, innerFunction: 800 }
-  },
+  // 'halstead.time': {
+  //   name: 'Halstead Time',
+  //   description:
+  //     'Shows time (in seconds) needed to translate the existing algorithm into implementation',
+  //   thresholds: { component: 7000, innerFunction: 800 }
+  // },
   'halstead.vocabulary': {
     name: 'Halstead Vocabulary',
     description: 'The total number of unique operator and operand occurrences.',
