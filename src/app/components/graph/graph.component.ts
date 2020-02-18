@@ -487,7 +487,9 @@ export class GraphComponent implements OnInit, OnDestroy {
       .on('end', () => {
         if (this.firstSimulation && this.simulation === simulation) {
           this.firstSimulation = false;
-          this.zoomToFit();
+          if (this.settings.autoZoom) {
+            this.zoomToFit();
+          }
         }
       });
 

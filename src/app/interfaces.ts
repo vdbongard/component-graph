@@ -52,6 +52,7 @@ export interface Settings {
   fullScreen?: boolean;
   colaLayout?: boolean;
   nodeSizesBasedOnMetrics?: boolean;
+  autoZoom?: boolean;
 }
 
 export interface NodeSelection {
