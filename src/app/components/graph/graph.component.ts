@@ -69,17 +69,15 @@ export class GraphComponent implements OnInit, OnDestroy {
   linkStrokeWidth = 0.8;
   maxLinkStrokeWidth = 1.6;
   dragAlphaTarget = 0.3; // how much the dragged node influences other nodes
-  nodeIconOffsetX = 16;
   previewCircleRadius = 3;
+  normalTextSize = 14;
+  maxTextSize = 20;
+  circleRadius = 24;
+  circleFillBrightness = 0.75;
+  circleStrokeWidth = 1;
+  minChargeForce = -200;
+  linkDistance = 100;
   sizeMetric = 'sloc.physical';
-
-  normalTextSize: number;
-  maxTextSize: number;
-  circleRadius: number;
-  circleFillBrightness: number;
-  circleStrokeWidth: number;
-  minChargeForce: number;
-  linkDistance: number;
 
   constructor(
     public dataService: DataService,
@@ -93,27 +91,6 @@ export class GraphComponent implements OnInit, OnDestroy {
     this.settingsSub = this.settingsService.settings$.subscribe(settings => {
       const firstLoad = !this.settings;
       this.settings = { ...this.settings, ...settings };
-
-      // layout settings
-      if ('textCenter' in settings) {
-        if (settings.textCenter) {
-          this.normalTextSize = 14;
-          this.maxTextSize = 20;
-          this.circleRadius = 24;
-          this.circleFillBrightness = 0.75;
-          this.circleStrokeWidth = 1;
-          this.minChargeForce = -200;
-          this.linkDistance = 100;
-        } else {
-          this.normalTextSize = 12;
-          this.maxTextSize = 18;
-          this.circleRadius = 8;
-          this.circleFillBrightness = 0;
-          this.circleStrokeWidth = 0;
-          this.minChargeForce = -100;
-          this.linkDistance = 30;
-        }
-      }
 
       if (firstLoad) {
         this.initGraph();
@@ -646,7 +623,7 @@ export class GraphComponent implements OnInit, OnDestroy {
         .attr('class', 'node-label')
         .style('font-size', `${this.normalTextSize}px`)
         .style('dominant-baseline', 'central')
-        .attr('x', d => (d.width / 2) * 1.1);
+        .style('text-anchor', 'middle');
 
       textNodes
         .append('tspan')
@@ -670,13 +647,6 @@ export class GraphComponent implements OnInit, OnDestroy {
         .join('tspan')
         .attr('class', d => 'icon ' + d.class)
         .text(d => d.icon);
-
-      if (this.settings.textCenter) {
-        nodes
-          .select('text.node-label')
-          .style('text-anchor', 'middle')
-          .attr('x', null);
-      }
     }
 
     const linkedByIndex = {};

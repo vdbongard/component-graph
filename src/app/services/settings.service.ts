@@ -7,7 +7,6 @@ import { Settings } from '../interfaces';
 })
 export class SettingsService {
   private defaultSettings: Settings = {
-    textCenter: true,
     text: true,
     fade: true,
     fullScreen: false,

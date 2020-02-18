@@ -46,7 +46,6 @@ export interface Graph {
 }
 
 export interface Settings {
-  textCenter?: boolean;
   text?: boolean;
   fade?: boolean;
   fullScreen?: boolean;
