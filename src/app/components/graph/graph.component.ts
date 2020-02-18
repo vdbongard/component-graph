@@ -6,6 +6,7 @@ import { Subscription } from 'rxjs';
 import { d3adaptor, Layout, Link as ColaLink, Node as ColaNode } from 'webcola';
 import { ID3StyleLayoutAdaptor } from 'webcola/dist/src/d3adaptor';
 import { colorScheme } from '../../constants/colors';
+import { graphSettings } from '../../constants/graph-settings';
 import { qualityMetrics, sizeConstant, warningThreshold } from '../../constants/quality-metrics';
 import { getCookie, setCookie } from '../../helper/cookie';
 import { generateLinkReferences } from '../../helper/generateLinkReferences';
@@ -51,33 +52,14 @@ export class GraphComponent implements OnInit, OnDestroy {
   queryParamIsInitial = true;
   zoomLevel: number;
   qualityMetricsEntries = Object.entries(qualityMetrics);
+  sizeMetric = graphSettings.defaultSizeMetric;
+  settings: Settings;
 
   private graphDataSub: Subscription;
   private settingsSub: Subscription;
   private queryParamsSub: Subscription;
   private selectedNodesSub: Subscription;
   private progressSub: Subscription;
-
-  // Settings
-  settings: Settings;
-  fadeOpacity = 0.1;
-  zoomTransition = '0.1s ease-out';
-  selectedCircleStrokeWidth = 2;
-  selectedCircleFillBrightness = 0.5;
-  linkColor = '#999';
-  linkOpacity = 0.6;
-  linkStrokeWidth = 0.8;
-  maxLinkStrokeWidth = 1.6;
-  dragAlphaTarget = 0.3; // how much the dragged node influences other nodes
-  previewCircleRadius = 3;
-  normalTextSize = 14;
-  maxTextSize = 20;
-  circleRadius = 24;
-  circleFillBrightness = 0.75;
-  circleStrokeWidth = 1;
-  minChargeForce = -200;
-  linkDistance = 100;
-  sizeMetric = 'sloc.physical';
 
   constructor(
     public dataService: DataService,
@@ -210,15 +192,15 @@ export class GraphComponent implements OnInit, OnDestroy {
 
     this.svgZoomGroup.selectAll('.node circle.circle-overlay').attr('stroke-width', (d: Node) => {
       return this.selectedNodes && this.selectedNodes.find(node => node.id === d.id)
-        ? this.selectedCircleStrokeWidth
-        : this.circleStrokeWidth;
+        ? graphSettings.selectedCircleStrokeWidth
+        : graphSettings.circleStrokeWidth;
     });
 
     this.svgZoomGroup.selectAll('.node circle.circle-node').attr('fill', (d: Node) => {
       const brightness =
         this.selectedNodes && this.selectedNodes.find(node => node.id === d.id)
-          ? this.selectedCircleFillBrightness
-          : this.circleFillBrightness;
+          ? graphSettings.selectedCircleFillBrightness
+          : graphSettings.circleFillBrightness;
 
       return this.calculateBrightenedColor(d, brightness);
     });
@@ -236,7 +218,7 @@ export class GraphComponent implements OnInit, OnDestroy {
 
     return nodes.map(node => {
       if (!this.settings.nodeSizesBasedOnMetrics) {
-        node.width = node.height = this.circleRadius * 2;
+        node.width = node.height = graphSettings.circleRadius * 2;
         return node;
       }
 
@@ -251,7 +233,7 @@ export class GraphComponent implements OnInit, OnDestroy {
 
       // fixed size for component node in component view
       if (isComponentView && node.group === 1) {
-        node.width = node.height = this.circleRadius * 2;
+        node.width = node.height = graphSettings.circleRadius * 2;
         return node;
       }
 
@@ -344,13 +326,13 @@ export class GraphComponent implements OnInit, OnDestroy {
       this.zoomLevel = Math.round(d3.event.transform.k * 100);
 
       this.svgZoomGroup.attr('transform', d3.event.transform);
-      if (this.normalTextSize * d3.event.transform.k > this.maxTextSize) {
+      if (graphSettings.normalTextSize * d3.event.transform.k > graphSettings.maxTextSize) {
         this.nodes
           .select('text.node-label')
-          .style('font-size', `${this.maxTextSize / d3.event.transform.k}px`);
+          .style('font-size', `${graphSettings.maxTextSize / d3.event.transform.k}px`);
       }
-      if (this.linkStrokeWidth * d3.event.transform.k > this.maxLinkStrokeWidth) {
-        this.links.style('stroke-width', this.maxLinkStrokeWidth / d3.event.transform.k);
+      if (graphSettings.linkStrokeWidth * d3.event.transform.k > graphSettings.maxLinkStrokeWidth) {
+        this.links.style('stroke-width', graphSettings.maxLinkStrokeWidth / d3.event.transform.k);
       }
     });
 
@@ -367,7 +349,7 @@ export class GraphComponent implements OnInit, OnDestroy {
 
     d3.select('#diagonalHatch line')
       .style('stroke', colorScheme[0])
-      .style('stroke-width', Math.max(this.circleStrokeWidth * 2, 1))
+      .style('stroke-width', Math.max(graphSettings.circleStrokeWidth * 2, 1))
       .style('opacity', 0.6);
 
     return this.svg.select('#zoomGroup');
@@ -376,10 +358,10 @@ export class GraphComponent implements OnInit, OnDestroy {
   private addTransition() {
     if (!this.isWheelZooming) {
       this.isWheelZooming = true;
-      this.svgZoomGroup.style('transition', `transform ${this.zoomTransition}`);
+      this.svgZoomGroup.style('transition', `transform ${graphSettings.zoomTransition}`);
       this.svgZoomGroup
         .selectAll('.node text.node-label')
-        .style('transition', `font-size ${this.zoomTransition}`);
+        .style('transition', `font-size ${graphSettings.zoomTransition}`);
     }
   }
 
@@ -409,7 +391,7 @@ export class GraphComponent implements OnInit, OnDestroy {
       const chargeForce =
         force !== undefined
           ? force
-          : Math.min(-4000 + this.nodeData.length * 200, this.minChargeForce);
+          : Math.min(-4000 + this.nodeData.length * 200, graphSettings.minChargeForce);
       console.log('Charge force:', chargeForce);
 
       simulation = d3
@@ -419,7 +401,7 @@ export class GraphComponent implements OnInit, OnDestroy {
           d3
             .forceLink(this.linkData)
             // .id((d: any) => d.id)
-            .distance(this.linkDistance)
+            .distance(graphSettings.linkDistance)
         )
         .force('charge', d3.forceManyBody().strength(chargeForce))
         .force(
@@ -445,7 +427,8 @@ export class GraphComponent implements OnInit, OnDestroy {
             const diffY = d.target.y - d.source.y;
             const distance = Math.sqrt(Math.pow(diffX, 2) + Math.pow(diffY, 2));
             const targetRadius =
-              this.getMainCircleRadiusWithoutStrokeWidth(d.target) + this.circleStrokeWidth / 2;
+              this.getMainCircleRadiusWithoutStrokeWidth(d.target) +
+              graphSettings.circleStrokeWidth / 2;
             const actualDistance = distance - targetRadius;
             return d.source.x + (diffX / distance) * actualDistance;
           })
@@ -454,7 +437,8 @@ export class GraphComponent implements OnInit, OnDestroy {
             const diffY = d.target.y - d.source.y;
             const distance = Math.sqrt(Math.pow(diffX, 2) + Math.pow(diffY, 2));
             const targetRadius =
-              this.getMainCircleRadiusWithoutStrokeWidth(d.target) + this.circleStrokeWidth / 2;
+              this.getMainCircleRadiusWithoutStrokeWidth(d.target) +
+              graphSettings.circleStrokeWidth / 2;
             const actualDistance = distance - targetRadius;
             return d.source.y + (diffY / distance) * actualDistance;
           });
@@ -476,14 +460,14 @@ export class GraphComponent implements OnInit, OnDestroy {
   private createLinks() {
     return this.svgZoomGroup
       .append('g')
-      .attr('stroke', this.linkColor)
-      .attr('stroke-opacity', this.linkOpacity)
+      .attr('stroke', graphSettings.linkColor)
+      .attr('stroke-opacity', graphSettings.linkOpacity)
       .style('opacity', 1)
       .selectAll('line')
       .data(this.linkData)
       .join('line')
-      .style('transition', `stroke-width ${this.zoomTransition}`)
-      .attr('stroke-width', this.linkStrokeWidth)
+      .style('transition', `stroke-width ${graphSettings.zoomTransition}`)
+      .attr('stroke-width', graphSettings.linkStrokeWidth)
       .attr('stroke-dasharray', d => (d.inherits ? '4 2' : null))
       .attr('marker-end', 'url(#arrowhead)');
   }
@@ -524,7 +508,7 @@ export class GraphComponent implements OnInit, OnDestroy {
     if (this.settings.fade) {
       nodes
         .on('click.fade', d => {
-          fade(d, this.fadeOpacity);
+          fade(d, graphSettings.fadeOpacity);
           this.isFaded = true;
         })
         .on('blur', d => {
@@ -534,7 +518,7 @@ export class GraphComponent implements OnInit, OnDestroy {
         })
         .on('mouseover.fade', d => {
           if (d3.event.ctrlKey) {
-            fade(d, this.fadeOpacity);
+            fade(d, graphSettings.fadeOpacity);
             this.isFaded = true;
           }
         })
@@ -571,7 +555,7 @@ export class GraphComponent implements OnInit, OnDestroy {
       .attr('fill', 'none')
       .attr('r', d => this.getMainCircleRadiusWithoutStrokeWidth(d) - 3)
       .attr('stroke', d => colorScheme[d.group - 1])
-      .attr('stroke-width', this.circleStrokeWidth);
+      .attr('stroke-width', graphSettings.circleStrokeWidth);
 
     // preview circles
     nodes
@@ -591,13 +575,13 @@ export class GraphComponent implements OnInit, OnDestroy {
       .on('click', d => {
         this.dataService.selectNode(d, d.componentId);
       })
-      .attr('r', this.previewCircleRadius)
+      .attr('r', graphSettings.previewCircleRadius)
       .attr('fill', (d: Node) => {
         return d.returnsJSX
           ? this.calculateBrightenedColor(d, 0.15)
           : this.calculateBrightenedColor(d, 0.7);
       })
-      .attr('stroke-width', this.circleStrokeWidth)
+      .attr('stroke-width', graphSettings.circleStrokeWidth)
       .attr('stroke', d => colorScheme[d.group - 1])
       .attr('cx', (d, i) => {
         const r = this.getOuterCircleRadius(d);
@@ -621,7 +605,7 @@ export class GraphComponent implements OnInit, OnDestroy {
       const textNodes = nodes
         .append('text')
         .attr('class', 'node-label')
-        .style('font-size', `${this.normalTextSize}px`)
+        .style('font-size', `${graphSettings.normalTextSize}px`)
         .style('dominant-baseline', 'central')
         .style('text-anchor', 'middle');
 
@@ -727,7 +711,7 @@ export class GraphComponent implements OnInit, OnDestroy {
 
     function dragged(d) {
       if (!self.dragging) {
-        simulation.alphaTarget(self.dragAlphaTarget).restart();
+        simulation.alphaTarget(graphSettings.dragAlphaTarget).restart();
         self.dragging = true;
       }
 
@@ -762,11 +746,11 @@ export class GraphComponent implements OnInit, OnDestroy {
   }
 
   private getCircleIndexValue(i: number, r: number) {
-    return (i / r) * (this.previewCircleRadius + this.circleStrokeWidth / 2) * 2;
+    return (i / r) * (graphSettings.previewCircleRadius + graphSettings.circleStrokeWidth / 2) * 2;
   }
 
   private getCirclePreviewWidth() {
-    return (this.previewCircleRadius + this.circleStrokeWidth / 2) * 4;
+    return (graphSettings.previewCircleRadius + graphSettings.circleStrokeWidth / 2) * 4;
   }
 
   private getMainCircleRadiusWithoutStrokeWidth(d: { width?: number }) {
@@ -784,7 +768,7 @@ export class GraphComponent implements OnInit, OnDestroy {
   private getOuterCircleRadius(d: Node) {
     return (
       this.getMainCircleRadiusWithoutStrokeWidth(d) +
-      this.circleStrokeWidth / 2 +
+      graphSettings.circleStrokeWidth / 2 +
       this.getCirclePreviewWidth() / 4
     );
   }

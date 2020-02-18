@@ -1,0 +1,20 @@
+export const graphSettings = {
+  fadeOpacity: 0.1,
+  zoomTransition: '0.1s ease-out',
+  selectedCircleStrokeWidth: 2,
+  selectedCircleFillBrightness: 0.5,
+  linkColor: '#999',
+  linkOpacity: 0.6,
+  linkStrokeWidth: 0.8,
+  maxLinkStrokeWidth: 1.6,
+  dragAlphaTarget: 0.3, // how much the dragged node influences other nodes,
+  previewCircleRadius: 3,
+  normalTextSize: 14,
+  maxTextSize: 20,
+  circleRadius: 24,
+  circleFillBrightness: 0.75,
+  circleStrokeWidth: 1,
+  minChargeForce: -200,
+  linkDistance: 100,
+  defaultSizeMetric: 'sloc.physical'
+};
