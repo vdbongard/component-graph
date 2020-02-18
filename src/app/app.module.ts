@@ -10,6 +10,7 @@ import {
   MatListModule,
   MatProgressBarModule,
   MatRippleModule,
+  MatSelectModule,
   MatSlideToggleModule,
   MatSnackBarModule,
   MatTooltipModule,
@@ -69,7 +70,8 @@ import { NestedStringAccessorPipe } from './pipes/nested-string-accessor.pipe';
     MatListModule,
     MatTreeModule,
     MatRippleModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatSelectModule
   ],
   entryComponents: [SettingsModalComponent],
   providers: [],

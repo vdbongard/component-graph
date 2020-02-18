@@ -1,12 +1,12 @@
 import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { MatSnackBar } from '@angular/material';
+import { MatSelectChange, MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
 import * as d3 from 'd3';
 import { Subscription } from 'rxjs';
 import { d3adaptor, Layout, Link as ColaLink, Node as ColaNode } from 'webcola';
 import { ID3StyleLayoutAdaptor } from 'webcola/dist/src/d3adaptor';
 import { colorScheme } from '../../constants/colors';
-import { qualityMetrics, warningThreshold } from '../../constants/quality-metrics';
+import { qualityMetrics, sizeConstant, warningThreshold } from '../../constants/quality-metrics';
 import { getCookie, setCookie } from '../../helper/cookie';
 import { generateLinkReferences } from '../../helper/generateLinkReferences';
 import { nestedStringAccess } from '../../helper/nestedStringAccess';
@@ -50,6 +50,7 @@ export class GraphComponent implements OnInit, OnDestroy {
   queryParamWasUpload = false;
   queryParamIsInitial = true;
   zoomLevel: number;
+  qualityMetricsEntries = Object.entries(qualityMetrics);
 
   private graphDataSub: Subscription;
   private settingsSub: Subscription;
@@ -70,6 +71,7 @@ export class GraphComponent implements OnInit, OnDestroy {
   dragAlphaTarget = 0.3; // how much the dragged node influences other nodes
   nodeIconOffsetX = 16;
   previewCircleRadius = 3;
+  sizeMetric = 'sloc.physical';
 
   normalTextSize: number;
   maxTextSize: number;
@@ -276,10 +278,12 @@ export class GraphComponent implements OnInit, OnDestroy {
         return node;
       }
 
-      const loc = report.sloc.physical;
+      const metricValue = nestedStringAccess(report, this.sizeMetric);
+      const metricSizeFactor = sizeConstant / qualityMetrics[this.sizeMetric].thresholds.component;
 
       // circle area relative to metric (not circle radius)
-      node.width = node.height = nodeSizeMultiplier * Math.sqrt((16 * loc) / Math.PI);
+      node.width = node.height =
+        nodeSizeMultiplier * Math.sqrt((metricSizeFactor * metricValue) / Math.PI);
 
       if (!isComponentView) {
         node.width += this.getCirclePreviewWidth();
@@ -822,5 +826,10 @@ export class GraphComponent implements OnInit, OnDestroy {
     if (this.graphDataSub) {
       this.graphDataSub.unsubscribe();
     }
+  }
+
+  onMetricSelectionChange(event: MatSelectChange) {
+    this.sizeMetric = event.value;
+    this.restartGraph();
   }
 }

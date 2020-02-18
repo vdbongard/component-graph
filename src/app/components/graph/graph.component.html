@@ -37,6 +37,14 @@
   </button>
 </div>
 <div class="action-buttons right">
+  <mat-form-field>
+    <mat-label>Node size metric</mat-label>
+    <mat-select [value]="sizeMetric" (selectionChange)="onMetricSelectionChange($event)">
+      <mat-option *ngFor="let entry of qualityMetricsEntries" [value]="entry[0]">
+        {{ entry[1].name }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
   <button
     mat-button
     (click)="zoomToFit(null, 1)"
