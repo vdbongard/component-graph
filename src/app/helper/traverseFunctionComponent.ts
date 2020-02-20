@@ -1,4 +1,5 @@
 import { Component, Graph, Import } from '../interfaces';
+import { findReportWithGraph } from './findReport';
 import {
   getComponentDependencies,
   getLinesJSX,
@@ -9,7 +10,13 @@ import {
   pushUniqueLink
 } from './traverseHelper';
 
-export function traverseFunctionComponent(componentPath, name, fileName, asts): Component {
+export function traverseFunctionComponent(
+  componentPath,
+  name,
+  fileName,
+  asts,
+  fullReport
+): Component {
   const graph: Graph = {
     nodes: [],
     links: []
@@ -123,6 +130,13 @@ export function traverseFunctionComponent(componentPath, name, fileName, asts): 
 
   componentPath.traverse(functionComponentTraverse, { name });
   postProcessing(graph, aliases);
+
+  const report = findReportWithGraph(graph, fullReport, fileName, name);
+  if (report.aggregate) {
+    report.aggregate.sloc.jsx = linesJSX;
+  } else {
+    report.sloc.jsx = linesJSX;
+  }
 
   return {
     graph,

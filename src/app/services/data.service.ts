@@ -42,10 +42,13 @@ export class DataService {
       await this.increaseProgress(progressPercent);
     }
 
+    // generate report
+    this.report = escomplexProject.analyze(asts);
+
     // traverse files
     for (const file of this.componentFiles) {
       const { components, defaultExport } = await new Promise(resolve =>
-        setTimeout(() => resolve(traverse(asts, file.path)), 0)
+        setTimeout(() => resolve(traverse(asts, file.path, this.report)), 0)
       );
       fileMap[file.path].components = components;
       fileMap[file.path].defaultExport = defaultExport;
@@ -62,7 +65,6 @@ export class DataService {
       // Object.fromEntries
       .reduce((acc, [key, val]) => Object.assign(acc, { [key]: val }), {});
 
-    this.report = escomplexProject.analyze(asts);
     console.log('Report:', this.report);
 
     // add report to component graph nodes

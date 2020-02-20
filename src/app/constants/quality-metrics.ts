@@ -11,6 +11,11 @@ export const qualityMetrics: QualityMetrics = {
   //   description: 'The count of imperative statements.',
   //   thresholds: { component: 150, innerFunction: 30, 'innerFunction.render': 45 }
   // },
+  'sloc.jsx': {
+    name: 'Lines of JSX Code',
+    description: 'The line count of root level JSX elements',
+    thresholds: { component: 30 }
+  },
   cyclomatic: {
     name: 'Cyclomatic Complexity',
     description: 'The number of distinct paths through a block of code',

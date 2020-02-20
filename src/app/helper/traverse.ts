@@ -12,7 +12,7 @@ import {
   isReactFunctionComponent
 } from './traverseHelper';
 
-export function traverse(asts: AstWithPath[], fileName: string) {
+export function traverse(asts: AstWithPath[], fileName: string, fullReport) {
   const ast: t.File = asts.find(theAst => theAst.srcPath === fileName).ast;
   const components: ComponentMap = {};
   let defaultExport: string = null;
@@ -30,7 +30,8 @@ export function traverse(asts: AstWithPath[], fileName: string) {
           path,
           classComponentName,
           fileName,
-          asts
+          asts,
+          fullReport
         );
       }
     },
@@ -42,7 +43,8 @@ export function traverse(asts: AstWithPath[], fileName: string) {
           path,
           functionComponentName,
           fileName,
-          asts
+          asts,
+          fullReport
         );
       }
     },
@@ -57,7 +59,8 @@ export function traverse(asts: AstWithPath[], fileName: string) {
           path,
           functionComponentName,
           fileName,
-          asts
+          asts,
+          fullReport
         );
       }
     },

@@ -1,8 +1,19 @@
-import { FileMap } from '../interfaces';
+import { FileMap, Graph } from '../interfaces';
 
 export function findReport(
   fullReport: any,
   fileMap: FileMap,
+  fileName: string,
+  componentName: string,
+  functionName?: string
+) {
+  const component = fileMap[fileName].components[componentName];
+  return findReportWithGraph(component.graph, fullReport, fileName, componentName, functionName);
+}
+
+export function findReportWithGraph(
+  componentGraph: Graph,
+  fullReport: any,
   fileName: string,
   componentName: string,
   functionName?: string
@@ -22,8 +33,7 @@ export function findReport(
       const classFunctionReport = classReport.methods.find(method => method.name === functionName);
 
       if (!classFunctionReport) {
-        const component = fileMap[fileName].components[componentName];
-        const functionNode = component.graph.nodes.find(node => node.id === functionName);
+        const functionNode = componentGraph.nodes.find(node => node.id === functionName);
 
         if (!functionNode) {
           return;
@@ -41,8 +51,7 @@ export function findReport(
     let lineStart: number;
 
     if (!functionName) {
-      const component = fileMap[fileName].components[componentName];
-      const componentNode = component.graph.nodes.find(node => node.label === componentName);
+      const componentNode = componentGraph.nodes.find(node => node.label === componentName);
 
       if (!componentNode) {
         return;

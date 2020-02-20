@@ -1,6 +1,7 @@
 import * as t from '@babel/types';
 import { reactMethods } from '../constants/special-methods';
 import { Component, Graph, Import } from '../interfaces';
+import { findReportWithGraph } from './findReport';
 import {
   getComponentDependencies,
   getLinesJSX,
@@ -16,7 +17,7 @@ import {
   pushUniqueLink
 } from './traverseHelper';
 
-export function traverseClassComponent(componentPath, name, fileName, asts): Component {
+export function traverseClassComponent(componentPath, name, fileName, asts, fullReport): Component {
   const graph: Graph = {
     nodes: [],
     links: []
@@ -134,13 +135,19 @@ export function traverseClassComponent(componentPath, name, fileName, asts): Com
   componentPath.traverse(classComponentTraverse, { name });
   postProcessing(graph, aliases);
 
+  const report = findReportWithGraph(graph, fullReport, fileName, name);
+  if (report.aggregate) {
+    report.aggregate.sloc.jsx = linesJSX;
+  } else {
+    report.sloc.jsx = linesJSX;
+  }
+
   return {
     graph,
     dependencies,
     extends: superClass,
     lineStart,
     lineEnd,
-    kind: 'ClassComponent',
-    linesJSX
+    kind: 'ClassComponent'
   };
 }
