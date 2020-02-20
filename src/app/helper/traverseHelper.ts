@@ -519,9 +519,31 @@ export function findCallExpressionInnerArgument(path) {
 }
 
 export function getLinesJSX(path: NodePath) {
-  // skip if not root level JSXElement aka has parent JSXElement
-  if (path.findParent(p => p.isJSXElement())) {
-    return 0;
-  }
   return path.node.loc.end.line - path.node.loc.start.line + 1;
+}
+
+export function getMaxJSXNesting(path) {
+  let level = 1;
+
+  if (path.isJSXElement()) {
+    let maxNestedLevel = 0;
+    path.get('children').forEach(childPath => {
+      if (!(childPath.isJSXElement() || childPath.isJSXExpressionContainer())) {
+        return;
+      }
+      maxNestedLevel = Math.max(getMaxJSXNesting(childPath), maxNestedLevel);
+    });
+    level += maxNestedLevel;
+  } else if (path.isJSXExpressionContainer()) {
+    let maxNestedLevel = 0;
+    path.traverse({
+      JSXElement: childPath => {
+        childPath.skip();
+        maxNestedLevel = Math.max(getMaxJSXNesting(childPath), maxNestedLevel);
+      }
+    });
+    level += maxNestedLevel;
+  }
+
+  return level;
 }

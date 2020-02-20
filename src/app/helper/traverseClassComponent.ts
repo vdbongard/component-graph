@@ -5,6 +5,7 @@ import { findReportWithGraph } from './findReport';
 import {
   getComponentDependencies,
   getLinesJSX,
+  getMaxJSXNesting,
   getParentClassName,
   getSuperClass,
   isClassPropertyFunction,
@@ -29,6 +30,7 @@ export function traverseClassComponent(componentPath, name, fileName, asts, full
   const lineStart: number = componentPath.node.loc.start.line;
   const lineEnd: number = componentPath.node.loc.end.line;
   let linesJSX = 0;
+  let maxJSXNesting = 0;
 
   // Node: Class
   graph.nodes.push({
@@ -128,19 +130,23 @@ export function traverseClassComponent(componentPath, name, fileName, asts, full
       pushUniqueDependencies(newDependencies, dependencies);
     },
     JSXElement: path => {
+      // skip if not root level JSXElement aka has parent JSXElement
+      if (path.findParent(p => p.isJSXElement())) {
+        return 0;
+      }
       linesJSX += getLinesJSX(path);
+      maxJSXNesting = Math.max(getMaxJSXNesting(path), maxJSXNesting);
     }
   };
 
   componentPath.traverse(classComponentTraverse, { name });
   postProcessing(graph, aliases);
 
-  const report = findReportWithGraph(graph, fullReport, fileName, name);
-  if (report.aggregate) {
-    report.aggregate.sloc.jsx = linesJSX;
-  } else {
-    report.sloc.jsx = linesJSX;
-  }
+  const componentReport = findReportWithGraph(graph, fullReport, fileName, name);
+  const report = componentReport.aggregate ? componentReport.aggregate : componentReport;
+
+  report.sloc.jsx = linesJSX;
+  report.maxJsxNesting = maxJSXNesting;
 
   return {
     graph,

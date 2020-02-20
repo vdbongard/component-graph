@@ -16,6 +16,13 @@ export const qualityMetrics: QualityMetrics = {
     description: 'The line count of root level JSX elements',
     thresholds: { component: 30 }
   },
+  maxJsxNesting: {
+    name: 'Maximum JSX nesting',
+    description:
+      'JSX nesting is counted by number of nested JSXElements or JSXExpressionContainer starting ' +
+      'on a root JSXElement',
+    thresholds: { component: 5 }
+  },
   cyclomatic: {
     name: 'Cyclomatic Complexity',
     description: 'The number of distinct paths through a block of code',
