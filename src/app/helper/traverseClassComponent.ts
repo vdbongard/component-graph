@@ -129,9 +129,9 @@ export function traverseClassComponent(componentPath, name, fileName, asts, full
       // Component Dependency
       pushUniqueDependencies(newDependencies, dependencies);
     },
-    JSXElement: path => {
+    'JSXElement|JSXFragment': path => {
       // skip if not root level JSXElement aka has parent JSXElement
-      if (path.findParent(p => p.isJSXElement())) {
+      if (path.findParent(p => p.isJSXElement() || p.isJSXFragment())) {
         return 0;
       }
       linesJSX += getLinesJSX(path);

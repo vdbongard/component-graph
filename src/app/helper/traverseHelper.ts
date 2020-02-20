@@ -525,7 +525,7 @@ export function getLinesJSX(path: NodePath) {
 export function getMaxJSXNesting(path) {
   let level = 1;
 
-  if (path.isJSXElement()) {
+  if (path.isJSXElement() || path.isJSXFragment()) {
     let maxNestedLevel = 0;
     path.get('children').forEach(childPath => {
       if (!(childPath.isJSXElement() || childPath.isJSXExpressionContainer())) {
