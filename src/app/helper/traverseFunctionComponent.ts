@@ -2,7 +2,7 @@ import { Component, Graph, Import } from '../interfaces';
 import { findReportWithGraph } from './findReport';
 import {
   getComponentDependencies,
-  getLinesJSX,
+  getLinesOfCode,
   getMaxJSXNesting,
   isFunction,
   isFunctionWithName,
@@ -130,7 +130,7 @@ export function traverseFunctionComponent(
       if (path.findParent(p => p.isJSXElement() || p.isJSXFragment())) {
         return 0;
       }
-      linesJSX += getLinesJSX(path);
+      linesJSX += getLinesOfCode(path);
       maxJSXNesting = Math.max(getMaxJSXNesting(path), maxJSXNesting);
     }
   };

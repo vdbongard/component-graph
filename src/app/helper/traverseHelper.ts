@@ -518,7 +518,7 @@ export function findCallExpressionInnerArgument(path) {
   return identifierArgument;
 }
 
-export function getLinesJSX(path: NodePath) {
+export function getLinesOfCode(path: NodePath) {
   return path.node.loc.end.line - path.node.loc.start.line + 1;
 }
 
