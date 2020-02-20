@@ -528,9 +528,6 @@ export function getMaxJSXNesting(path) {
   if (path.isJSXElement() || path.isJSXFragment()) {
     let maxNestedLevel = 0;
     path.get('children').forEach(childPath => {
-      if (!(childPath.isJSXElement() || childPath.isJSXExpressionContainer())) {
-        return;
-      }
       maxNestedLevel = Math.max(getMaxJSXNesting(childPath), maxNestedLevel);
     });
     level += maxNestedLevel;

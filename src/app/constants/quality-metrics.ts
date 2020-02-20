@@ -19,8 +19,8 @@ export const qualityMetrics: QualityMetrics = {
   maxJsxNesting: {
     name: 'Maximum JSX nesting',
     description:
-      'JSX nesting is counted by number of nested JSXElements or JSXExpressionContainer starting ' +
-      'on a root JSXElement',
+      'JSX nesting is counted by the number of nested JSX children or JSX elements in JSX ' +
+      'expressions starting with 1 for the top level',
     thresholds: { component: 5 }
   },
   cyclomatic: {
