@@ -3,6 +3,7 @@ import { reactMethods } from '../constants/special-methods';
 import { Component, Graph, Import } from '../interfaces';
 import {
   getComponentDependencies,
+  getLinesJSX,
   getParentClassName,
   getSuperClass,
   isClassPropertyFunction,
@@ -26,6 +27,7 @@ export function traverseClassComponent(componentPath, name, fileName, asts): Com
   const superClass: Import = getSuperClass(componentPath, fileName, asts);
   const lineStart: number = componentPath.node.loc.start.line;
   const lineEnd: number = componentPath.node.loc.end.line;
+  let linesJSX = 0;
 
   // Node: Class
   graph.nodes.push({
@@ -123,6 +125,9 @@ export function traverseClassComponent(componentPath, name, fileName, asts): Com
       const newDependencies = getComponentDependencies(path, fileName, asts);
       // Component Dependency
       pushUniqueDependencies(newDependencies, dependencies);
+    },
+    JSXElement: path => {
+      linesJSX += getLinesJSX(path);
     }
   };
 
@@ -135,6 +140,7 @@ export function traverseClassComponent(componentPath, name, fileName, asts): Com
     extends: superClass,
     lineStart,
     lineEnd,
-    kind: 'ClassComponent'
+    kind: 'ClassComponent',
+    linesJSX
   };
 }

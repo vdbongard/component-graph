@@ -1,6 +1,7 @@
 import { Component, Graph, Import } from '../interfaces';
 import {
   getComponentDependencies,
+  getLinesJSX,
   isFunction,
   isFunctionWithName,
   postProcessing,
@@ -17,6 +18,7 @@ export function traverseFunctionComponent(componentPath, name, fileName, asts): 
   const dependencies: Import[] = [];
   const lineStart: number = componentPath.node.loc.start.line;
   const lineEnd: number = componentPath.node.loc.end.line;
+  let linesJSX = 0;
 
   // Node: FunctionComponent
   graph.nodes.push({
@@ -113,6 +115,9 @@ export function traverseFunctionComponent(componentPath, name, fileName, asts): 
       const newDependencies = getComponentDependencies(path, fileName, asts);
       // Component Dependency
       pushUniqueDependencies(newDependencies, dependencies);
+    },
+    JSXElement: path => {
+      linesJSX += getLinesJSX(path);
     }
   };
 

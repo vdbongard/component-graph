@@ -1,5 +1,6 @@
 import babelTraverse from '@babel/traverse';
 import * as t from '@babel/types';
+import { NodePath } from 'babel-traverse';
 import { AstWithPath, Graph, Import, Link } from '../interfaces';
 
 export function postProcessing(graph: Graph, aliases: { [p: string]: string }) {
@@ -515,4 +516,12 @@ export function findCallExpressionInnerArgument(path) {
   }
 
   return identifierArgument;
+}
+
+export function getLinesJSX(path: NodePath) {
+  // skip if not root level JSXElement aka has parent JSXElement
+  if (path.findParent(p => p.isJSXElement())) {
+    return 0;
+  }
+  return path.node.loc.end.line - path.node.loc.start.line + 1;
 }

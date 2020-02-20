@@ -83,6 +83,7 @@ export interface Component {
   lineStart?: number;
   lineEnd?: number;
   kind?: 'FunctionComponent' | 'ClassComponent';
+  linesJSX?: number;
 }
 
 export interface AstWithPath {
