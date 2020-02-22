@@ -1,0 +1,19 @@
+:host {
+  display: flex;
+  align-items: center;
+  margin-top: 16px;
+}
+
+:host.warn .icon {
+  color: hsla(40, 90%, 50%, 1);
+}
+
+:host.error .icon {
+  color: hsla(0, 90%, 50%, 1);
+}
+
+.icon {
+  font-family: 'Material Icons', monospace;
+  font-size: 20px;
+  margin-right: 8px;
+}

@@ -31,6 +31,7 @@ import { GraphComponent } from './components/graph/graph.component';
 import { QualityMetricComponent } from './components/quality-metric/quality-metric.component';
 import { SettingsModalComponent } from './components/settings-modal/settings-modal.component';
 import { SourceCodeComponent } from './components/source-code/source-code.component';
+import { ThesholdDescriptionComponent } from './components/theshold-description/theshold-description.component';
 import { UploadViewComponent } from './components/upload-view/upload-view.component';
 import { DropTargetDirective } from './directives/drop-target.directive';
 import { NestedStringAccessorPipe } from './pipes/nested-string-accessor.pipe';
@@ -47,7 +48,8 @@ import { NestedStringAccessorPipe } from './pipes/nested-string-accessor.pipe';
     SourceCodeComponent,
     FileTreeComponent,
     QualityMetricComponent,
-    NestedStringAccessorPipe
+    NestedStringAccessorPipe,
+    ThesholdDescriptionComponent
   ],
   imports: [
     BrowserModule,
