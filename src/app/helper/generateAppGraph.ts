@@ -90,30 +90,32 @@ export function generateAppGraph(
   return filterInvalidLinks({ nodes, links }, true);
 }
 
+/**
+ * Sorts nodes by special functions and functions returning JSX:
+ * [special, no jsx] -> [special, jsx] -> [no special, jsx] -> [no special, no jsx]
+ */
 function previewCircleCompare(a: Node, b: Node) {
-  if (a.type !== b.type) {
-    if (a.type === 'specialInnerFunction' && b.type === 'innerFunction') {
-      return -1;
-    } else if (a.type === 'innerFunction' && b.type === 'specialInnerFunction') {
-      return 1;
-    }
+  if (a.special && !b.special) {
+    return -1;
   }
 
-  // special functions
-  if (a.returnsJSX && a.type === 'specialInnerFunction') {
+  if (!a.special && b.special) {
     return 1;
   }
 
-  if (b.returnsJSX && b.type === 'specialInnerFunction') {
+  if (a.returnsJSX && a.special) {
+    return 1;
+  }
+
+  if (b.returnsJSX && b.special) {
     return -1;
   }
 
-  // other functions
-  if (a.returnsJSX && a.type === 'innerFunction') {
+  if (a.returnsJSX && !a.special) {
     return -1;
   }
 
-  if (b.returnsJSX && b.type === 'innerFunction') {
+  if (b.returnsJSX && !b.special) {
     return 1;
   }
 }

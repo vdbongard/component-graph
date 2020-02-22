@@ -201,6 +201,9 @@ export class GraphComponent implements OnInit, OnDestroy {
       if (selected) {
         className += ' selected';
       }
+      if (d.special) {
+        className += ' special';
+      }
       return className;
     });
   }
@@ -538,7 +541,13 @@ export class GraphComponent implements OnInit, OnDestroy {
           : 'transparent'
       )
       .attr('r', d => this.getMainCircleRadiusWithoutStrokeWidth(d))
-      .attr('class', d => `circle-overlay ${d.type}`);
+      .attr('class', d => {
+        let className = `circle-overlay ${d.type}`;
+        if (d.special) {
+          className += ' special';
+        }
+        return className;
+      });
 
     // inner circle stroke (for functions returning jsx)
     nodes
@@ -546,7 +555,13 @@ export class GraphComponent implements OnInit, OnDestroy {
       .append('circle')
       .attr('fill', 'none')
       .attr('r', d => this.getMainCircleRadiusWithoutStrokeWidth(d) - 3)
-      .attr('class', d => `inner-circle ${d.type}`)
+      .attr('class', d => {
+        let className = `inner-circle ${d.type}`;
+        if (d.special) {
+          className += ' special';
+        }
+        return className;
+      })
       .attr('stroke-width', graphSettings.circleStrokeWidth);
 
     // preview circles
@@ -571,6 +586,9 @@ export class GraphComponent implements OnInit, OnDestroy {
         let className = `function ${d.type}`;
         if (d.returnsJSX) {
           className += ' jsx';
+        }
+        if (d.special) {
+          className += ' special';
         }
         return className;
       })

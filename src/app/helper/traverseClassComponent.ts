@@ -54,7 +54,8 @@ export function traverseClassComponent(componentPath, name, fileName, asts, full
         lineStart: path.node.loc.start.line,
         lineEnd: path.node.loc.end.line,
         returnsJSX: isReturningJSX(path, false),
-        type: isReactMethod ? 'specialInnerFunction' : 'innerFunction',
+        type: 'innerFunction',
+        special: isReactMethod,
         kind: 'ClassComponent'
       });
       // Link: Class -> ReactMethod

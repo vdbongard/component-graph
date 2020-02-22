@@ -1,2 +1,2 @@
-export type NodeType = 'component' | 'innerFunction' | 'specialInnerFunction';
+export type NodeType = 'component' | 'innerFunction';
 export type NodeKind = 'FunctionComponent' | 'ClassComponent';
