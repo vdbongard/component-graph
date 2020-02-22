@@ -1,3 +1,5 @@
+@import 'src/app/styles/variables';
+
 :host {
   display: block;
   padding: 8px;
@@ -17,16 +19,16 @@
   text-align: right;
 
   .score-number {
-    color: hsla(110, 90%, 50%, 1);
+    color: $success;
     font-size: 20px;
     font-weight: 600;
 
     &.warn {
-      color: hsla(40, 90%, 50%, 1);
+      color: $warn;
     }
 
     &.error {
-      color: hsla(0, 90%, 50%, 1);
+      color: $error;
     }
   }
 }

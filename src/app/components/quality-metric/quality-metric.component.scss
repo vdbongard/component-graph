@@ -1,3 +1,5 @@
+@import 'src/app/styles/variables';
+
 $height: 24px;
 
 .quality-metric {
@@ -31,15 +33,15 @@ $height: 24px;
 
 :host::ng-deep {
   .mat-progress-bar-fill::after {
-    background-color: hsla(110, 70%, 80%, 1);
+    background-color: $success-muted;
   }
 
   .warn .mat-progress-bar-fill::after {
-    background-color: hsla(40, 70%, 80%, 1);
+    background-color: $warn-muted;
   }
 
   .error .mat-progress-bar-fill::after {
-    background-color: hsla(0, 70%, 80%, 1);
+    background-color: $error-muted;
   }
 
   .mat-progress-bar-buffer {

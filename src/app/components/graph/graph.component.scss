@@ -1,8 +1,10 @@
+@import 'src/app/styles/variables';
+
 :host {
   position: relative;
   display: block;
   height: 100%;
-  background: #fafafa;
+  background: $background;
 }
 
 .action-buttons {
@@ -36,11 +38,11 @@
     dominant-baseline: central;
 
     &.warn {
-      fill: hsla(40, 90%, 50%, 1);
+      fill: $warn;
     }
 
     &.error {
-      fill: hsla(0, 90%, 50%, 1);
+      fill: $error;
     }
   }
 
