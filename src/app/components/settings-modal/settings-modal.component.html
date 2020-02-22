@@ -17,12 +17,12 @@
       >Node sizes based on metrics</mat-slide-toggle
     >
     <mat-slide-toggle labelPosition="before" formControlName="autoZoom"
-      >Auto zoom to fit after first simulation end</mat-slide-toggle
+      >Auto zoom to fit</mat-slide-toggle
     >
   </form>
 </div>
 <div mat-dialog-actions class="dialog-actions">
-  <button mat-button (click)="onNoClick()">Cancel</button>
+  <button mat-button (click)="onCancel()">Cancel</button>
   <button mat-raised-button color="primary" [mat-dialog-close]="settingsForm.value" cdkFocusInitial>
     Save
   </button>

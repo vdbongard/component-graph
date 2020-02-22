@@ -23,7 +23,7 @@ export class SettingsModalComponent implements OnInit {
     this.settingsForm = this.formBuilder.group(this.settingsService.fullSettings);
   }
 
-  onNoClick(): void {
+  onCancel(): void {
     this.dialogRef.close();
   }
 }
