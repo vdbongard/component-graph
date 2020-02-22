@@ -1,17 +1,17 @@
 @import 'src/app/styles/variables';
 
-:host {
-  display: flex;
-  align-items: center;
-  margin-top: 16px;
-}
-
 :host.warn .icon {
   color: $warn;
 }
 
 :host.error .icon {
   color: $error;
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  margin-top: 16px;
 }
 
 .icon {

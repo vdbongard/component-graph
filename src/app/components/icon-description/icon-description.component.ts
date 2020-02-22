@@ -7,6 +7,7 @@ import { Component, Input, OnInit } from '@angular/core';
 })
 export class IconDescriptionComponent implements OnInit {
   @Input() icon: string;
+  @Input() description: string;
 
   constructor() {}
 

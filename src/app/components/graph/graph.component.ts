@@ -316,12 +316,22 @@ export class GraphComponent implements OnInit, OnDestroy {
     }
 
     if (node.returnsJSX && node.id !== 'render') {
-      console.log(node);
       // function besides the render function that returns JSX -> extract component
       icons.push({
         icon: 'content_cut',
         class: 'warn',
-        description: 'Functions returning JSX should be components (except for the render function)'
+        description:
+          'Functions returning JSX should be components (except for the render function in class components)'
+      });
+    }
+
+    if (node.extends) {
+      icons.push({
+        icon: 'device_hub',
+        class: 'warn',
+        description: `Component composition is recommended over inheritance.
+          (see <a href="https://reactjs.org/docs/composition-vs-inheritance.html" target="_blank">
+          https://reactjs.org/docs/composition-vs-inheritance.html</a>)`
       });
     }
 

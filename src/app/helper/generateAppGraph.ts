@@ -28,7 +28,8 @@ export function generateAppGraph(
         functions,
         type: 'component',
         kind: component.kind,
-        report: findReport(fullReport, fileMap, fileName, componentName)
+        report: findReport(fullReport, fileMap, fileName, componentName),
+        extends: !!component.extends
       });
 
       if (component.extends) {

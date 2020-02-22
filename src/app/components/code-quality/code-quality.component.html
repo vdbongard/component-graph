@@ -44,7 +44,6 @@
     *ngFor="let icon of selectedNode.icons"
     [icon]="icon.icon"
     [class]="icon.class"
-  >
-    {{ icon.description }}
-  </app-icon-description>
+    [description]="icon.description"
+  ></app-icon-description>
 </div>
