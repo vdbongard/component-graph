@@ -249,6 +249,7 @@ export class GraphComponent implements OnInit, OnDestroy {
     });
   }
 
+  // TODO move this to the data service
   getNodeIcons(node, report): NodeIcon[] {
     const icons: NodeIcon[] = [];
     let hasWarning = false;
@@ -275,23 +276,30 @@ export class GraphComponent implements OnInit, OnDestroy {
       }
     }
 
-    if (hasError) {
-      icons.push({
+    if (hasError || hasWarning) {
+      const icon: Partial<NodeIcon> = {
         icon: 'warning',
-        class: 'error'
-      });
-    } else if (hasWarning) {
-      icons.push({
-        icon: 'warning',
-        class: 'warn'
-      });
+        description:
+          node.type === 'component'
+            ? 'This component should be split into smaller components'
+            : 'This function should be split into smaller functions'
+      };
+
+      if (hasError) {
+        icon.class = 'error';
+      } else if (hasWarning) {
+        icon.class = 'warn';
+      }
+
+      icons.push(icon as NodeIcon);
     }
 
     if (report.sloc.logical === 0) {
       // empty function
       icons.push({
         icon: 'delete',
-        class: 'warn'
+        class: 'warn',
+        description: 'Empty functions should be removed'
       });
     } else if (
       node.kind === 'ClassComponent' &&
@@ -301,7 +309,9 @@ export class GraphComponent implements OnInit, OnDestroy {
       // no this reference -> helper function
       icons.push({
         icon: 'content_cut',
-        class: 'warn'
+        class: 'warn',
+        description:
+          'This function has no this reference and should be extracted into a helper function.'
       });
     }
 
@@ -310,7 +320,8 @@ export class GraphComponent implements OnInit, OnDestroy {
       // function besides the render function that returns JSX -> extract component
       icons.push({
         icon: 'content_cut',
-        class: 'warn'
+        class: 'warn',
+        description: 'Functions returning JSX should be components (except for the render function)'
       });
     }
 

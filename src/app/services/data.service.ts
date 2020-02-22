@@ -111,15 +111,16 @@ export class DataService {
     this.graphData$.next(this.appGraph);
   }
 
-  selectNode(node: Node, componentId: string) {
-    const componentOrFunction = this.findComponentOrFunctionById(componentId, node.id);
+  selectNode({ id, label, type, report, icons }: Node, componentId: string) {
+    const componentOrFunction = this.findComponentOrFunctionById(componentId, id);
 
     const selectedNode: NodeSelection = {
-      id: node.id,
-      label: node.label,
-      type: node.type,
-      report: node.report,
-      code: this.findCode(node.id, componentId),
+      id,
+      label,
+      type,
+      report,
+      icons,
+      code: this.findCode(id, componentId),
       lineStart: componentOrFunction.lineStart,
       lineEnd: componentOrFunction.lineEnd
     };
@@ -139,6 +140,7 @@ export class DataService {
           label: componentName,
           type: 'component',
           report: findReport(this.report, this.fileMap$.value, fileName, componentName),
+          icons: [], // TODO
           code: file.code,
           lineStart: file.components[componentName].lineStart,
           lineEnd: file.components[componentName].lineEnd

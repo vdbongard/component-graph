@@ -27,9 +27,21 @@ export interface Node extends SimulationNodeDatum {
   report?: any;
 }
 
+export interface NodeSelection {
+  id: string;
+  type: NodeType;
+  label?: string;
+  report: any;
+  icons: NodeIcon[];
+  code?: string;
+  lineStart?: number;
+  lineEnd?: number;
+}
+
 export interface NodeIcon {
-  icon: string;
-  class: string;
+  icon: string; // Material icon name
+  class: 'warn' | 'error';
+  description: string;
   width?: number;
 }
 
@@ -53,16 +65,6 @@ export interface Settings {
   colaLayout?: boolean;
   nodeSizesBasedOnMetrics?: boolean;
   autoZoom?: boolean;
-}
-
-export interface NodeSelection {
-  id: string;
-  type: NodeType;
-  label?: string;
-  report: any;
-  code?: string;
-  lineStart?: number;
-  lineEnd?: number;
 }
 
 export interface FileMap {

@@ -28,10 +28,10 @@ import { CodeQualityComponent } from './components/code-quality/code-quality.com
 import { FileTreeComponent } from './components/file-tree/file-tree.component';
 import { GraphViewComponent } from './components/graph-view/graph-view.component';
 import { GraphComponent } from './components/graph/graph.component';
+import { IconDescriptionComponent } from './components/icon-description/icon-description.component';
 import { QualityMetricComponent } from './components/quality-metric/quality-metric.component';
 import { SettingsModalComponent } from './components/settings-modal/settings-modal.component';
 import { SourceCodeComponent } from './components/source-code/source-code.component';
-import { ThesholdDescriptionComponent } from './components/theshold-description/theshold-description.component';
 import { UploadViewComponent } from './components/upload-view/upload-view.component';
 import { DropTargetDirective } from './directives/drop-target.directive';
 import { NestedStringAccessorPipe } from './pipes/nested-string-accessor.pipe';
@@ -49,7 +49,7 @@ import { NestedStringAccessorPipe } from './pipes/nested-string-accessor.pipe';
     FileTreeComponent,
     QualityMetricComponent,
     NestedStringAccessorPipe,
-    ThesholdDescriptionComponent
+    IconDescriptionComponent
   ],
   imports: [
     BrowserModule,
