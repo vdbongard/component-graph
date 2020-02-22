@@ -1,11 +1,13 @@
+@import 'src/app/styles/variables';
+
 mat-list-item {
   user-select: none;
 
   &.selected {
-    background-color: rgba(0, 0, 0, 0.08);
+    background-color: $background-selected;
 
     &:hover {
-      background-color: rgba(0, 0, 0, 0.12);
+      background-color: $background-selected-hover;
     }
   }
 }
@@ -41,6 +43,6 @@ mat-list-item {
   }
 
   .mat-list-base .mat-list-item .mat-icon {
-    color: rgba(0, 0, 0, 0.65);
+    color: $file-tree-icon-color;
   }
 }

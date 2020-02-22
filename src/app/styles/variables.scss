@@ -1,4 +1,13 @@
+// colors
 $background: #fafafa;
+$background-selected: rgba(0, 0, 0, 0.08);
+$background-selected-hover: rgba(0, 0, 0, 0.12);
+$text: rgba(0, 0, 0, 0.87);
+$text-light-grey: #989898;
+$text-light: white;
+$file-tree-icon-color: rgba(0, 0, 0, 0.65);
+$graph-button-color: #808080;
+$metric-border-color: #bdbdbd;
 
 $success: hsla(110, 90%, 50%, 1);
 $warn: hsla(40, 90%, 50%, 1);
@@ -16,3 +25,6 @@ $selected-circle-fill-brightness: 50%;
 
 $preview-circle-fill-brightness: 70%;
 $preview-circle-jsx-fill-brightness: 15%;
+
+// other
+$metric-height: 24px;

@@ -11,7 +11,7 @@
 .action-buttons {
   position: absolute;
   top: 8px;
-  color: #808080;
+  color: $graph-button-color;
   display: flex;
   align-items: center;
 
@@ -131,6 +131,6 @@
 
 ::ng-deep .action-buttons {
   .mat-select-value {
-    color: #808080;
+    color: $graph-button-color;
   }
 }
