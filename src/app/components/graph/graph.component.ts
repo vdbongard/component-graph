@@ -5,7 +5,6 @@ import * as d3 from 'd3';
 import { Subscription } from 'rxjs';
 import { d3adaptor, Layout, Link as ColaLink, Node as ColaNode } from 'webcola';
 import { ID3StyleLayoutAdaptor } from 'webcola/dist/src/d3adaptor';
-import { colorScheme } from '../../constants/colors';
 import { graphSettings } from '../../constants/graph-settings';
 import { qualityMetrics, sizeConstant, warningThreshold } from '../../constants/quality-metrics';
 import { getCookie, setCookie } from '../../helper/cookie';
@@ -196,20 +195,14 @@ export class GraphComponent implements OnInit, OnDestroy {
         : graphSettings.circleStrokeWidth;
     });
 
-    this.svgZoomGroup.selectAll('.node circle.circle-node').attr('fill', (d: Node) => {
-      const brightness =
-        this.selectedNodes && this.selectedNodes.find(node => node.id === d.id)
-          ? graphSettings.selectedCircleFillBrightness
-          : graphSettings.circleFillBrightness;
-
-      return this.calculateBrightenedColor(d, brightness);
+    this.svgZoomGroup.selectAll('.node circle.circle-node').attr('class', (d: Node) => {
+      let className = `circle-node ${d.type}`;
+      const selected = this.selectedNodes && this.selectedNodes.find(node => node.id === d.id);
+      if (selected) {
+        className += ' selected';
+      }
+      return className;
     });
-  }
-
-  private calculateBrightenedColor(d: Node, brightness: number) {
-    const color = d3.hsl(colorScheme[d.group - 1]);
-    color.l += (1 - color.l) * brightness;
-    return color.toString();
   }
 
   generateNodeSizes(nodes: Node[]) {
@@ -232,7 +225,7 @@ export class GraphComponent implements OnInit, OnDestroy {
       node.icons = this.getNodeIcons(node, report);
 
       // fixed size for component node in component view
-      if (isComponentView && node.group === 1) {
+      if (isComponentView && node.type === 'component') {
         node.width = node.height = graphSettings.circleRadius * 2;
         return node;
       }
@@ -348,7 +341,6 @@ export class GraphComponent implements OnInit, OnDestroy {
       .on('dblclick.zoom', null);
 
     d3.select('#diagonalHatch line')
-      .style('stroke', colorScheme[0])
       .style('stroke-width', Math.max(graphSettings.circleStrokeWidth * 2, 1))
       .style('opacity', 0.6);
 
@@ -546,7 +538,7 @@ export class GraphComponent implements OnInit, OnDestroy {
           : 'transparent'
       )
       .attr('r', d => this.getMainCircleRadiusWithoutStrokeWidth(d))
-      .attr('stroke', d => colorScheme[d.group - 1]);
+      .attr('class', d => `circle-overlay ${d.type}`);
 
     // inner circle stroke (for functions returning jsx)
     nodes
@@ -554,7 +546,7 @@ export class GraphComponent implements OnInit, OnDestroy {
       .append('circle')
       .attr('fill', 'none')
       .attr('r', d => this.getMainCircleRadiusWithoutStrokeWidth(d) - 3)
-      .attr('stroke', d => colorScheme[d.group - 1])
+      .attr('class', d => `inner-circle ${d.type}`)
       .attr('stroke-width', graphSettings.circleStrokeWidth);
 
     // preview circles
@@ -571,18 +563,18 @@ export class GraphComponent implements OnInit, OnDestroy {
           : [];
       })
       .join('circle')
-      .attr('class', 'function')
       .on('click', d => {
         this.dataService.selectNode(d, d.componentId);
       })
       .attr('r', graphSettings.previewCircleRadius)
-      .attr('fill', (d: Node) => {
-        return d.returnsJSX
-          ? this.calculateBrightenedColor(d, 0.15)
-          : this.calculateBrightenedColor(d, 0.7);
+      .attr('class', (d: Node) => {
+        let className = `function ${d.type}`;
+        if (d.returnsJSX) {
+          className += ' jsx';
+        }
+        return className;
       })
       .attr('stroke-width', graphSettings.circleStrokeWidth)
-      .attr('stroke', d => colorScheme[d.group - 1])
       .attr('cx', (d, i) => {
         const r = this.getOuterCircleRadius(d);
         return r * Math.cos(this.getCircleIndexValue(i, r) - Math.PI * 0.5);

@@ -33,7 +33,6 @@ export function traverseFunctionComponent(
   graph.nodes.push({
     id: `${name}#${componentPath.node.loc.start.line}`,
     label: name,
-    group: 1,
     lineStart,
     lineEnd,
     type: 'component',
@@ -52,7 +51,6 @@ export function traverseFunctionComponent(
               ? `${path.parentPath.node.id.name}#${path.parentPath.node.id.loc.start.line}`
               : `${path.node.id.name}#${path.node.id.loc.start.line}`,
             label: path.parentPath ? path.parentPath.node.id.name : path.node.id.name,
-            group: 3,
             lineStart: path.node.loc.start.line,
             lineEnd: path.node.loc.end.line,
             type: 'innerFunction',

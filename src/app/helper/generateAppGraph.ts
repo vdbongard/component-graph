@@ -16,8 +16,8 @@ export function generateAppGraph(
       return;
     }
     for (const [componentName, component] of Object.entries(file.components)) {
-      const functions = [...component.graph.nodes].sort(previewCircleCompare);
-      functions.shift(); // remove component node
+      // remove the component node which is the first element
+      const functions = [...component.graph.nodes.slice(1)].sort(previewCircleCompare);
 
       nodes.push({
         id: `${fileName}#${componentName}`,
@@ -25,7 +25,6 @@ export function generateAppGraph(
           .split('/')
           .pop()
           .split('.')[0],
-        group: 1,
         functions,
         type: 'component',
         kind: component.kind,
@@ -92,25 +91,29 @@ export function generateAppGraph(
 }
 
 function previewCircleCompare(a: Node, b: Node) {
-  if (a.group !== b.group) {
-    return a.group - b.group;
+  if (a.type !== b.type) {
+    if (a.type === 'specialInnerFunction' && b.type === 'innerFunction') {
+      return -1;
+    } else if (a.type === 'innerFunction' && b.type === 'specialInnerFunction') {
+      return 1;
+    }
   }
 
-  // React functions
-  if (a.returnsJSX && a.group === 2) {
+  // special functions
+  if (a.returnsJSX && a.type === 'specialInnerFunction') {
     return 1;
   }
 
-  if (b.returnsJSX && b.group === 2) {
+  if (b.returnsJSX && b.type === 'specialInnerFunction') {
     return -1;
   }
 
   // other functions
-  if (a.returnsJSX && a.group === 3) {
+  if (a.returnsJSX && a.type === 'innerFunction') {
     return -1;
   }
 
-  if (b.returnsJSX && b.group === 3) {
+  if (b.returnsJSX && b.type === 'innerFunction') {
     return 1;
   }
 }

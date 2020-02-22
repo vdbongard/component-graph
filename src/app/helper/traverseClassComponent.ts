@@ -35,7 +35,6 @@ export function traverseClassComponent(componentPath, name, fileName, asts, full
   // Node: Class
   graph.nodes.push({
     id: name,
-    group: 1,
     lineStart,
     lineEnd,
     type: 'component',
@@ -52,11 +51,10 @@ export function traverseClassComponent(componentPath, name, fileName, asts, full
       // Node: ClassMethod
       graph.nodes.push({
         id: methodName,
-        group: isReactMethod ? 2 : 3,
         lineStart: path.node.loc.start.line,
         lineEnd: path.node.loc.end.line,
         returnsJSX: isReturningJSX(path, false),
-        type: 'innerFunction',
+        type: isReactMethod ? 'specialInnerFunction' : 'innerFunction',
         kind: 'ClassComponent'
       });
       // Link: Class -> ReactMethod
@@ -88,7 +86,6 @@ export function traverseClassComponent(componentPath, name, fileName, asts, full
             id: node.key.name,
             lineStart: node.loc.start.line,
             lineEnd: node.loc.end.line,
-            group: 3,
             returnsJSX: isReturningJSX(path, false),
             type: 'innerFunction',
             kind: 'ClassComponent'

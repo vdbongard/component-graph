@@ -8,5 +8,11 @@ $warn-muted: hsla(40, 70%, 80%, 1);
 $error-muted: hsla(0, 70%, 80%, 1);
 
 $color-component: hsl(170, 65%, 45%);
-$color-special-function: hsl(193, 65%, 52%);
-$color-function: hsl(225, 65%, 68%);
+$color-special-inner-function: hsl(193, 65%, 52%);
+$color-inner-function: hsl(225, 65%, 68%);
+
+$circle-fill-brightness: 75%;
+$selected-circle-fill-brightness: 50%;
+
+$preview-circle-fill-brightness: 70%;
+$preview-circle-jsx-fill-brightness: 15%;

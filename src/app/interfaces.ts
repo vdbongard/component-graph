@@ -1,5 +1,6 @@
 import { File as BabelFile } from '@babel/types';
 import { SimulationNodeDatum } from 'd3-force';
+import { NodeKind, NodeType } from './types';
 
 export interface RefLink extends SimulationNodeDatum {
   source: number | Node;
@@ -12,15 +13,14 @@ export interface RefLink extends SimulationNodeDatum {
 export interface Node extends SimulationNodeDatum {
   id: string;
   label?: string;
-  group?: number;
   width?: number;
   height?: number;
   lineStart?: number;
   lineEnd?: number;
   functions?: Node[];
   icons?: NodeIcon[];
-  type?: 'component' | 'innerFunction';
-  kind?: 'FunctionComponent' | 'ClassComponent';
+  type?: NodeType;
+  kind?: NodeKind;
   returnsJSX?: boolean;
   componentId?: string;
   report?: any;
@@ -56,7 +56,7 @@ export interface Settings {
 
 export interface NodeSelection {
   id: string;
-  type: 'component' | 'innerFunction';
+  type: NodeType;
   label?: string;
   report: any;
   code?: string;
@@ -82,7 +82,7 @@ export interface Component {
   dependencies?: Import[];
   lineStart?: number;
   lineEnd?: number;
-  kind?: 'FunctionComponent' | 'ClassComponent';
+  kind?: NodeKind;
 }
 
 export interface AstWithPath {

@@ -1,3 +1,4 @@
+@use "sass:color";
 @import 'src/app/styles/variables';
 
 :host {
@@ -31,8 +32,8 @@
   height: 100%;
 }
 
-::ng-deep {
-  #d3-root .icon {
+::ng-deep #d3-root {
+  .icon {
     font-family: 'Material Icons', monospace;
     text-anchor: middle;
     dominant-baseline: central;
@@ -46,6 +47,89 @@
     }
   }
 
+  #diagonalHatch line {
+    stroke: $color-component;
+  }
+
+  .circle-overlay,
+  .inner-circle,
+  .function {
+    &.component {
+      stroke: $color-component;
+    }
+
+    &.innerFunction {
+      stroke: $color-inner-function;
+    }
+
+    &.specialInnerFunction {
+      stroke: $color-special-inner-function;
+    }
+  }
+
+  .circle-node {
+    $brightness: $circle-fill-brightness;
+    &.component {
+      fill: color.scale($color-component, $lightness: $brightness);
+    }
+
+    &.innerFunction {
+      fill: color.scale($color-inner-function, $lightness: $brightness);
+    }
+
+    &.specialInnerFunction {
+      fill: color.scale($color-special-inner-function, $lightness: $brightness);
+    }
+  }
+
+  .circle-node.selected {
+    $brightness: $selected-circle-fill-brightness;
+    &.component {
+      fill: color.scale($color-component, $lightness: $brightness);
+    }
+
+    &.innerFunction {
+      fill: color.scale($color-inner-function, $lightness: $brightness);
+    }
+
+    &.specialInnerFunction {
+      fill: color.scale($color-special-inner-function, $lightness: $brightness);
+    }
+  }
+
+  .function {
+    &.component {
+      fill: color.scale($color-component, $lightness: $preview-circle-fill-brightness);
+    }
+
+    &.innerFunction {
+      fill: color.scale($color-inner-function, $lightness: $preview-circle-fill-brightness);
+    }
+
+    &.specialInnerFunction {
+      fill: color.scale($color-special-inner-function, $lightness: $preview-circle-fill-brightness);
+    }
+  }
+
+  .function.jsx {
+    &.component {
+      fill: color.scale($color-component, $lightness: $preview-circle-jsx-fill-brightness);
+    }
+
+    &.innerFunction {
+      fill: color.scale($color-inner-function, $lightness: $preview-circle-jsx-fill-brightness);
+    }
+
+    &.specialInnerFunction {
+      fill: color.scale(
+        $color-special-inner-function,
+        $lightness: $preview-circle-jsx-fill-brightness
+      );
+    }
+  }
+}
+
+::ng-deep .action-buttons {
   .mat-select-value {
     color: #808080;
   }
