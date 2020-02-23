@@ -11,11 +11,15 @@
 .container {
   display: flex;
   align-items: center;
-  margin-top: 16px;
+  margin-top: 12px;
 }
 
 .icon {
   font-family: 'Material Icons', monospace;
   font-size: 20px;
   margin-right: 8px;
+}
+
+.description {
+  font-size: 14px;
 }

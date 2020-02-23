@@ -14,7 +14,7 @@ export const qualityMetrics: QualityMetrics = {
   'sloc.jsx': {
     name: 'Lines of JSX Code',
     description: 'The line count of root level JSX elements',
-    thresholds: { component: 50 }
+    thresholds: { component: 65 }
   },
   maxJsxNesting: {
     name: 'Maximum JSX nesting',
@@ -44,32 +44,32 @@ export const qualityMetrics: QualityMetrics = {
   //     'Measures the amount of mental activity needed to translate the existing algorithm into implementation',
   //   thresholds: { component: 150000, innerFunction: 15000 }
   // },
-  'halstead.length': {
-    name: 'Halstead Length',
-    description: 'The total number of operator and operand occurrences.',
-    thresholds: { component: 500, innerFunction: 200 }
-  },
+  // 'halstead.length': {
+  //   name: 'Halstead Length',
+  //   description: 'The total number of operator and operand occurrences.',
+  //   thresholds: { component: 500, innerFunction: 200 }
+  // },
   // 'halstead.time': {
   //   name: 'Halstead Time',
   //   description:
   //     'Shows time (in seconds) needed to translate the existing algorithm into implementation',
   //   thresholds: { component: 7000, innerFunction: 800 }
   // },
-  'halstead.vocabulary': {
-    name: 'Halstead Vocabulary',
-    description: 'The total number of unique operator and operand occurrences.',
-    thresholds: { component: 120, innerFunction: 60 }
-  },
-  'halstead.volume': {
-    name: 'Halstead Volume',
-    description:
-      'Proportional to program size, represents the size, in bits, of space necessary for storing the program.',
-    thresholds: { component: 3000, innerFunction: 1000 }
-    // The volume of a function should be at least 20 and at most 1000.
-    // The volume of a parameter-less one-line function that is not empty; is about 20.
-    // A volume greater than 1000 tells that the function probably does too many things.
-    // Source: https://www.verifysoft.com/en_halstead_metrics.html
-  },
+  // 'halstead.vocabulary': {
+  //   name: 'Halstead Vocabulary',
+  //   description: 'The total number of unique operator and operand occurrences.',
+  //   thresholds: { component: 120, innerFunction: 60 }
+  // },
+  // 'halstead.volume': {
+  //   name: 'Halstead Volume',
+  //   description:
+  //     'Proportional to program size, represents the size, in bits, of space necessary for storing the program.',
+  //   thresholds: { component: 3000, innerFunction: 1000 }
+  //   // The volume of a function should be at least 20 and at most 1000.
+  //   // The volume of a parameter-less one-line function that is not empty; is about 20.
+  //   // A volume greater than 1000 tells that the function probably does too many things.
+  //   // Source: https://www.verifysoft.com/en_halstead_metrics.html
+  // },
   paramCount: {
     name: 'Parameter Count',
     description:

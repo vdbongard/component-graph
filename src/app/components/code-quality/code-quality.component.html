@@ -40,10 +40,12 @@
       [description]="qualityMetrics[id].description"
     ></app-quality-metric>
   </ng-container>
-  <app-icon-description
-    *ngFor="let icon of selectedNode.icons"
-    [icon]="icon.icon"
-    [class]="icon.class"
-    [description]="icon.description"
-  ></app-icon-description>
+  <div class="icon-descriptions">
+    <app-icon-description
+      *ngFor="let icon of selectedNode.icons"
+      [icon]="icon.icon"
+      [class]="icon.class"
+      [description]="icon.description"
+    ></app-icon-description>
+  </div>
 </div>
