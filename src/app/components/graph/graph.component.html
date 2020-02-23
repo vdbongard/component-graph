@@ -24,6 +24,120 @@
     </defs>
     <g id="zoomGroup"></g>
   </svg>
+  <!-- Legend -->
+  <svg id="legend" width="196" height="246" viewBox="-16 -14 196 246">
+    <text class="legend-header" y="16">Legend</text>
+    <!-- Function Component-->
+    <g class="legend-entry" style="transform: translateY(32px)">
+      <circle class="circle-node circle-overlay component" r="12" cx="13" cy="12"></circle>
+      <text x="33" y="12" class="description">
+        Function Component
+      </text>
+    </g>
+    <!-- Class Component-->
+    <g class="legend-entry" style="transform: translateY(64px)">
+      <circle class="circle-node component" r="12" cx="13" cy="12"></circle>
+      <circle
+        class="circle-overlay component"
+        r="12"
+        cx="13"
+        cy="12"
+        fill="url(#diagonalHatch)"
+      ></circle>
+      <text x="33" y="12" class="description">
+        Class Component
+      </text>
+    </g>
+    <!-- Inner React Function -->
+    <g class="legend-entry" style="transform: translateY(92px)">
+      <circle
+        class="function innerFunction special"
+        r="5"
+        cx="13"
+        cy="12"
+        fill="url(#diagonalHatch)"
+        opacity="0.5"
+      ></circle>
+      <text x="33" y="12" class="description">
+        Inner React Function
+      </text>
+    </g>
+    <!-- Inner React JSX Function -->
+    <g class="legend-entry" style="transform: translateY(112px)">
+      <circle
+        class="function innerFunction special jsx"
+        r="5"
+        cx="13"
+        cy="12"
+        fill="url(#diagonalHatch)"
+        opacity="0.5"
+      ></circle>
+      <text x="33" y="12" class="description">
+        Inner React JSX Function
+      </text>
+    </g>
+    <!-- Inner Function -->
+    <g class="legend-entry" style="transform: translateY(136px)">
+      <circle
+        class="function innerFunction"
+        r="5"
+        cx="13"
+        cy="12"
+        fill="url(#diagonalHatch)"
+        opacity="0.5"
+      ></circle>
+      <text x="33" y="12" class="description">
+        Inner Function
+      </text>
+    </g>
+    <!-- Inner JSX Function -->
+    <g class="legend-entry" style="transform: translateY(156px)">
+      <circle
+        class="function innerFunction jsx"
+        r="5"
+        cx="13"
+        cy="12"
+        fill="url(#diagonalHatch)"
+        opacity="0.5"
+      ></circle>
+      <text x="33" y="12" class="description">
+        Inner JSX Function
+      </text>
+    </g>
+    <!-- Composition -->
+    <g class="legend-entry" style="transform: translateY(180px)">
+      <line
+        stroke-width="0.8"
+        stroke="#999"
+        stroke-opacity="0.6"
+        marker-end="url(#arrowhead)"
+        x1="1"
+        y1="12"
+        x2="25"
+        y2="12"
+      ></line>
+      <text x="33" y="12" class="description">
+        Composition
+      </text>
+    </g>
+    <!-- Inheritance -->
+    <g class="legend-entry" style="transform: translateY(200px)">
+      <line
+        stroke-width="0.8"
+        stroke="#999"
+        stroke-opacity="0.6"
+        marker-end="url(#arrowhead)"
+        x1="1"
+        y1="12"
+        x2="25"
+        y2="12"
+        stroke-dasharray="4 2"
+      ></line>
+      <text x="33" y="12" class="description">
+        Inheritance
+      </text>
+    </g>
+  </svg>
 </div>
 <div class="action-buttons left">
   <button
