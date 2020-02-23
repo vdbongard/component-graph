@@ -65,6 +65,14 @@
     &.innerFunction.special {
       stroke: $color-special-inner-function;
     }
+
+    &.warn.warn {
+      stroke: $warn;
+    }
+
+    &.error.error {
+      stroke: $error;
+    }
   }
 
   .circle-node {

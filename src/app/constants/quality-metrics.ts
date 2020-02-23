@@ -80,4 +80,4 @@ export const qualityMetrics: QualityMetrics = {
 };
 
 export const warningThreshold = 0.8;
-export const sizeConstant = 4000; // circle area if metric = threshold
+export const sizeConstant = 16000; // circle area if metric = threshold

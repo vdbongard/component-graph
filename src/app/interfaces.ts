@@ -26,6 +26,8 @@ export interface Node extends SimulationNodeDatum {
   componentId?: string;
   report?: any;
   extends?: boolean;
+  warn?: boolean;
+  error?: boolean;
 }
 
 export interface NodeSelection {

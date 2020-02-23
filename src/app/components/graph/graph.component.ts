@@ -210,7 +210,6 @@ export class GraphComponent implements OnInit, OnDestroy {
 
   generateNodeSizes(nodes: Node[]) {
     const isComponentView = this.id || this.dataService.hasSingleComponent();
-    const nodeSizeMultiplier = isComponentView ? 3.5 : 2;
 
     return nodes.map(node => {
       if (!this.settings.nodeSizesBasedOnMetrics) {
@@ -234,11 +233,23 @@ export class GraphComponent implements OnInit, OnDestroy {
       }
 
       const metricValue = nestedStringAccess(report, this.sizeMetric);
-      const metricSizeFactor = sizeConstant / qualityMetrics[this.sizeMetric].thresholds.component;
+
+      const threshold =
+        qualityMetrics[this.sizeMetric].thresholds[`${node.type}.${node.label || node.id}`] !==
+        undefined
+          ? qualityMetrics[this.sizeMetric].thresholds[`${node.type}.${node.label || node.id}`]
+          : qualityMetrics[this.sizeMetric].thresholds[node.type];
+      const metricSizeFactor = sizeConstant / threshold;
+
+      node.warn = node.error = false;
+      if (metricValue >= threshold * warningThreshold && metricValue < threshold) {
+        node.warn = true;
+      } else if (metricValue >= threshold) {
+        node.error = true;
+      }
 
       // circle area relative to metric (not circle radius)
-      node.width = node.height =
-        nodeSizeMultiplier * Math.sqrt((metricSizeFactor * metricValue) / Math.PI);
+      node.width = node.height = Math.sqrt((metricSizeFactor * metricValue) / Math.PI);
 
       if (!isComponentView) {
         node.width += this.getCirclePreviewWidth();
@@ -567,6 +578,11 @@ export class GraphComponent implements OnInit, OnDestroy {
         if (d.special) {
           className += ' special';
         }
+        if (d.warn) {
+          className += ' warn';
+        } else if (d.error) {
+          className += ' error';
+        }
         return className;
       });
 
@@ -580,6 +596,11 @@ export class GraphComponent implements OnInit, OnDestroy {
         let className = `inner-circle ${d.type}`;
         if (d.special) {
           className += ' special';
+        }
+        if (d.warn) {
+          className += ' warn';
+        } else if (d.error) {
+          className += ' error';
         }
         return className;
       })
