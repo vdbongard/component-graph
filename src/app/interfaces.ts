@@ -68,6 +68,7 @@ export interface Settings {
   colaLayout?: boolean;
   nodeSizesBasedOnMetrics?: boolean;
   autoZoom?: boolean;
+  currentSizeMetricErrorHighlighting?: boolean;
 }
 
 export interface FileMap {

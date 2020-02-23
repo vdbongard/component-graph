@@ -12,7 +12,8 @@ export class SettingsService {
     fullScreen: false,
     colaLayout: false,
     nodeSizesBasedOnMetrics: true,
-    autoZoom: true
+    autoZoom: true,
+    currentSizeMetricErrorHighlighting: false
   };
   fullSettings: Settings = this.defaultSettings;
   settings$ = new BehaviorSubject(this.defaultSettings);

@@ -578,10 +578,12 @@ export class GraphComponent implements OnInit, OnDestroy {
         if (d.special) {
           className += ' special';
         }
-        if (d.warn) {
-          className += ' warn';
-        } else if (d.error) {
-          className += ' error';
+        if (this.settings.currentSizeMetricErrorHighlighting) {
+          if (d.warn) {
+            className += ' warn';
+          } else if (d.error) {
+            className += ' error';
+          }
         }
         return className;
       });
@@ -597,10 +599,12 @@ export class GraphComponent implements OnInit, OnDestroy {
         if (d.special) {
           className += ' special';
         }
-        if (d.warn) {
-          className += ' warn';
-        } else if (d.error) {
-          className += ' error';
+        if (this.settings.currentSizeMetricErrorHighlighting) {
+          if (d.warn) {
+            className += ' warn';
+          } else if (d.error) {
+            className += ' error';
+          }
         }
         return className;
       })
