@@ -650,12 +650,57 @@ export class GraphComponent implements OnInit, OnDestroy {
       .attr('opacity', 0.5)
       .style('display', (d, i) => {
         const r = this.getOuterCircleRadius(d);
-        const circleIndexValue = this.getCircleIndexValue(i + 1, r);
+        const circleIndexValue = this.getCircleIndexValue(i + 2, r);
         // hide if bigger than one full circle
         return circleIndexValue > Math.PI * 2 ? 'none' : null;
       })
       .append('title')
       .text(d => d.id);
+
+    // three dots
+    nodes
+      .append('g')
+      .selectAll('text')
+      .data(d => {
+        let index;
+        return d.functions
+          ? d.functions
+              .filter((f, i) => {
+                const dWithWidth = f;
+                dWithWidth.width = d.width;
+                dWithWidth.componentId = d.id;
+                const r = this.getOuterCircleRadius(dWithWidth);
+                const circleIndexValue = this.getCircleIndexValue(i + 1, r);
+                const circleNextIndexValue = this.getCircleIndexValue(i + 2, r);
+                const condition =
+                  circleIndexValue <= Math.PI * 2 && circleNextIndexValue > Math.PI * 2;
+                if (condition) {
+                  index = i;
+                }
+                return condition;
+              })
+              .map(f => {
+                f.width = d.width;
+                f.componentId = d.id;
+                f.index = index;
+                return f;
+              })
+          : [];
+      })
+      .join('text')
+      .text('...')
+      .attr('x', d => {
+        const r = this.getOuterCircleRadius(d);
+        return r * Math.cos(this.getCircleIndexValue(d.index, r) - Math.PI * 0.5);
+      })
+      .attr('y', d => {
+        const r = this.getOuterCircleRadius(d);
+        return r * Math.sin(this.getCircleIndexValue(d.index, r) - Math.PI * 0.5);
+      })
+      .attr('opacity', 0.5)
+      .attr('class', (d: Node) => {
+        return `function dots ${d.type}`;
+      });
 
     if (this.settings.text) {
       const textNodes = nodes
