@@ -10,17 +10,17 @@
       >
     </ng-container>
   </h2>
-  <h3 *ngIf="selectedNode?.report?.maintainability" class="score mat-h4">
-    Score
-    <span
-      class="score-number mat-h3"
-      [class.warn]="
-        selectedNode.report.maintainability < 125 && selectedNode.report.maintainability >= 80
-      "
-      [class.error]="selectedNode.report.maintainability < 80"
-      >{{ selectedNode.report.maintainability | number: '1.0-0' }}</span
-    >
-  </h3>
+  <!--  <h3 *ngIf="selectedNode?.report?.maintainability" class="score mat-h4">-->
+  <!--    Score-->
+  <!--    <span-->
+  <!--      class="score-number mat-h3"-->
+  <!--      [class.warn]="-->
+  <!--        selectedNode.report.maintainability < 125 && selectedNode.report.maintainability >= 80-->
+  <!--      "-->
+  <!--      [class.error]="selectedNode.report.maintainability < 80"-->
+  <!--      >{{ selectedNode.report.maintainability | number: '1.0-0' }}</span-->
+  <!--    >-->
+  <!--  </h3>-->
 </div>
 
 <div *ngIf="selectedNode" class="content-inner">
