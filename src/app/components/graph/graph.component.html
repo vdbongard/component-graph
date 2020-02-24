@@ -70,6 +70,7 @@
     <g class="legend-entry" [style.transform]="id ? 'translateY(128px)' : 'translateY(112px)'">
       <circle
         class="circle-node circle-overlay innerFunction special jsx"
+        [class.function]="!id"
         [attr.r]="id ? 12 : 5"
         cx="13"
         cy="12"
@@ -104,6 +105,7 @@
     <g class="legend-entry" [style.transform]="id ? 'translateY(192px)' : 'translateY(156px)'">
       <circle
         class="circle-node circle-overlay innerFunction jsx"
+        [class.function]="!id"
         [attr.r]="id ? 12 : 5"
         cx="13"
         cy="12"
