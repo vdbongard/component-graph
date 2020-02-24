@@ -14,14 +14,16 @@ export const qualityMetrics: QualityMetrics = {
   'sloc.jsx': {
     name: 'Lines of JSX Code',
     description: 'The line count of root level JSX elements',
-    thresholds: { component: 65 }
+    thresholds: { component: 65 },
+    componentOnly: true
   },
   maxJsxNesting: {
     name: 'Maximum JSX nesting',
     description:
       'JSX nesting is counted by the number of nested JSX children or JSX elements in JSX ' +
       'expressions starting with 1 for the top level',
-    thresholds: { component: 8 }
+    thresholds: { component: 8 },
+    componentOnly: true
   },
   cyclomatic: {
     name: 'Cyclomatic Complexity',

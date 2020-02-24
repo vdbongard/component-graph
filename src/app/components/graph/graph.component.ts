@@ -108,10 +108,17 @@ export class GraphComponent implements OnInit, OnDestroy {
       this.dataService.setComponentGraph(queryParams.id);
 
       if (this.id) {
+        if (qualityMetrics[this.sizeMetric].componentOnly) {
+          this.sizeMetric = 'sloc.physical';
+        }
         setTimeout(() => {
           this.dataService.selectFile(this.id.split('#')[0]);
         }, 0);
       }
+
+      this.qualityMetricsEntries = Object.entries(qualityMetrics).filter(
+        entry => (this.id && !entry[1].componentOnly) || !this.id
+      );
     });
   }
 

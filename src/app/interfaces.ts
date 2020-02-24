@@ -127,5 +127,6 @@ export interface QualityMetrics {
     thresholds: {
       [thresholdType: string]: number; // e.g. 'component', 'innerFunction', 'innerFunction.render'
     };
+    componentOnly?: boolean;
   };
 }
