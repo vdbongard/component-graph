@@ -22,3 +22,12 @@ export const reactMethods = [
   // render
   'render'
 ];
+
+export const deprecatedMethods = [
+  'UNSAFE_componentWillUpdate',
+  'UNSAFE_componentWillReceiveProps',
+  'UNSAFE_componentWillMount',
+  'componentWillUpdate',
+  'componentWillReceiveProps',
+  'componentWillMount'
+];

@@ -7,7 +7,7 @@ import { d3adaptor, IConstraint, Layout, Link as ColaLink, Node as ColaNode } fr
 import { ID3StyleLayoutAdaptor } from 'webcola/dist/src/d3adaptor';
 import { graphSettings } from '../../constants/graph-settings';
 import { qualityMetrics, sizeConstant, warningThreshold } from '../../constants/quality-metrics';
-import { reactMethods } from '../../constants/special-methods';
+import { deprecatedMethods, reactMethods } from '../../constants/special-methods';
 import { getCookie, setCookie } from '../../helper/cookie';
 import { generateLinkReferences } from '../../helper/generateLinkReferences';
 import { nestedStringAccess } from '../../helper/nestedStringAccess';
@@ -373,6 +373,16 @@ export class GraphComponent implements OnInit, OnDestroy {
         description: `Component composition is recommended over inheritance.
           (see <a href="https://reactjs.org/docs/composition-vs-inheritance.html" target="_blank">
           https://reactjs.org/docs/composition-vs-inheritance.html</a>)`
+      });
+    }
+
+    if (this.isComponentView && deprecatedMethods.includes(node.id)) {
+      icons.push({
+        icon: 'report',
+        class: 'warn',
+        description: `Deprecated React lifecycle method
+          (see <a href="https://reactjs.org/docs/react-component.html#legacy-lifecycle-methods" target="_blank">
+          https://reactjs.org/docs/react-component.html#legacy-lifecycle-methods</a>)`
       });
     }
 
