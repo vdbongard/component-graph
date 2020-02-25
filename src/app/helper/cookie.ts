@@ -19,3 +19,10 @@ export function setCookie(cname, cvalue, exdays) {
   const expires = 'expires=' + d.toUTCString();
   document.cookie = cname + '=' + cvalue + ';' + expires + ';path=/';
 }
+
+export function registerCookie(cookieName: string, callback: () => void) {
+  if (!getCookie(cookieName)) {
+    setCookie(cookieName, 1, 365 * 10);
+    callback();
+  }
+}

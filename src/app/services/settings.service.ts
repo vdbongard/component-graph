@@ -10,7 +10,7 @@ export class SettingsService {
     text: true,
     fade: true,
     fullScreen: false,
-    colaLayout: false,
+    colaLayout: true,
     nodeSizesBasedOnMetrics: true,
     autoZoom: true,
     currentSizeMetricErrorHighlighting: false

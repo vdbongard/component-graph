@@ -8,7 +8,7 @@ import { ID3StyleLayoutAdaptor } from 'webcola/dist/src/d3adaptor';
 import { graphSettings } from '../../constants/graph-settings';
 import { qualityMetrics, sizeConstant, warningThreshold } from '../../constants/quality-metrics';
 import { deprecatedMethods, reactMethods } from '../../constants/special-methods';
-import { getCookie, setCookie } from '../../helper/cookie';
+import { registerCookie } from '../../helper/cookie';
 import { generateLinkReferences } from '../../helper/generateLinkReferences';
 import { nestedStringAccess } from '../../helper/nestedStringAccess';
 import { Node, NodeIcon, NodeSelection, RefLink, Settings } from '../../interfaces';
@@ -131,28 +131,25 @@ export class GraphComponent implements OnInit, OnDestroy {
       if (graph) {
         console.log('Graph:', graph);
 
-        if (
-          graph.nodes.length > 30 &&
-          this.settings.colaLayout &&
-          !getCookie('toastDisableFlowLayout')
-        ) {
-          setCookie('toastDisableFlowLayout', 1, 365 * 10);
-          this.snackBar
-            .open('Tip: Try out disabling flow layout on large graphs', 'Change now', {
-              duration: 8000
-            })
-            .onAction()
-            .subscribe(() => {
-              this.settingsService.setSettings({ colaLayout: false });
-              this.snackBar
-                .open('Changed graph layout', 'Undo', {
-                  duration: 8000
-                })
-                .onAction()
-                .subscribe(() => {
-                  this.settingsService.setSettings({ colaLayout: true });
-                });
-            });
+        if (graph.nodes.length > 30 && this.settings.colaLayout) {
+          registerCookie('toastDisableFlowLayout', () => {
+            this.snackBar
+              .open('Tip: Try out disabling flow layout on large graphs', 'Change now', {
+                duration: 8000
+              })
+              .onAction()
+              .subscribe(() => {
+                this.settingsService.setSettings({ colaLayout: false });
+                this.snackBar
+                  .open('Changed graph layout', 'Undo', {
+                    duration: 8000
+                  })
+                  .onAction()
+                  .subscribe(() => {
+                    this.settingsService.setSettings({ colaLayout: true });
+                  });
+              });
+          });
         }
 
         this.nodeData = JSON.parse(JSON.stringify(graph.nodes));
@@ -583,6 +580,17 @@ export class GraphComponent implements OnInit, OnDestroy {
         this.removeNode(d);
         this.restartGraph();
         return;
+      }
+      if (d.functions?.length > 0) {
+        registerCookie('toastDoubleClickComponent', () => {
+          this.snackBar.open(
+            'Tip: You can double click a component that has inner functions!',
+            null,
+            {
+              duration: 8000
+            }
+          );
+        });
       }
       this.dataService.selectNode(d, this.id);
     };
