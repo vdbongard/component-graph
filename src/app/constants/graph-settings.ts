@@ -14,5 +14,6 @@ export const graphSettings = {
   circleStrokeWidth: 1,
   minChargeForce: -200,
   linkDistance: 100,
-  defaultSizeMetric: 'sloc.physical'
+  defaultSizeMetric: 'sloc.physical',
+  nodeGap: 100
 };

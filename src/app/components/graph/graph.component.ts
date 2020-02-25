@@ -3,10 +3,11 @@ import { MatSelectChange, MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
 import * as d3 from 'd3';
 import { Subscription } from 'rxjs';
-import { d3adaptor, Layout, Link as ColaLink, Node as ColaNode } from 'webcola';
+import { d3adaptor, IConstraint, Layout, Link as ColaLink, Node as ColaNode } from 'webcola';
 import { ID3StyleLayoutAdaptor } from 'webcola/dist/src/d3adaptor';
 import { graphSettings } from '../../constants/graph-settings';
 import { qualityMetrics, sizeConstant, warningThreshold } from '../../constants/quality-metrics';
+import { reactMethods } from '../../constants/special-methods';
 import { getCookie, setCookie } from '../../helper/cookie';
 import { generateLinkReferences } from '../../helper/generateLinkReferences';
 import { nestedStringAccess } from '../../helper/nestedStringAccess';
@@ -45,6 +46,7 @@ export class GraphComponent implements OnInit, OnDestroy {
   dragging = false;
   firstSimulation = true;
   id: string;
+  isComponentView;
   isFaded: boolean;
   isWheelZooming = false;
   queryParamWasUpload = false;
@@ -87,6 +89,7 @@ export class GraphComponent implements OnInit, OnDestroy {
     this.queryParamsSub = this.activatedRoute.queryParams.subscribe(queryParams => {
       if (queryParams.upload) {
         this.id = undefined;
+        this.isComponentView = false;
         this.router.navigate([], {
           relativeTo: this.activatedRoute
         });
@@ -105,6 +108,7 @@ export class GraphComponent implements OnInit, OnDestroy {
       }
 
       this.id = queryParams.id;
+      this.isComponentView = !!this.id || this.dataService.hasSingleComponent();
       this.dataService.setComponentGraph(queryParams.id);
 
       if (this.id) {
@@ -426,18 +430,56 @@ export class GraphComponent implements OnInit, OnDestroy {
     }
   }
 
+  generateReactConstraints(nodes: Node[], gap: number): IConstraint[] {
+    const constraints: any[] = [];
+    const nodeIndexes = [];
+
+    reactMethods.forEach(methodName => {
+      const nodeIndex = nodes.findIndex(node => node.id === methodName);
+      if (nodeIndex >= 0) {
+        nodeIndexes.push(nodeIndex);
+      }
+    });
+
+    if (!nodeIndexes) {
+      return [];
+    }
+
+    nodeIndexes.forEach((nodeIndex, listIndex) => {
+      const nextNodeIndex = nodeIndexes[listIndex + 1];
+
+      if (!nextNodeIndex) {
+        return;
+      }
+
+      constraints.push({
+        axis: 'x',
+        left: nodeIndex,
+        right: nextNodeIndex,
+        gap
+      });
+    });
+
+    return constraints;
+  }
+
   private createSimulation(force?: number) {
     let simulation;
 
     this.nodeData = this.generateNodeSizes(this.nodeData);
 
     if (this.settings.colaLayout) {
+      const constraints = this.isComponentView
+        ? this.generateReactConstraints(this.nodeData, graphSettings.nodeGap)
+        : [];
+
       simulation = d3adaptor(d3)
         .size([this.d3Root.nativeElement.clientWidth, this.d3Root.nativeElement.clientHeight])
         .nodes(this.nodeData)
         .links(this.linkData as ColaLink<ColaNode>[])
+        .constraints(constraints)
         .avoidOverlaps(true)
-        .flowLayout('y', 100)
+        .flowLayout('y', graphSettings.nodeGap)
         .symmetricDiffLinkLengths(40, 0.7)
         .start(40, 20, 20);
     } else {

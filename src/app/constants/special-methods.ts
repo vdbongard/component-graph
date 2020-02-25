@@ -2,7 +2,6 @@ export const reactMethods = [
   // mounting
   'constructor',
   'getDerivedStateFromProps',
-  'render',
   'componentDidMount',
   // updating
   'shouldComponentUpdate',
@@ -19,5 +18,7 @@ export const reactMethods = [
   'UNSAFE_componentWillMount',
   'componentWillUpdate',
   'componentWillReceiveProps',
-  'componentWillMount'
+  'componentWillMount',
+  // render
+  'render'
 ];
