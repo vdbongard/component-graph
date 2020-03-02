@@ -575,26 +575,18 @@ export class GraphComponent implements OnInit, OnDestroy {
   }
 
   private createNodes() {
-    const onNodeClick = d => {
-      if (d3.event.ctrlKey) {
-        this.removeNode(d);
-        this.restartGraph();
-        return;
-      }
-      if (d.functions?.length > 0) {
-        registerCookie('toastDoubleClickComponent', () => {
-          this.snackBar.open(
-            'Tip: You can double click a component that has inner functions!',
-            null,
-            {
-              duration: 8000
-            }
-          );
-        });
-      }
-      this.dataService.selectNode(d, this.id);
-    };
+    const nodeGroup = this.createNodeGroup();
 
+    this.createMainCircle(nodeGroup);
+    this.createPreviewCircles(nodeGroup);
+    this.createThreeDots(nodeGroup);
+    this.createLabels(nodeGroup);
+    this.createFading(nodeGroup);
+
+    return nodeGroup;
+  }
+
+  private createNodeGroup() {
     const nodes = this.svgZoomGroup
       .append('g')
       .selectAll('.node')
@@ -617,7 +609,10 @@ export class GraphComponent implements OnInit, OnDestroy {
     } else {
       nodes.call(this.drag(this.simulation as d3.Simulation<any, any>));
     }
+    return nodes;
+  }
 
+  private createFading(nodes) {
     if (this.settings.fade) {
       nodes
         .on('click.fade', d => {
@@ -640,63 +635,41 @@ export class GraphComponent implements OnInit, OnDestroy {
             fade(d, 1);
           }
         });
-    }
 
-    // main circle
-    nodes
-      .append('circle')
-      .attr('class', 'circle-node')
-      .attr('r', d => this.getMainCircleRadiusWithoutStrokeWidth(d));
-
-    // overlay circle
-    nodes
-      .append('circle')
-      .attr('class', 'circle-overlay')
-      .on('click', onNodeClick)
-      .attr('fill', d =>
-        d.type === 'component' && d.kind === 'ClassComponent'
-          ? 'url(#diagonalHatch)'
-          : 'transparent'
-      )
-      .attr('r', d => this.getMainCircleRadiusWithoutStrokeWidth(d))
-      .attr('class', d => {
-        let className = `circle-overlay ${d.type}`;
-        if (d.special) {
-          className += ' special';
-        }
-        if (this.settings.currentSizeMetricErrorHighlighting) {
-          if (d.warn) {
-            className += ' warn';
-          } else if (d.error) {
-            className += ' error';
-          }
-        }
-        return className;
+      const linkedByIndex = {};
+      this.linkData.forEach(d => {
+        // @ts-ignore
+        linkedByIndex[`${d.source.index},${d.target.index}`] = 1;
       });
 
-    // inner circle stroke (for functions returning jsx)
-    nodes
-      .filter(d => d.returnsJSX)
-      .append('circle')
-      .attr('fill', 'none')
-      .attr('r', d => this.getMainCircleRadiusWithoutStrokeWidth(d) - 3)
-      .attr('class', d => {
-        let className = `inner-circle ${d.type}`;
-        if (d.special) {
-          className += ' special';
-        }
-        if (this.settings.currentSizeMetricErrorHighlighting) {
-          if (d.warn) {
-            className += ' warn';
-          } else if (d.error) {
-            className += ' error';
-          }
-        }
-        return className;
-      })
-      .attr('stroke-width', graphSettings.circleStrokeWidth);
+      function isConnected(a, b) {
+        return (
+          linkedByIndex[`${a.index},${b.index}`] ||
+          linkedByIndex[`${b.index},${a.index}`] ||
+          a.index === b.index
+        );
+      }
 
-    // preview circles
+      const links = this.links;
+      const self = this;
+
+      function fade(d: Node, opacity: number) {
+        if (self.dragging) {
+          return;
+        }
+
+        nodes
+          .transition()
+          .style('opacity', o => (opacity === 1 || isConnected(d, o) ? 1 : opacity));
+
+        links
+          .transition()
+          .attr('opacity', o => (opacity === 1 || o.source === d || o.target === d ? 1 : opacity));
+      }
+    }
+  }
+
+  private createPreviewCircles(nodes) {
     nodes
       .append('g')
       .selectAll('circle')
@@ -742,8 +715,99 @@ export class GraphComponent implements OnInit, OnDestroy {
       })
       .append('title')
       .text(d => d.id);
+  }
 
-    // three dots
+  private createMainCircle(nodes) {
+    // main circle
+    nodes
+      .append('circle')
+      .attr('class', 'circle-node')
+      .attr('r', d => this.getMainCircleRadiusWithoutStrokeWidth(d));
+
+    // overlay circle
+    nodes
+      .append('circle')
+      .attr('class', 'circle-overlay')
+      .on('click', this.onNodeClick.bind(this))
+      .attr('fill', d =>
+        d.type === 'component' && d.kind === 'ClassComponent'
+          ? 'url(#diagonalHatch)'
+          : 'transparent'
+      )
+      .attr('r', d => this.getMainCircleRadiusWithoutStrokeWidth(d))
+      .attr('class', d => {
+        let className = `circle-overlay ${d.type}`;
+        if (d.special) {
+          className += ' special';
+        }
+        if (this.settings.currentSizeMetricErrorHighlighting) {
+          if (d.warn) {
+            className += ' warn';
+          } else if (d.error) {
+            className += ' error';
+          }
+        }
+        return className;
+      });
+
+    // inner circle stroke (for functions returning jsx)
+    nodes
+      .filter(d => d.returnsJSX)
+      .append('circle')
+      .attr('fill', 'none')
+      .attr('r', d => this.getMainCircleRadiusWithoutStrokeWidth(d) - 3)
+      .attr('class', d => {
+        let className = `inner-circle ${d.type}`;
+        if (d.special) {
+          className += ' special';
+        }
+        if (this.settings.currentSizeMetricErrorHighlighting) {
+          if (d.warn) {
+            className += ' warn';
+          } else if (d.error) {
+            className += ' error';
+          }
+        }
+        return className;
+      })
+      .attr('stroke-width', graphSettings.circleStrokeWidth);
+  }
+
+  private createLabels(nodes) {
+    if (this.settings.text) {
+      const textNodes = nodes
+        .append('text')
+        .attr('class', 'node-label')
+        .style('font-size', `${graphSettings.normalTextSize}px`)
+        .style('dominant-baseline', 'central')
+        .style('text-anchor', 'middle');
+
+      textNodes
+        .append('tspan')
+        .on('click', this.onNodeClick.bind(this))
+        .text(d => d.label || d.id);
+
+      // node warning and error icons
+      textNodes
+        .append('tspan')
+        .attr('dy', '1.2em')
+        .attr('x', '0')
+        .selectAll('tspan.icon')
+        .data(d => {
+          return d.icons
+            ? d.icons.map(i => {
+                i.width = d.width;
+                return i;
+              })
+            : [];
+        })
+        .join('tspan')
+        .attr('class', d => 'icon ' + d.class)
+        .text(d => d.icon);
+    }
+  }
+
+  private createThreeDots(nodes) {
     nodes
       .append('g')
       .selectAll('text')
@@ -787,69 +851,26 @@ export class GraphComponent implements OnInit, OnDestroy {
       .attr('class', (d: Node) => {
         return `function dots ${d.type}`;
       });
+  }
 
-    if (this.settings.text) {
-      const textNodes = nodes
-        .append('text')
-        .attr('class', 'node-label')
-        .style('font-size', `${graphSettings.normalTextSize}px`)
-        .style('dominant-baseline', 'central')
-        .style('text-anchor', 'middle');
-
-      textNodes
-        .append('tspan')
-        .on('click', onNodeClick)
-        .text(d => d.label || d.id);
-
-      // node warning and error icons
-      textNodes
-        .append('tspan')
-        .attr('dy', '1.2em')
-        .attr('x', '0')
-        .selectAll('tspan.icon')
-        .data(d => {
-          return d.icons
-            ? d.icons.map(i => {
-                i.width = d.width;
-                return i;
-              })
-            : [];
-        })
-        .join('tspan')
-        .attr('class', d => 'icon ' + d.class)
-        .text(d => d.icon);
+  onNodeClick(d) {
+    if (d3.event.ctrlKey) {
+      this.removeNode(d);
+      this.restartGraph();
+      return;
     }
-
-    const linkedByIndex = {};
-    this.linkData.forEach(d => {
-      // @ts-ignore
-      linkedByIndex[`${d.source.index},${d.target.index}`] = 1;
-    });
-
-    function isConnected(a, b) {
-      return (
-        linkedByIndex[`${a.index},${b.index}`] ||
-        linkedByIndex[`${b.index},${a.index}`] ||
-        a.index === b.index
-      );
+    if (d.functions?.length > 0) {
+      registerCookie('toastDoubleClickComponent', () => {
+        this.snackBar.open(
+          'Tip: You can double click a component that has inner functions!',
+          null,
+          {
+            duration: 8000
+          }
+        );
+      });
     }
-
-    const links = this.links;
-    const self = this;
-
-    function fade(d: Node, opacity: number) {
-      if (self.dragging) {
-        return;
-      }
-
-      nodes.transition().style('opacity', o => (opacity === 1 || isConnected(d, o) ? 1 : opacity));
-
-      links
-        .transition()
-        .attr('opacity', o => (opacity === 1 || o.source === d || o.target === d ? 1 : opacity));
-    }
-
-    return nodes;
+    this.dataService.selectNode(d, this.id);
   }
 
   private removeNode(d: Node) {
