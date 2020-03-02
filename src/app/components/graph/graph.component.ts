@@ -826,13 +826,13 @@ export class GraphComponent implements OnInit, OnDestroy {
   }
 
   private hideOverlappingLabels() {
-    const textNodes = this.nodes.select('text.node-label');
+    const textNodes = this.nodes.select('tspan.label-text');
 
     textNodes.each(function(d, i) {
       const selectedLabel = d3.select(this).style('display', 'initial');
 
       // @ts-ignore
-      d3.select(selectedLabel.node().parentElement)
+      d3.select(selectedLabel.node().parentElement.parentElement)
         .select('title')
         .remove();
       // @ts-ignore
@@ -848,7 +848,7 @@ export class GraphComponent implements OnInit, OnDestroy {
           if (isColliding(thisBBox, underBBox)) {
             const innerSelectedLabel = d3.select(this).style('display', 'none');
             // @ts-ignore
-            d3.select(innerSelectedLabel.node().parentElement)
+            d3.select(innerSelectedLabel.node().parentElement.parentElement)
               .append('title')
               // @ts-ignore
               .text(this.childNodes[0].textContent);
