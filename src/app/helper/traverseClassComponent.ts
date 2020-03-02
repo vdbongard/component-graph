@@ -13,6 +13,7 @@ import {
   isFunctionBind,
   isReturningJSX,
   isThisMemberExpression,
+  isUsingThis,
   postProcessing,
   pushUniqueDependencies,
   pushUniqueLink
@@ -56,7 +57,8 @@ export function traverseClassComponent(componentPath, name, fileName, asts, full
         returnsJSX: isReturningJSX(path, false),
         type: 'innerFunction',
         special: isReactMethod,
-        kind: 'ClassComponent'
+        kind: 'ClassComponent',
+        isUsingThis: isUsingThis(path)
       });
       // Link: Class -> ReactMethod
       if (isReactMethod) {
@@ -92,7 +94,8 @@ export function traverseClassComponent(componentPath, name, fileName, asts, full
             returnsJSX: isReturningJSX(path, false),
             type: 'innerFunction',
             special: isReactMethod,
-            kind: 'ClassComponent'
+            kind: 'ClassComponent',
+            isUsingThis: isUsingThis(path)
           });
           // Link: Class -> ReactMethod
           if (isReactMethod) {

@@ -544,3 +544,15 @@ export function getMaxJSXNesting(path) {
 
   return level;
 }
+
+export function isUsingThis(path) {
+  let foundThis = false;
+
+  path.traverse({
+    ThisExpression: () => {
+      foundThis = true;
+    }
+  });
+
+  return foundThis;
+}

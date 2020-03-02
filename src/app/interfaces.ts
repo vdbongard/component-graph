@@ -23,6 +23,7 @@ export interface Node extends SimulationNodeDatum {
   kind?: NodeKind;
   special?: boolean;
   returnsJSX?: boolean;
+  isUsingThis?: boolean;
   componentId?: string;
   report?: any;
   extends?: boolean;
