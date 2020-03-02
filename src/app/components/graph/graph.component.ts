@@ -827,9 +827,14 @@ export class GraphComponent implements OnInit, OnDestroy {
 
   private hideOverlappingLabels() {
     const textNodes = this.nodes.select('text.node-label');
-    console.log('hideOverlappingLabels');
+
     textNodes.each(function(d, i) {
-      d3.select(this).style('display', 'initial');
+      const selectedLabel = d3.select(this).style('display', 'initial');
+
+      // @ts-ignore
+      d3.select(selectedLabel.node().parentElement)
+        .select('title')
+        .remove();
       // @ts-ignore
       const thisBBox = this.getBoundingClientRect();
 
@@ -841,10 +846,12 @@ export class GraphComponent implements OnInit, OnDestroy {
           const underBBox = this.getBoundingClientRect();
 
           if (isColliding(thisBBox, underBBox)) {
-            d3.select(this)
-              .style('display', 'none')
-              .insert('title')
-              .text('abc');
+            const innerSelectedLabel = d3.select(this).style('display', 'none');
+            // @ts-ignore
+            d3.select(innerSelectedLabel.node().parentElement)
+              .append('title')
+              // @ts-ignore
+              .text(this.childNodes[0].textContent);
           }
         });
     });
