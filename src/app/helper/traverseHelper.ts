@@ -1,6 +1,7 @@
 import babelTraverse from '@babel/traverse';
 import * as t from '@babel/types';
 import { NodePath } from 'babel-traverse';
+import { reactMethods } from '../constants/special-methods';
 import { AstWithPath, Graph, Import, Link } from '../interfaces';
 
 export function postProcessing(graph: Graph, aliases: { [p: string]: string }) {
@@ -555,4 +556,27 @@ export function isUsingThis(path) {
   });
 
   return foundThis;
+}
+
+export function addInnerFunctionToGraph(graph, path) {
+  const methodName = path.node.key.name;
+  const isReactMethod = reactMethods.includes(methodName);
+  // Node inner function
+  graph.nodes.push({
+    id: methodName,
+    lineStart: path.node.loc.start.line,
+    lineEnd: path.node.loc.end.line,
+    returnsJSX: isReturningJSX(path, false),
+    type: 'innerFunction',
+    special: isReactMethod,
+    kind: 'ClassComponent',
+    isUsingThis: isUsingThis(path)
+  });
+  // Link: Class -> ReactMethod
+  if (isReactMethod) {
+    graph.links.push({
+      source: getParentClassName(path),
+      target: methodName
+    });
+  }
 }

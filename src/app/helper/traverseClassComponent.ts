@@ -1,19 +1,16 @@
 import * as t from '@babel/types';
-import { reactMethods } from '../constants/special-methods';
 import { Component, Graph, Import } from '../interfaces';
 import { findReportWithGraph } from './findReport';
 import {
+  addInnerFunctionToGraph,
   getComponentDependencies,
   getLinesOfCode,
   getMaxJSXNesting,
-  getParentClassName,
   getSuperClass,
   isClassPropertyFunction,
   isFunction,
   isFunctionBind,
-  isReturningJSX,
   isThisMemberExpression,
-  isUsingThis,
   postProcessing,
   pushUniqueDependencies,
   pushUniqueLink
@@ -44,29 +41,13 @@ export function traverseClassComponent(componentPath, name, fileName, asts, full
 
   const classComponentTraverse = {
     ClassMethod: path => {
+      // filter out getter and setter functions
       if (['get', 'set'].includes(path.node.kind)) {
         return;
       }
-      const methodName = path.node.key.name;
-      const isReactMethod = reactMethods.includes(methodName);
       // Node: ClassMethod
-      graph.nodes.push({
-        id: methodName,
-        lineStart: path.node.loc.start.line,
-        lineEnd: path.node.loc.end.line,
-        returnsJSX: isReturningJSX(path, false),
-        type: 'innerFunction',
-        special: isReactMethod,
-        kind: 'ClassComponent',
-        isUsingThis: isUsingThis(path)
-      });
       // Link: Class -> ReactMethod
-      if (isReactMethod) {
-        graph.links.push({
-          source: getParentClassName(path),
-          target: methodName
-        });
-      }
+      addInnerFunctionToGraph(graph, path);
     },
     ClassProperty: path => {
       const { node } = path;
@@ -84,26 +65,9 @@ export function traverseClassComponent(componentPath, name, fileName, asts, full
           // Alias classProperty = args => this.classMethod(args)
           aliases[node.key.name] = node.value.body.callee.property.name; // pipe function name
         } else {
-          const methodName = node.key.name;
-          const isReactMethod = reactMethods.includes(methodName);
           // Node classProperty = () => {}
-          graph.nodes.push({
-            id: methodName,
-            lineStart: node.loc.start.line,
-            lineEnd: node.loc.end.line,
-            returnsJSX: isReturningJSX(path, false),
-            type: 'innerFunction',
-            special: isReactMethod,
-            kind: 'ClassComponent',
-            isUsingThis: isUsingThis(path)
-          });
           // Link: Class -> ReactMethod
-          if (isReactMethod) {
-            graph.links.push({
-              source: getParentClassName(path),
-              target: methodName
-            });
-          }
+          addInnerFunctionToGraph(graph, path);
         }
       }
     },
