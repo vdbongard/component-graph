@@ -62,6 +62,8 @@ export function findReportWithGraph(
       lineStart = parseInt(functionName.split('#')[1], 10);
     }
 
-    return moduleReport.methods.find(method => method.lineStart === lineStart);
+    return moduleReport.methods.find(
+      method => method.lineStart === lineStart || method.lineStart === lineStart + 1
+    );
   }
 }

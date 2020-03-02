@@ -41,6 +41,26 @@ export function traverseFunctionComponent(
 
   const functionComponentTraverse = {
     'FunctionExpression|ArrowFunctionExpression': (path, state) => {
+      const allowedFunctionWrapper = ['useCallback'];
+      if (
+        path.parentPath.isCallExpression() &&
+        path.parentPath.parentPath.isVariableDeclarator() &&
+        allowedFunctionWrapper.includes(path.parentPath.node.callee.name)
+      ) {
+        const functionParentPath = path.getFunctionParent();
+
+        if (isFunctionWithName(functionParentPath, state.name)) {
+          // Node: InnerFunction
+          graph.nodes.push({
+            id: `${path.parentPath.parentPath.node.id.name}#${path.parentPath.parentPath.node.id.loc.start.line}`,
+            label: path.parentPath.parentPath.node.id.name,
+            lineStart: path.node.loc.start.line,
+            lineEnd: path.node.loc.end.line,
+            type: 'innerFunction',
+            kind: 'FunctionComponent'
+          });
+        }
+      }
       if (path.parentPath.isVariableDeclarator()) {
         const functionParentPath = path.getFunctionParent();
 
