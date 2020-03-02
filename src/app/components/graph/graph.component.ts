@@ -344,7 +344,11 @@ export class GraphComponent implements OnInit, OnDestroy {
         class: 'warn',
         description: 'Empty functions should be removed'
       });
-    } else if (node.type === 'innerFunction' && !node.isUsingThis) {
+    } else if (
+      node.type === 'innerFunction' &&
+      node.kind === 'ClassComponent' &&
+      !node.isUsingThis
+    ) {
       // no this reference -> helper function
       icons.push({
         icon: 'content_cut',
