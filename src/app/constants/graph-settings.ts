@@ -1,5 +1,5 @@
 export const graphSettings = {
-  fadeOpacity: 0.1,
+  fadeOpacity: 0.3,
   zoomTransition: '0.1s ease-out',
   selectedCircleStrokeWidth: 2,
   linkColor: '#999',
