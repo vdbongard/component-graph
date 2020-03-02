@@ -9,7 +9,9 @@ import { graphSettings } from '../../constants/graph-settings';
 import { qualityMetrics, sizeConstant, warningThreshold } from '../../constants/quality-metrics';
 import { deprecatedMethods, reactMethods } from '../../constants/special-methods';
 import { registerCookie } from '../../helper/cookie';
+import { debounce } from '../../helper/debounce';
 import { generateLinkReferences } from '../../helper/generateLinkReferences';
+import { isColliding } from '../../helper/isColliding';
 import { nestedStringAccess } from '../../helper/nestedStringAccess';
 import { Node, NodeIcon, NodeSelection, RefLink, Settings } from '../../interfaces';
 import { DataService } from '../../services/data.service';
@@ -55,12 +57,15 @@ export class GraphComponent implements OnInit, OnDestroy {
   qualityMetricsEntries = Object.entries(qualityMetrics);
   sizeMetric = graphSettings.defaultSizeMetric;
   settings: Settings;
+  lastZoomValue;
 
   private graphDataSub: Subscription;
   private settingsSub: Subscription;
   private queryParamsSub: Subscription;
   private selectedNodesSub: Subscription;
   private progressSub: Subscription;
+
+  debouncedHideOverlappingLabels = debounce(this.hideOverlappingLabels.bind(this), 250);
 
   constructor(
     public dataService: DataService,
@@ -399,6 +404,13 @@ export class GraphComponent implements OnInit, OnDestroy {
       if (graphSettings.linkStrokeWidth * d3.event.transform.k > graphSettings.maxLinkStrokeWidth) {
         this.links.style('stroke-width', graphSettings.maxLinkStrokeWidth / d3.event.transform.k);
       }
+
+      if (d3.event.transform.k !== this.lastZoomValue) {
+        this.lastZoomValue = d3.event.transform.k;
+        if (this.settings.hideOverlappingLabels) {
+          this.debouncedHideOverlappingLabels();
+        }
+      }
     });
 
     this.svg = d3
@@ -553,6 +565,9 @@ export class GraphComponent implements OnInit, OnDestroy {
           if (this.settings.autoZoom) {
             this.zoomToFit();
           }
+        }
+        if (this.settings.hideOverlappingLabels) {
+          this.debouncedHideOverlappingLabels();
         }
       });
 
@@ -774,37 +789,65 @@ export class GraphComponent implements OnInit, OnDestroy {
   }
 
   private createLabels(nodes) {
-    if (this.settings.text) {
-      const textNodes = nodes
-        .append('text')
-        .attr('class', 'node-label')
-        .style('font-size', `${graphSettings.normalTextSize}px`)
-        .style('dominant-baseline', 'central')
-        .style('text-anchor', 'middle');
-
-      textNodes
-        .append('tspan')
-        .on('click', this.onNodeClick.bind(this))
-        .text(d => d.label || d.id);
-
-      // node warning and error icons
-      textNodes
-        .append('tspan')
-        .attr('dy', '1.2em')
-        .attr('x', '0')
-        .selectAll('tspan.icon')
-        .data(d => {
-          return d.icons
-            ? d.icons.map(i => {
-                i.width = d.width;
-                return i;
-              })
-            : [];
-        })
-        .join('tspan')
-        .attr('class', d => 'icon ' + d.class)
-        .text(d => d.icon);
+    if (!this.settings.text) {
+      return;
     }
+
+    const textNodes = nodes
+      .append('text')
+      .attr('class', 'node-label')
+      .style('font-size', `${graphSettings.normalTextSize}px`)
+      .style('dominant-baseline', 'central')
+      .style('text-anchor', 'middle');
+
+    textNodes
+      .append('tspan')
+      .attr('class', 'label-text')
+      .on('click', this.onNodeClick.bind(this))
+      .text(d => d.label || d.id);
+
+    // node warning and error icons
+    textNodes
+      .append('tspan')
+      .attr('dy', '1.2em')
+      .attr('x', '0')
+      .selectAll('tspan.icon')
+      .data(d => {
+        return d.icons
+          ? d.icons.map(i => {
+              i.width = d.width;
+              return i;
+            })
+          : [];
+      })
+      .join('tspan')
+      .attr('class', d => 'icon ' + d.class)
+      .text(d => d.icon);
+  }
+
+  private hideOverlappingLabels() {
+    const textNodes = this.nodes.select('text.node-label');
+    console.log('hideOverlappingLabels');
+    textNodes.each(function(d, i) {
+      d3.select(this).style('display', 'initial');
+      // @ts-ignore
+      const thisBBox = this.getBoundingClientRect();
+
+      textNodes
+        .filter((k, j) => j < i)
+        .each(function() {
+          // @ts-ignore
+          // noinspection JSPotentiallyInvalidUsageOfThis
+          const underBBox = this.getBoundingClientRect();
+
+          if (isColliding(thisBBox, underBBox)) {
+            d3.select(this)
+              .style('display', 'none')
+              .insert('title')
+              .text('abc');
+          }
+        });
+    });
   }
 
   private createThreeDots(nodes) {

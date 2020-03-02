@@ -69,6 +69,7 @@ export interface Settings {
   nodeSizesBasedOnMetrics?: boolean;
   autoZoom?: boolean;
   currentSizeMetricErrorHighlighting?: boolean;
+  hideOverlappingLabels?: boolean;
 }
 
 export interface FileMap {

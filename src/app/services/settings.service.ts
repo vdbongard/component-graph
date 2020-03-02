@@ -13,7 +13,8 @@ export class SettingsService {
     colaLayout: true,
     nodeSizesBasedOnMetrics: true,
     autoZoom: true,
-    currentSizeMetricErrorHighlighting: false
+    currentSizeMetricErrorHighlighting: false,
+    hideOverlappingLabels: true
   };
   fullSettings: Settings = this.defaultSettings;
   settings$ = new BehaviorSubject(this.defaultSettings);
