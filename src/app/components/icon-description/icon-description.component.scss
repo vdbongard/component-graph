@@ -18,8 +18,11 @@
   font-family: 'Material Icons', monospace;
   font-size: 20px;
   margin-right: 8px;
+  cursor: default;
+  user-select: none;
 }
 
 .description {
   font-size: 14px;
+  cursor: default;
 }
