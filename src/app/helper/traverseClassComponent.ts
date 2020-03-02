@@ -82,15 +82,25 @@ export function traverseClassComponent(componentPath, name, fileName, asts, full
           // Alias classProperty = args => this.classMethod(args)
           aliases[node.key.name] = node.value.body.callee.property.name; // pipe function name
         } else {
+          const methodName = node.key.name;
+          const isReactMethod = reactMethods.includes(methodName);
           // Node classProperty = () => {}
           graph.nodes.push({
-            id: node.key.name,
+            id: methodName,
             lineStart: node.loc.start.line,
             lineEnd: node.loc.end.line,
             returnsJSX: isReturningJSX(path, false),
             type: 'innerFunction',
+            special: isReactMethod,
             kind: 'ClassComponent'
           });
+          // Link: Class -> ReactMethod
+          if (isReactMethod) {
+            graph.links.push({
+              source: getParentClassName(path),
+              target: methodName
+            });
+          }
         }
       }
     },
