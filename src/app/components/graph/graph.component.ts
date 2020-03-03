@@ -136,6 +136,8 @@ export class GraphComponent implements OnInit, OnDestroy {
       if (graph) {
         console.log('Graph:', graph);
 
+        this.isComponentView = !!this.id || this.dataService.hasSingleComponent();
+
         if (graph.nodes.length > 30 && this.settings.colaLayout) {
           registerCookie('toastDisableFlowLayout', () => {
             this.snackBar
