@@ -363,7 +363,7 @@ export function isReturningJSX(path, skipPath = true) {
     }
   });
 
-  return returnsAtLeastOnce && (returnsJSXOrNull || returnsJSXOnce);
+  return returnsAtLeastOnce && returnsJSXOrNull && returnsJSXOnce;
 }
 
 export function isFunctionWithName(path, functionComponentName: string) {
