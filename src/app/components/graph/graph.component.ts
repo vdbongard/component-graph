@@ -2,6 +2,7 @@ import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@ang
 import { MatSelectChange, MatSnackBar } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
 import * as d3 from 'd3';
+import { jLouvain } from 'jlouvain';
 import { Subscription } from 'rxjs';
 import { d3adaptor, IConstraint, Layout, Link as ColaLink, Node as ColaNode } from 'webcola';
 import { ID3StyleLayoutAdaptor } from 'webcola/dist/src/d3adaptor';
@@ -294,6 +295,32 @@ export class GraphComponent implements OnInit, OnDestroy {
     });
   }
 
+  generateCommunities(nodes: Node[]) {
+    const jLouvainNodeData = this.nodeData.map(node => {
+      if (node.id === 'constructor') {
+        return '_constructor';
+      }
+      return node.id;
+    });
+    const jLouvainLinkData = this.linkData.map(link => {
+      const source =
+        (link.source as Node).id === 'constructor' ? '_constructor' : (link.source as Node).id;
+      const target =
+        (link.target as Node).id === 'constructor' ? '_constructor' : (link.target as Node).id;
+      return { source, target };
+    });
+    const community = jLouvain()
+      .nodes(jLouvainNodeData)
+      .edges(jLouvainLinkData);
+    const communities = community();
+    console.log('Communities:', communities);
+
+    return nodes.map(node => {
+      node.community = communities[node.id === 'constructor' ? '_constructor' : node.id];
+      return node;
+    });
+  }
+
   // TODO move this to the data service
   getNodeIcons(node, report): NodeIcon[] {
     const icons: NodeIcon[] = [];
@@ -488,6 +515,7 @@ export class GraphComponent implements OnInit, OnDestroy {
     let simulation;
 
     this.nodeData = this.generateNodeSizes(this.nodeData);
+    this.nodeData = this.generateCommunities(this.nodeData);
 
     if (this.settings.colaLayout) {
       const constraints = this.isComponentView
