@@ -446,6 +446,48 @@ export function getComponentDependencyByName(
     if (typeName) {
       return getComponentDependencyByName(typeName, binding.path, fileName, asts);
     }
+
+    // check for React.lazy
+    if (binding.path.get('init').isCallExpression()) {
+      const calleePath = binding.path.get('init.callee');
+      if (
+        calleePath.isMemberExpression() &&
+        calleePath.get('object').isIdentifier({ name: 'React' }) &&
+        calleePath.get('property').isIdentifier({ name: 'lazy' })
+      ) {
+        const reactLazyArgument = binding.path.get('init.arguments.0');
+        let importSource;
+
+        if (
+          isFunction(reactLazyArgument.node) &&
+          reactLazyArgument.get('body').isCallExpression() &&
+          reactLazyArgument.get('body.callee').isImport()
+        ) {
+          // e.g. const UnauthenticatedApp = React.lazy(() => import('./unauthenticated-app'))
+          importSource = reactLazyArgument.get('body.arguments.0').node.value;
+        } else if (reactLazyArgument.isIdentifier()) {
+          // e.g. const loadAuthenticatedApp = () => import('./authenticated-app')
+          //      const AuthenticatedApp = React.lazy(loadAuthenticatedApp)
+          const reactLazyArgumentBinding = path.scope.getBinding(reactLazyArgument.node.name);
+          importSource = reactLazyArgumentBinding.path.get('init.body.arguments.0').node.value;
+        }
+
+        const dynamicImportPath = getAbsolutePath(importSource, fileName);
+
+        if (!dynamicImportPath) {
+          return;
+        }
+
+        if (!isComponentFileImport(dynamicImportPath, asts)) {
+          return;
+        }
+
+        return {
+          name: 'default',
+          source: dynamicImportPath
+        };
+      }
+    }
   }
 
   const importBindingPath = getImportPathFromBinding(binding);
