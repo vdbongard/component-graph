@@ -3,17 +3,16 @@ import { Component, Graph, Import } from '../interfaces';
 import { findReportWithGraph } from './findReport';
 import {
   addInnerFunctionToGraph,
+  addThisExpressionLink,
   getComponentDependencies,
   getLinesOfCode,
   getMaxJSXNesting,
   getSuperClass,
-  isClassPropertyFunction,
   isFunction,
   isFunctionBind,
   isThisMemberExpression,
   postProcessing,
-  pushUniqueDependencies,
-  pushUniqueLink
+  pushUniqueDependencies
 } from './traverseHelper';
 
 export function traverseClassComponent(componentPath, name, fileName, asts, fullReport): Component {
@@ -47,7 +46,7 @@ export function traverseClassComponent(componentPath, name, fileName, asts, full
       }
       // Node: ClassMethod
       // Link: Class -> ReactMethod
-      addInnerFunctionToGraph(graph, path);
+      addInnerFunctionToGraph(graph, path, path.node.key.name);
     },
     ClassProperty: path => {
       const { node } = path;
@@ -67,36 +66,29 @@ export function traverseClassComponent(componentPath, name, fileName, asts, full
         } else {
           // Node classProperty = () => {}
           // Link: Class -> ReactMethod
-          addInnerFunctionToGraph(graph, path);
+          addInnerFunctionToGraph(graph, path, path.node.key.name);
         }
       }
     },
     MemberExpression: path => {
       if (isThisMemberExpression(path.node)) {
-        let parentPath = path.findParent(p => p.isClassMethod() || p.isClassProperty());
-        if (!parentPath) {
+        // Link: Method/Class -> MemberExpression (this.<property>)
+        addThisExpressionLink(path, graph);
+
+        const functionParent = path.getFunctionParent();
+
+        // not in constructor scope
+        if (!functionParent || !functionParent.get('key').isIdentifier({ name: 'constructor' })) {
           return;
         }
 
-        if (
-          parentPath.isClassProperty() &&
-          !isClassPropertyFunction(parentPath.node) &&
-          path.parentPath.isCallExpression()
-        ) {
-          parentPath = parentPath.findParent(p => p.isClassDeclaration());
+        // no function expression
+        if (!isFunction(path.parentPath.get('right').node)) {
+          return;
         }
 
-        const parentName = parentPath.isClassDeclaration()
-          ? parentPath.node.id.name
-          : parentPath.node.key.name;
-        // Link: Method/Class -> MemberExpression (this.<property>)
-        pushUniqueLink(
-          {
-            source: parentName,
-            target: path.node.property.name
-          },
-          graph.links
-        );
+        // Node MemberExpression (this.<property>) in constructor
+        addInnerFunctionToGraph(graph, path.parentPath.get('right'), path.node.property.name, true);
       }
     },
     JSXOpeningElement: path => {

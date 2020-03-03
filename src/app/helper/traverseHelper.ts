@@ -558,25 +558,61 @@ export function isUsingThis(path) {
   return foundThis;
 }
 
-export function addInnerFunctionToGraph(graph, path) {
-  const methodName = path.node.key.name;
+export function addInnerFunctionToGraph(
+  graph: Graph,
+  functionExpressionPath,
+  methodName: string,
+  noLink?: boolean
+) {
   const isReactMethod = reactMethods.includes(methodName);
   // Node inner function
   graph.nodes.push({
     id: methodName,
-    lineStart: path.node.loc.start.line,
-    lineEnd: path.node.loc.end.line,
-    returnsJSX: isReturningJSX(path, false),
+    lineStart: functionExpressionPath.node.loc.start.line,
+    lineEnd: functionExpressionPath.node.loc.end.line,
+    returnsJSX: isReturningJSX(functionExpressionPath, false),
     type: 'innerFunction',
     special: isReactMethod,
     kind: 'ClassComponent',
-    isUsingThis: isUsingThis(path)
+    isUsingThis: isUsingThis(functionExpressionPath)
   });
   // Link: Class -> ReactMethod
-  if (isReactMethod) {
+  if (isReactMethod && !noLink) {
     graph.links.push({
-      source: getParentClassName(path),
+      source: getParentClassName(functionExpressionPath),
       target: methodName
     });
   }
+}
+
+export function addThisExpressionLink(path, graph: Graph) {
+  // no this.foobar = ...
+  if (path.parentPath.isAssignmentExpression() && path.parentKey === 'left') {
+    return;
+  }
+
+  let parentPath = path.findParent(p => p.isClassMethod() || p.isClassProperty());
+  if (!parentPath) {
+    return;
+  }
+
+  if (
+    parentPath.isClassProperty() &&
+    !isClassPropertyFunction(parentPath.node) &&
+    path.parentPath.isCallExpression()
+  ) {
+    parentPath = parentPath.findParent(p => p.isClassDeclaration());
+  }
+
+  const parentName = parentPath.isClassDeclaration()
+    ? parentPath.node.id.name
+    : parentPath.node.key.name;
+  // Link: Method/Class -> MemberExpression (this.<property>)
+  pushUniqueLink(
+    {
+      source: parentName,
+      target: path.node.property.name
+    },
+    graph.links
+  );
 }
