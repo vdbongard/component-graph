@@ -228,7 +228,7 @@ export class GraphComponent implements OnInit, OnDestroy {
         return className;
       })
       .style('fill', (d: Node) =>
-        d.cluster && this.showCluster && this.isComponentView
+        d.cluster !== undefined && this.showCluster && this.isComponentView
           ? this.calculateBrightenedColor(d, 0.8)
           : null
       );
@@ -236,7 +236,7 @@ export class GraphComponent implements OnInit, OnDestroy {
     this.svgZoomGroup
       .selectAll('.node circle.inner-circle, .node circle.circle-overlay')
       .style('stroke', (d: Node) =>
-        d.cluster && this.showCluster && this.isComponentView
+        d.cluster !== undefined && this.showCluster && this.isComponentView
           ? this.calculateBrightenedColor(d, 0.2)
           : null
       );
