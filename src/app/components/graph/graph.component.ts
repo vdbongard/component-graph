@@ -59,6 +59,8 @@ export class GraphComponent implements OnInit, OnDestroy {
   sizeMetric = graphSettings.defaultSizeMetric;
   settings: Settings;
   lastZoomValue;
+  scale = d3.scaleOrdinal(d3.schemeCategory10);
+  showCluster = false;
 
   private graphDataSub: Subscription;
   private settingsSub: Subscription;
@@ -211,17 +213,22 @@ export class GraphComponent implements OnInit, OnDestroy {
         : graphSettings.circleStrokeWidth;
     });
 
-    this.svgZoomGroup.selectAll('.node circle.circle-node').attr('class', (d: Node) => {
-      let className = `circle-node ${d.type}`;
-      const selected = this.selectedNodes && this.selectedNodes.find(node => node.id === d.id);
-      if (selected) {
-        className += ' selected';
-      }
-      if (d.special) {
-        className += ' special';
-      }
-      return className;
-    });
+    this.svgZoomGroup
+      .selectAll('.node circle.circle-node')
+      .attr('class', (d: Node) => {
+        let className = `circle-node ${d.type}`;
+        const selected = this.selectedNodes && this.selectedNodes.find(node => node.id === d.id);
+        if (selected) {
+          className += ' selected';
+        }
+        if (d.special) {
+          className += ' special';
+        }
+        return className;
+      })
+      .style('fill', (d: Node) =>
+        this.showCluster && this.isComponentView ? this.calculateBrightenedColor(d, 0.8) : null
+      );
   }
 
   generateNodeSizes(nodes: Node[]) {
@@ -293,6 +300,12 @@ export class GraphComponent implements OnInit, OnDestroy {
 
       return node;
     });
+  }
+
+  private calculateBrightenedColor(d: Node, brightness: number) {
+    const color = d3.hsl(this.scale(d.community.toString()));
+    color.l += (1 - color.l) * brightness;
+    return color.toString();
   }
 
   generateCommunities(nodes: Node[]) {

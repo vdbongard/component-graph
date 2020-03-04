@@ -26,6 +26,14 @@
   > * {
     height: 40px;
   }
+
+  .show-cluster-button {
+    margin-right: 8px;
+
+    &.on {
+      background: hsl(0, 0%, 90%);
+    }
+  }
 }
 
 #d3-root {

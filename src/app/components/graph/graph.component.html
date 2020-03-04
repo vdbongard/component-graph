@@ -170,6 +170,15 @@
   </button>
 </div>
 <div class="action-buttons right">
+  <button
+    *ngIf="isComponentView"
+    class="show-cluster-button"
+    [class.on]="showCluster"
+    mat-stroked-button
+    (click)="showCluster = !showCluster; this.updateGraph()"
+  >
+    Cluster
+  </button>
   <mat-form-field>
     <mat-label>Node size metric</mat-label>
     <mat-select [value]="sizeMetric" (selectionChange)="onMetricSelectionChange($event)">
