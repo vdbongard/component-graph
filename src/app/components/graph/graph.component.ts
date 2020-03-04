@@ -352,6 +352,11 @@ export class GraphComponent implements OnInit, OnDestroy {
       .nodes(jLouvainNodeData)
       .edges(jLouvainLinkData);
     const cluster = findCluster();
+
+    if (!cluster) {
+      return nodes;
+    }
+
     console.log('Cluster:', cluster);
     this.hasCluster = !!Object.values(cluster).find(clusterNumber => clusterNumber > 0);
 
