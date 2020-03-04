@@ -228,7 +228,7 @@ export class GraphComponent implements OnInit, OnDestroy {
         return className;
       })
       .style('fill', (d: Node) =>
-        d.community && this.showCluster && this.isComponentView
+        d.cluster && this.showCluster && this.isComponentView
           ? this.calculateBrightenedColor(d, 0.8)
           : null
       );
@@ -236,7 +236,7 @@ export class GraphComponent implements OnInit, OnDestroy {
     this.svgZoomGroup
       .selectAll('.node circle.inner-circle, .node circle.circle-overlay')
       .style('stroke', (d: Node) =>
-        d.community && this.showCluster && this.isComponentView
+        d.cluster && this.showCluster && this.isComponentView
           ? this.calculateBrightenedColor(d, 0.2)
           : null
       );
@@ -314,12 +314,12 @@ export class GraphComponent implements OnInit, OnDestroy {
   }
 
   private calculateBrightenedColor(d: Node, brightness: number) {
-    const color = d3.hsl(this.scale(d.community.toString()));
+    const color = d3.hsl(this.scale(d.cluster.toString()));
     color.l += (1 - color.l) * brightness;
     return color.toString();
   }
 
-  generateCommunities(nodes: Node[]) {
+  generateCluster(nodes: Node[]) {
     const jLouvainNodeData = this.nodeData
       .map(node => {
         if (node.type === 'component' || node.special) {
@@ -338,15 +338,15 @@ export class GraphComponent implements OnInit, OnDestroy {
         (link.target as Node).id === 'constructor' ? '_constructor' : (link.target as Node).id;
       return { source, target };
     });
-    const community = jLouvain()
+    const findCluster = jLouvain()
       .nodes(jLouvainNodeData)
       .edges(jLouvainLinkData);
-    const communities = community();
-    console.log('Communities:', communities);
-    this.hasCluster = !!Object.values(communities).find(communityNumber => communityNumber > 0);
+    const cluster = findCluster();
+    console.log('Cluster:', cluster);
+    this.hasCluster = !!Object.values(cluster).find(clusterNumber => clusterNumber > 0);
 
     return nodes.map(node => {
-      node.community = communities[node.id === 'constructor' ? '_constructor' : node.id];
+      node.cluster = cluster[node.id === 'constructor' ? '_constructor' : node.id];
       return node;
     });
   }
@@ -545,7 +545,7 @@ export class GraphComponent implements OnInit, OnDestroy {
     let simulation;
 
     this.nodeData = this.generateNodeSizes(this.nodeData);
-    this.nodeData = this.generateCommunities(this.nodeData);
+    this.nodeData = this.generateCluster(this.nodeData);
 
     if (this.settings.colaLayout) {
       const constraints = this.isComponentView

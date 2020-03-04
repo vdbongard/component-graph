@@ -29,7 +29,7 @@ export interface Node extends SimulationNodeDatum {
   extends?: boolean;
   warn?: boolean;
   error?: boolean;
-  community?: number;
+  cluster?: number;
 }
 
 export interface NodeSelection {
