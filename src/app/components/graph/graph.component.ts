@@ -555,7 +555,9 @@ export class GraphComponent implements OnInit, OnDestroy {
     let simulation;
 
     this.nodeData = this.generateNodeSizes(this.nodeData);
-    this.nodeData = this.generateCluster(this.nodeData);
+    if (this.isComponentView) {
+      this.nodeData = this.generateCluster(this.nodeData);
+    }
 
     if (this.settings.colaLayout) {
       const constraints = this.isComponentView
