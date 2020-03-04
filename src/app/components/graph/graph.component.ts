@@ -203,7 +203,7 @@ export class GraphComponent implements OnInit, OnDestroy {
     this.startGraph(force);
   }
 
-  private updateGraph() {
+  updateGraph() {
     if (!this.svgZoomGroup) {
       return;
     }
