@@ -322,7 +322,7 @@ export class GraphComponent implements OnInit, OnDestroy {
   generateCluster(nodes: Node[]) {
     const jLouvainNodeData = this.nodeData
       .map(node => {
-        if (node.type === 'component') {
+        if (node.type === 'component' || node.id === 'render') {
           return;
         }
         if (node.id === 'constructor') {
@@ -335,7 +335,9 @@ export class GraphComponent implements OnInit, OnDestroy {
       .map(link => {
         if (
           (link.source as Node).type === 'component' ||
-          (link.target as Node).type === 'component'
+          (link.source as Node).id === 'render' ||
+          (link.target as Node).type === 'component' ||
+          (link.target as Node).id === 'render'
         ) {
           return;
         }
