@@ -227,7 +227,9 @@ export class GraphComponent implements OnInit, OnDestroy {
         return className;
       })
       .style('fill', (d: Node) =>
-        this.showCluster && this.isComponentView ? this.calculateBrightenedColor(d, 0.8) : null
+        d.community && this.showCluster && this.isComponentView
+          ? this.calculateBrightenedColor(d, 0.8)
+          : null
       );
   }
 
@@ -309,12 +311,17 @@ export class GraphComponent implements OnInit, OnDestroy {
   }
 
   generateCommunities(nodes: Node[]) {
-    const jLouvainNodeData = this.nodeData.map(node => {
-      if (node.id === 'constructor') {
-        return '_constructor';
-      }
-      return node.id;
-    });
+    const jLouvainNodeData = this.nodeData
+      .map(node => {
+        if (node.type === 'component' || node.special) {
+          return;
+        }
+        if (node.id === 'constructor') {
+          return '_constructor';
+        }
+        return node.id;
+      })
+      .filter(n => n);
     const jLouvainLinkData = this.linkData.map(link => {
       const source =
         (link.source as Node).id === 'constructor' ? '_constructor' : (link.source as Node).id;
