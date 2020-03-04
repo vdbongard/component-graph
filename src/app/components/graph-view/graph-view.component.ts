@@ -30,9 +30,6 @@ export class GraphViewComponent implements OnInit, OnDestroy {
     window.onbeforeunload = () => this.dataService.saveToLocalStorage();
 
     this.selectedNodeSub = this.dataService.selectedNodes$.subscribe(nodes => {
-      if (!nodes) {
-        return;
-      }
       this.selectedNodes = nodes;
     });
 

@@ -35,6 +35,7 @@ export class GraphComponent implements OnInit, OnDestroy {
   private selectedNodesInternal: NodeSelection[];
 
   @ViewChild('d3Root') d3Root: ElementRef;
+  @ViewChild('graphSVG') graphSVG: ElementRef;
 
   nodeData: Node[];
   linkData: RefLink[];
@@ -1122,5 +1123,11 @@ export class GraphComponent implements OnInit, OnDestroy {
   onMetricSelectionChange(event: MatSelectChange) {
     this.sizeMetric = event.value;
     this.restartGraph();
+  }
+
+  deselectNodes(event) {
+    if (event.target === this.graphSVG.nativeElement) {
+      this.dataService.deselectNodes();
+    }
   }
 }

@@ -128,6 +128,10 @@ export class DataService {
     this.selectedNodes$.next([selectedNode]);
   }
 
+  deselectNodes() {
+    this.selectedNodes$.next(null);
+  }
+
   selectFile(fileName: string) {
     const file = this.fileMap$.value[fileName];
 
