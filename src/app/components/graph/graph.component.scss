@@ -154,6 +154,10 @@
   .mat-select-value {
     color: $graph-button-color;
   }
+
+  .mat-form-field-infix {
+    border-top: 2px solid transparent;
+  }
 }
 
 #legend {

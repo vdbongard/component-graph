@@ -180,8 +180,13 @@
     Toggle cluster
   </button>
   <mat-form-field>
-    <mat-label>Node size metric</mat-label>
-    <mat-select [value]="sizeMetric" (selectionChange)="onMetricSelectionChange($event)">
+    <mat-select
+      class="node-size-select"
+      [value]="sizeMetric"
+      (selectionChange)="onMetricSelectionChange($event)"
+      matTooltip="Node size metric"
+      aria-label="Node size metric"
+    >
       <mat-option *ngFor="let entry of qualityMetricsEntries" [value]="entry[0]">
         {{ entry[1].name }}
       </mat-option>
