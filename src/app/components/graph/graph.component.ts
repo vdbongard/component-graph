@@ -231,6 +231,14 @@ export class GraphComponent implements OnInit, OnDestroy {
           ? this.calculateBrightenedColor(d, 0.8)
           : null
       );
+
+    this.svgZoomGroup
+      .selectAll('.node circle.inner-circle, .node circle.circle-overlay')
+      .style('stroke', (d: Node) =>
+        d.community && this.showCluster && this.isComponentView
+          ? this.calculateBrightenedColor(d, 0.2)
+          : null
+      );
   }
 
   generateNodeSizes(nodes: Node[]) {
