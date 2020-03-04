@@ -171,7 +171,7 @@
 </div>
 <div class="action-buttons right">
   <button
-    *ngIf="isComponentView"
+    *ngIf="isComponentView && hasCluster"
     class="show-cluster-button"
     [class.on]="showCluster"
     mat-stroked-button

@@ -61,6 +61,7 @@ export class GraphComponent implements OnInit, OnDestroy {
   lastZoomValue;
   scale = d3.scaleOrdinal(d3.schemeCategory10);
   showCluster = false;
+  hasCluster = false;
 
   private graphDataSub: Subscription;
   private settingsSub: Subscription;
@@ -342,6 +343,7 @@ export class GraphComponent implements OnInit, OnDestroy {
       .edges(jLouvainLinkData);
     const communities = community();
     console.log('Communities:', communities);
+    this.hasCluster = !!Object.values(communities).find(communityNumber => communityNumber > 0);
 
     return nodes.map(node => {
       node.community = communities[node.id === 'constructor' ? '_constructor' : node.id];
