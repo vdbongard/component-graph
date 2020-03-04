@@ -12,7 +12,7 @@ export const graphSettings = {
   maxTextSize: 20,
   circleRadius: 24,
   circleStrokeWidth: 1,
-  minChargeForce: -200,
+  minChargeForce: -400,
   linkDistance: 100,
   defaultSizeMetric: 'sloc.physical',
   nodeGap: 100
