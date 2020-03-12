@@ -33,7 +33,7 @@ export function findReportWithGraph(
       const classFunctionReport = classReport.methods.find(method => method.name === functionName);
 
       if (!classFunctionReport) {
-        const functionNode = componentGraph.nodes.find(node => node.id === functionName);
+        const functionNode = componentGraph?.nodes.find(node => node.id === functionName);
 
         if (!functionNode) {
           return;
@@ -51,7 +51,7 @@ export function findReportWithGraph(
     let lineStart: number;
 
     if (!functionName) {
-      const componentNode = componentGraph.nodes.find(node => node.label === componentName);
+      const componentNode = componentGraph?.nodes.find(node => node.label === componentName);
 
       if (!componentNode) {
         return;

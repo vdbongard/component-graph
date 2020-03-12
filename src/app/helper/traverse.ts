@@ -133,7 +133,9 @@ export function traverse(asts: AstWithPath[], fileName: string, fullReport) {
         }
         const componentName = path.parentPath.node.id.name;
         components[componentName] = {
-          dependencies: [componentDependency]
+          dependencies: [componentDependency],
+          lineStart: path.node.loc.start.line,
+          lineEnd: path.node.loc.end.line
         };
       }
     }

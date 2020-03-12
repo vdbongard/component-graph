@@ -256,7 +256,8 @@ export class GraphComponent implements OnInit, OnDestroy {
 
       if (!report) {
         console.error('Report not found:', node.id, this.id);
-        return;
+        node.width = node.height = 20;
+        return node;
       }
 
       node.icons = this.getNodeIcons(node, report);
