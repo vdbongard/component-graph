@@ -16,6 +16,10 @@ export function generateAppGraph(
       return;
     }
     for (const [componentName, component] of Object.entries(file.components)) {
+      if (!component.graph) {
+        continue;
+      }
+
       // remove the component node which is the first element
       const functions = [...component.graph.nodes.slice(1)].sort(previewCircleCompare);
 

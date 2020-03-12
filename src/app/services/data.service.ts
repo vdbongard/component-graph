@@ -70,6 +70,9 @@ export class DataService {
     // add report to component graph nodes
     for (const [fileName, file] of Object.entries(fileMap)) {
       for (const [componentName, component] of Object.entries(file.components || {})) {
+        if (!component.graph) {
+          continue;
+        }
         component.graph.nodes = component.graph.nodes.map(node => {
           node.report = findReport(this.report, fileMap, fileName, componentName, node.id);
           return node;
