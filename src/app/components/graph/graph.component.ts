@@ -756,7 +756,7 @@ export class GraphComponent implements OnInit, OnDestroy {
           searchNodes = this.linkData
             .filter(link => searchNodes.find(node => link.source === node))
             .map(link => link.target as Node)
-            .filter(node => !alreadySearched.has(node));
+            .filter(node => node.index !== nodeIndex && !alreadySearched.has(node));
           indirectNodes.push(...searchNodes);
         }
       }
