@@ -264,28 +264,28 @@ export class GraphComponent implements OnInit, OnDestroy {
 
       // component node size based on remaining lines of code
       // after subtracting all function lines of code in component view
-      if (isComponentView && node.type === 'component') {
-        const allLines = report.sloc.physical;
-        let functionLines = 0;
-        nodes.forEach(functionNode => {
-          if (functionNode.type !== 'innerFunction') {
-            return;
-          }
-          functionLines += functionNode.report.sloc.physical;
-        });
-
-        let remainingComponentLines = allLines - functionLines;
-        if (remainingComponentLines < 0) {
-          remainingComponentLines = allLines;
-        }
-        const componentLineThreshold = qualityMetrics['sloc.physical'].thresholds.component;
-        const componentMetricSizeFactor = sizeConstant / componentLineThreshold;
-        node.width = node.height = Math.sqrt(
-          (componentMetricSizeFactor * remainingComponentLines) / Math.PI
-        );
-
-        return node;
-      }
+      // if (isComponentView && node.type === 'component') {
+      //   const allLines = report.sloc.physical;
+      //   let functionLines = 0;
+      //   nodes.forEach(functionNode => {
+      //     if (functionNode.type !== 'innerFunction') {
+      //       return;
+      //     }
+      //     functionLines += functionNode.report.sloc.physical;
+      //   });
+      //
+      //   let remainingComponentLines = allLines - functionLines;
+      //   if (remainingComponentLines < 0) {
+      //     remainingComponentLines = allLines;
+      //   }
+      //   const componentLineThreshold = qualityMetrics['sloc.physical'].thresholds.component;
+      //   const componentMetricSizeFactor = sizeConstant / componentLineThreshold;
+      //   node.width = node.height = Math.sqrt(
+      //     (componentMetricSizeFactor * remainingComponentLines) / Math.PI
+      //   );
+      //
+      //   return node;
+      // }
 
       const metricValue = nestedStringAccess(report, this.sizeMetric);
 
