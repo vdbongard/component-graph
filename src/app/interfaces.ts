@@ -66,6 +66,7 @@ export interface Graph {
 export interface Settings {
   text?: boolean;
   fade?: boolean;
+  highlightIndirectNodes?: boolean;
   fullScreen?: boolean;
   colaLayout?: boolean;
   nodeSizesBasedOnMetrics?: boolean;

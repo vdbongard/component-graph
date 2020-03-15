@@ -9,6 +9,7 @@ export class SettingsService {
   private defaultSettings: Settings = {
     text: true,
     fade: true,
+    highlightIndirectNodes: true,
     fullScreen: false,
     colaLayout: true,
     nodeSizesBasedOnMetrics: true,

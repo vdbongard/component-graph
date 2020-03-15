@@ -743,19 +743,22 @@ export class GraphComponent implements OnInit, OnDestroy {
         .map(link => link.target) as Node[];
 
       const indirectNodes = [];
-      const alreadySearched = new Set();
-      let searchNodes = outgoingNodes;
 
-      while (true) {
-        if (searchNodes.length === 0) {
-          break;
+      if (self.settings.highlightIndirectNodes) {
+        const alreadySearched = new Set();
+        let searchNodes = outgoingNodes;
+
+        while (true) {
+          if (searchNodes.length === 0) {
+            break;
+          }
+          searchNodes.forEach(node => alreadySearched.add(node));
+          searchNodes = this.linkData
+            .filter(link => searchNodes.find(node => link.source === node))
+            .map(link => link.target as Node)
+            .filter(node => !alreadySearched.has(node));
+          indirectNodes.push(...searchNodes);
         }
-        searchNodes.forEach(node => alreadySearched.add(node));
-        searchNodes = this.linkData
-          .filter(link => searchNodes.find(node => link.source === node))
-          .map(link => link.target as Node)
-          .filter(node => !alreadySearched.has(node));
-        indirectNodes.push(...searchNodes);
       }
 
       return { incomingNodes, outgoingNodes, indirectNodes };
@@ -788,9 +791,11 @@ export class GraphComponent implements OnInit, OnDestroy {
             : opacity
         );
 
-      nodes
-        .select('.circle-node')
-        .style('fill', o => (indirectNodes.includes(o) ? '#fafafa' : null));
+      if (self.settings.highlightIndirectNodes) {
+        nodes
+          .select('.circle-node')
+          .style('fill', o => (indirectNodes.includes(o) ? '#fafafa' : null));
+      }
 
       links
         .transition()
