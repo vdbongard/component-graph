@@ -707,59 +707,95 @@ export class GraphComponent implements OnInit, OnDestroy {
   }
 
   private createFading(nodes) {
-    if (this.settings.fade) {
-      nodes
-        .on('click.fade', d => {
+    if (!this.settings.fade) {
+      return;
+    }
+
+    nodes
+      .on('click.fade', d => {
+        fade(d, graphSettings.fadeOpacity);
+        this.isFaded = true;
+      })
+      .on('blur', d => {
+        if (this.isFaded) {
+          fade(d, 1);
+        }
+      })
+      .on('mouseover.fade', d => {
+        if (d3.event.ctrlKey) {
           fade(d, graphSettings.fadeOpacity);
           this.isFaded = true;
-        })
-        .on('blur', d => {
-          if (this.isFaded) {
-            fade(d, 1);
-          }
-        })
-        .on('mouseover.fade', d => {
-          if (d3.event.ctrlKey) {
-            fade(d, graphSettings.fadeOpacity);
-            this.isFaded = true;
-          }
-        })
-        .on('mouseout.fade', d => {
-          if (d3.event.ctrlKey && this.isFaded) {
-            fade(d, 1);
-          }
-        });
-
-      const linkedByIndex = {};
-      this.linkData.forEach(d => {
-        // @ts-ignore
-        linkedByIndex[`${d.source.index},${d.target.index}`] = 1;
+        }
+      })
+      .on('mouseout.fade', d => {
+        if (d3.event.ctrlKey && this.isFaded) {
+          fade(d, 1);
+        }
       });
 
-      function isConnected(a, b) {
-        return (
-          linkedByIndex[`${a.index},${b.index}`] ||
-          linkedByIndex[`${b.index},${a.index}`] ||
-          a.index === b.index
-        );
-      }
+    const getConnectedNodes = (nodeIndex: number) => {
+      const incomingNodes = this.linkData
+        .filter(link => (link.target as Node).index === nodeIndex)
+        .map(link => link.source) as Node[];
 
-      const links = this.links;
-      const self = this;
+      const outgoingNodes = this.linkData
+        .filter(link => (link.source as Node).index === nodeIndex)
+        .map(link => link.target) as Node[];
 
-      function fade(d: Node, opacity: number) {
-        if (self.dragging) {
-          return;
+      const indirectNodes = [];
+      const alreadySearched = new Set();
+      let searchNodes = outgoingNodes;
+
+      while (true) {
+        if (searchNodes.length === 0) {
+          break;
         }
-
-        nodes
-          .transition()
-          .style('opacity', o => (opacity === 1 || isConnected(d, o) ? 1 : opacity));
-
-        links
-          .transition()
-          .attr('opacity', o => (opacity === 1 || o.source === d || o.target === d ? 1 : opacity));
+        searchNodes.forEach(node => alreadySearched.add(node));
+        searchNodes = this.linkData
+          .filter(link => searchNodes.find(node => link.source === node))
+          .map(link => link.target as Node)
+          .filter(node => !alreadySearched.has(node));
+        indirectNodes.push(...searchNodes);
       }
+
+      return { incomingNodes, outgoingNodes, indirectNodes };
+    };
+
+    const links = this.links;
+    const self = this;
+
+    function fade(d: Node, opacity: number) {
+      if (self.dragging) {
+        return;
+      }
+      if (opacity === 1) {
+        nodes.transition().style('opacity', 1);
+        links.transition().attr('opacity', 1);
+        return;
+      }
+
+      const { incomingNodes, outgoingNodes, indirectNodes } = getConnectedNodes(d.index);
+      const allOutgoingNodes = outgoingNodes.concat(indirectNodes);
+
+      nodes
+        .transition()
+        .style('opacity', o =>
+          outgoingNodes.includes(o) || incomingNodes.includes(o) || o === d
+            ? 1
+            : indirectNodes.includes(o)
+            ? graphSettings.nestedNeighborOpacity
+            : opacity
+        );
+
+      links
+        .transition()
+        .attr('opacity', o =>
+          o.target === d ||
+          o.source === d ||
+          (allOutgoingNodes.includes(o.source) && allOutgoingNodes.includes(o.target))
+            ? 1
+            : opacity
+        );
     }
   }
 
