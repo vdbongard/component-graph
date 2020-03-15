@@ -1,37 +1,41 @@
 <h1 mat-dialog-title>Settings</h1>
 <div mat-dialog-content class="settings-container">
   <form [formGroup]="settingsForm">
-    <mat-slide-toggle labelPosition="before" formControlName="text">
-      Show text label
-    </mat-slide-toggle>
-    <mat-slide-toggle labelPosition="before" formControlName="fade">
-      Fade out disconnected nodes
-    </mat-slide-toggle>
-    <mat-slide-toggle labelPosition="before" formControlName="highlightIndirectNodes">
-      Highlight indirect connected nodes when faded
-    </mat-slide-toggle>
-    <mat-slide-toggle labelPosition="before" formControlName="fullScreen">
-      Fullscreen graph
-    </mat-slide-toggle>
     <mat-slide-toggle labelPosition="before" formControlName="colaLayout">
       Flow layout
-    </mat-slide-toggle>
-    <mat-slide-toggle labelPosition="before" formControlName="nodeSizesBasedOnMetrics">
-      Node sizes based on metrics
-    </mat-slide-toggle>
-    <mat-slide-toggle labelPosition="before" formControlName="autoZoom">
-      Auto zoom to fit
-    </mat-slide-toggle>
-    <mat-slide-toggle
-      labelPosition="before"
-      formControlName="currentSizeMetricErrorHighlighting"
-      title="Highlight nodes with errors and warnings based on the currently selected size metric"
-    >
-      Highlight nodes with errors and warnings based on the currently selected size metric
     </mat-slide-toggle>
     <mat-slide-toggle labelPosition="before" formControlName="hideOverlappingLabels">
       Hide overlapping labels
     </mat-slide-toggle>
+    <mat-slide-toggle labelPosition="before" formControlName="fade">
+      Fade out disconnected nodes on selection
+    </mat-slide-toggle>
+    <mat-slide-toggle
+      labelPosition="before"
+      formControlName="highlightIndirectNodes"
+      style="padding-left: 16px;"
+    >
+      Show indirect connected nodes
+    </mat-slide-toggle>
+    <mat-slide-toggle
+      labelPosition="before"
+      formControlName="currentSizeMetricErrorHighlighting"
+      title="Highlight nodes with errors/warnings based on the currently selected size metric"
+    >
+      Highlight nodes with errors/warnings based on the currently selected size metric
+    </mat-slide-toggle>
+    <mat-slide-toggle labelPosition="before" formControlName="autoZoom">
+      Auto zoom to fit
+    </mat-slide-toggle>
+    <mat-slide-toggle labelPosition="before" formControlName="nodeSizesBasedOnMetrics">
+      Node sizes based on metrics
+    </mat-slide-toggle>
+    <!--    <mat-slide-toggle labelPosition="before" formControlName="fullScreen">-->
+    <!--      Fullscreen graph-->
+    <!--    </mat-slide-toggle>-->
+    <!--    <mat-slide-toggle labelPosition="before" formControlName="text">-->
+    <!--      Show text label-->
+    <!--    </mat-slide-toggle>-->
   </form>
 </div>
 <div mat-dialog-actions class="dialog-actions">
