@@ -780,12 +780,17 @@ export class GraphComponent implements OnInit, OnDestroy {
       nodes
         .transition()
         .style('opacity', o =>
-          outgoingNodes.includes(o) || incomingNodes.includes(o) || o === d
+          outgoingNodes.includes(o) ||
+          incomingNodes.includes(o) ||
+          indirectNodes.includes(o) ||
+          o === d
             ? 1
-            : indirectNodes.includes(o)
-            ? graphSettings.nestedNeighborOpacity
             : opacity
         );
+
+      nodes
+        .select('.circle-node')
+        .style('fill', o => (indirectNodes.includes(o) ? '#fafafa' : null));
 
       links
         .transition()
