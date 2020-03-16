@@ -67,8 +67,6 @@ export class GraphComponent implements OnInit, OnDestroy {
   private graphDataSub: Subscription;
   private settingsSub: Subscription;
   private queryParamsSub: Subscription;
-  private selectedNodesSub: Subscription;
-  private progressSub: Subscription;
 
   debouncedHideOverlappingLabels = debounce(this.hideOverlappingLabels.bind(this), 250);
 
@@ -1160,8 +1158,6 @@ export class GraphComponent implements OnInit, OnDestroy {
     this.stopGraph();
     this.settingsSub.unsubscribe();
     this.queryParamsSub.unsubscribe();
-    this.selectedNodesSub.unsubscribe();
-    this.progressSub.unsubscribe();
     if (this.graphDataSub) {
       this.graphDataSub.unsubscribe();
     }
