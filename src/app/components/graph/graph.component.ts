@@ -141,7 +141,7 @@ export class GraphComponent implements OnInit, OnDestroy {
 
         this.isComponentView = !!this.id || this.dataService.hasSingleComponent();
 
-        if (graph.nodes.length > 30 && this.settings.colaLayout) {
+        if (this.isComponentView && graph.nodes.length > 30 && this.settings.colaLayout) {
           registerCookie('toastDisableFlowLayout', () => {
             this.snackBar
               .open('Tip: Try out disabling flow layout on large graphs', 'Change now', {
@@ -151,7 +151,7 @@ export class GraphComponent implements OnInit, OnDestroy {
               .subscribe(() => {
                 this.settingsService.setSettings({ colaLayout: false });
                 this.snackBar
-                  .open('Changed graph layout', 'Undo', {
+                  .open('Disabled flow layout (can be changed via settings)', 'Undo', {
                     duration: 8000
                   })
                   .onAction()
