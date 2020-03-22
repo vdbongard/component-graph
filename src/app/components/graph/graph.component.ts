@@ -786,7 +786,7 @@ export class GraphComponent implements OnInit, OnDestroy {
       if (self.settings.highlightIndirectNodes) {
         nodes
           .select('.circle-node')
-          .style('fill', o => (indirectNodes.includes(o) ? '#fafafa' : null));
+          .style('fill.indirectNodes', o => (indirectNodes.includes(o) ? '#fafafa' : null));
       }
 
       links
