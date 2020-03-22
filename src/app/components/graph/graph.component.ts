@@ -393,22 +393,24 @@ export class GraphComponent implements OnInit, OnDestroy {
       }
     }
 
-    if (hasError || hasWarning) {
-      const icon: Partial<NodeIcon> = {
+    if (hasWarning && !hasError) {
+      icons.push({
         icon: 'warning',
+        class: 'warn',
         description:
           node.type === 'component'
-            ? 'This component should be split into smaller components'
-            : 'This function should be split into smaller functions'
-      };
-
-      if (hasError) {
-        icon.class = 'error';
-      } else if (hasWarning) {
-        icon.class = 'warn';
-      }
-
-      icons.push(icon as NodeIcon);
+            ? 'This component almost exceeds at least one metric threshold. A solution might be to split it into smaller components.'
+            : 'This function almost exceeds at least one metric threshold. A solution might be to split it into smaller functions.'
+      });
+    } else if (hasError) {
+      icons.push({
+        icon: 'warning',
+        class: 'error',
+        description:
+          node.type === 'component'
+            ? 'This component exceeds at least one metric threshold. A solution might be to split it into smaller components.'
+            : 'This function exceeds at least one metric threshold. A solution might be to split it into smaller functions.'
+      });
     }
 
     if (report.sloc.logical === 0) {
