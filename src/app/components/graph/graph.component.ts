@@ -229,7 +229,7 @@ export class GraphComponent implements OnInit, OnDestroy {
       })
       .style('fill', (d: Node) =>
         d.cluster !== undefined && this.showCluster && this.isComponentView
-          ? this.calculateBrightenedColor(d, 0.8)
+          ? this.calculateBrightenedColor(d, 0.75)
           : null
       );
 
@@ -237,7 +237,7 @@ export class GraphComponent implements OnInit, OnDestroy {
       .selectAll('.node circle.inner-circle, .node circle.circle-overlay')
       .style('stroke', (d: Node) =>
         d.cluster !== undefined && this.showCluster && this.isComponentView
-          ? this.calculateBrightenedColor(d, 0.2)
+          ? this.calculateBrightenedColor(d, 0.15)
           : null
       );
   }

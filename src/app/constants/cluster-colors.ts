@@ -1,10 +1,8 @@
 export const clusterColors = [
   '#8321d9',
   '#6ad921',
-  '#219bd9',
   '#d92121',
   '#1d5ebf',
-  '#1db4bf',
   '#bf731d',
   '#158c35',
   '#734511',
@@ -15,7 +13,6 @@ export const clusterColors = [
   '#d9bf57',
   '#d957bf',
   '#bf6b4d',
-  '#4dbf99',
   '#bf4d6b',
   '#abd98d',
   '#977cbf',
