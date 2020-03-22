@@ -6,6 +6,7 @@ import {
   getMaxJSXNesting,
   isFunction,
   isFunctionWithName,
+  isReturningJSX,
   postProcessing,
   pushUniqueDependencies,
   pushUniqueLink
@@ -56,6 +57,7 @@ export function traverseFunctionComponent(
             label: path.parentPath.parentPath.node.id.name,
             lineStart: path.node.loc.start.line,
             lineEnd: path.node.loc.end.line,
+            returnsJSX: isReturningJSX(path, false),
             type: 'innerFunction',
             kind: 'FunctionComponent'
           });
@@ -73,6 +75,7 @@ export function traverseFunctionComponent(
             label: path.parentPath ? path.parentPath.node.id.name : path.node.id.name,
             lineStart: path.node.loc.start.line,
             lineEnd: path.node.loc.end.line,
+            returnsJSX: isReturningJSX(path, false),
             type: 'innerFunction',
             kind: 'FunctionComponent'
           });

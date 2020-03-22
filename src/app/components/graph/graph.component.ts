@@ -367,7 +367,7 @@ export class GraphComponent implements OnInit, OnDestroy {
   }
 
   // TODO move this to the data service
-  getNodeIcons(node, report): NodeIcon[] {
+  getNodeIcons(node: Node, report): NodeIcon[] {
     const icons: NodeIcon[] = [];
     let hasWarning = false;
     let hasError = false;
@@ -421,7 +421,8 @@ export class GraphComponent implements OnInit, OnDestroy {
     } else if (
       node.type === 'innerFunction' &&
       node.kind === 'ClassComponent' &&
-      !node.isUsingThis
+      !node.isUsingThis &&
+      !node.returnsJSX
     ) {
       // no this reference -> helper function
       icons.push({

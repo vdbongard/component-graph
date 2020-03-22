@@ -277,6 +277,18 @@ export function isReactFunctionComponent(path) {
 }
 
 export function isReturningJSX(path, skipPath = true) {
+  // ClassProperty foo = () => <div>bar</div>
+  if (
+    path.isClassProperty() &&
+    path.get('value').isArrowFunctionExpression() &&
+    path.get('value.body').isJSXElement()
+  ) {
+    return true;
+  }
+  // ArrowFunctionExpression () => <div>bar</div>
+  if (path.get('body').isJSXElement()) {
+    return true;
+  }
   if (!t.isBlockStatement(path.node.body)) {
     return false;
   }
