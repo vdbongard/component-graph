@@ -9,6 +9,7 @@ import { ID3StyleLayoutAdaptor } from 'webcola/dist/src/d3adaptor';
 import { graphSettings } from '../../constants/graph-settings';
 import { qualityMetrics, sizeConstant, warningThreshold } from '../../constants/quality-metrics';
 import { deprecatedMethods, reactMethods } from '../../constants/special-methods';
+import { clusterColorScale } from '../../helper/clusterColorScale';
 import { registerCookie } from '../../helper/cookie';
 import { debounce } from '../../helper/debounce';
 import { generateLinkReferences } from '../../helper/generateLinkReferences';
@@ -60,7 +61,7 @@ export class GraphComponent implements OnInit, OnDestroy {
   sizeMetric = graphSettings.defaultSizeMetric;
   settings: Settings;
   lastZoomValue;
-  scale = d3.scaleOrdinal(d3.schemeCategory10);
+  scale = clusterColorScale;
   showCluster = false;
   hasCluster = false;
 
