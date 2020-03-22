@@ -714,11 +714,6 @@ export class GraphComponent implements OnInit, OnDestroy {
         fade(d, graphSettings.fadeOpacity);
         this.isFaded = true;
       })
-      .on('blur', d => {
-        if (this.isFaded) {
-          fade(d, 1);
-        }
-      })
       .on('mouseover.fade', d => {
         if (d3.event.ctrlKey) {
           fade(d, graphSettings.fadeOpacity);
@@ -770,8 +765,7 @@ export class GraphComponent implements OnInit, OnDestroy {
         return;
       }
       if (opacity === 1) {
-        nodes.transition().style('opacity', 1);
-        links.transition().attr('opacity', 1);
+        self.fadeIn();
         return;
       }
 
@@ -805,6 +799,11 @@ export class GraphComponent implements OnInit, OnDestroy {
             : opacity
         );
     }
+  }
+
+  private fadeIn() {
+    this.nodes.transition().style('opacity', 1);
+    this.links.transition().attr('opacity', 1);
   }
 
   private createPreviewCircles(nodes) {
@@ -1170,6 +1169,7 @@ export class GraphComponent implements OnInit, OnDestroy {
 
   deselectNodes(event) {
     if (event.target === this.graphSVG.nativeElement) {
+      this.fadeIn();
       this.dataService.deselectNodes();
     }
   }
