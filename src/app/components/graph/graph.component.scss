@@ -148,6 +148,10 @@
     font-size: 8px;
     text-anchor: middle;
   }
+
+  .node-label {
+    pointer-events: none;
+  }
 }
 
 ::ng-deep .action-buttons {
