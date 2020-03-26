@@ -278,12 +278,13 @@ export function isReactFunctionComponent(path) {
 
 export function isReturningJSX(path, skipPath = true) {
   // ClassProperty foo = () => <div>bar</div>
-  if (
-    path.isClassProperty() &&
-    path.get('value').isArrowFunctionExpression() &&
-    path.get('value.body').isJSXElement()
-  ) {
-    return true;
+  if (path.isClassProperty() && path.get('value').isArrowFunctionExpression()) {
+    const value = path.get('value');
+    if (value.get('body').isJSXElement()) {
+      return true;
+    } else {
+      return isReturningJSX(value);
+    }
   }
   // ArrowFunctionExpression () => <div>bar</div>
   if (path.get('body').isJSXElement()) {
