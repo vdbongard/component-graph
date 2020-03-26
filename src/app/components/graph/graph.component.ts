@@ -1036,7 +1036,7 @@ export class GraphComponent implements OnInit, OnDestroy {
     if (d.functions?.length > 0) {
       registerCookie('toastDoubleClickComponent', () => {
         this.snackBar.open(
-          'Tip: You can double click a component that has inner functions!',
+          'Tip: You can double click a component that has inner functions to open it!',
           null,
           {
             duration: 8000
