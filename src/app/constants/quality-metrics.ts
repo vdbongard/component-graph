@@ -13,7 +13,7 @@ export const qualityMetrics: QualityMetrics = {
   // },
   'sloc.jsx': {
     name: 'Lines of JSX Code',
-    description: 'The line count of root level JSX elements',
+    description: 'The line count of root level JSX elements.',
     thresholds: { component: 65 },
     componentOnly: true
   },
@@ -21,13 +21,13 @@ export const qualityMetrics: QualityMetrics = {
     name: 'Maximum JSX nesting',
     description:
       'JSX nesting is counted by the number of nested JSX children or JSX elements in JSX ' +
-      'expressions starting with 1 for the top level',
+      'expressions starting with 1 for the top level.',
     thresholds: { component: 8 },
     componentOnly: true
   },
   cyclomatic: {
     name: 'Cyclomatic Complexity',
-    description: 'The number of distinct paths through a block of code',
+    description: 'The number of distinct paths through a block of code.',
     thresholds: { component: 30, innerFunction: 8, 'innerFunction.render': 12 }
   },
   'halstead.difficulty': {
@@ -43,7 +43,7 @@ export const qualityMetrics: QualityMetrics = {
   // 'halstead.effort': {
   //   name: 'Halstead Effort',
   //   description:
-  //     'Measures the amount of mental activity needed to translate the existing algorithm into implementation',
+  //     'Measures the amount of mental activity needed to translate the existing algorithm into implementation.',
   //   thresholds: { component: 150000, innerFunction: 15000 }
   // },
   // 'halstead.length': {
@@ -54,7 +54,7 @@ export const qualityMetrics: QualityMetrics = {
   // 'halstead.time': {
   //   name: 'Halstead Time',
   //   description:
-  //     'Shows time (in seconds) needed to translate the existing algorithm into implementation',
+  //     'Shows time (in seconds) needed to translate the existing algorithm into implementation.',
   //   thresholds: { component: 7000, innerFunction: 800 }
   // },
   // 'halstead.vocabulary': {
@@ -75,8 +75,8 @@ export const qualityMetrics: QualityMetrics = {
   paramCount: {
     name: 'Parameter Count',
     description:
-      'The number of parameters, analysed statically from the function signature ' +
-      '(ignoring the arguments object).',
+      'The number of parameters, analysed statically from the function signature. ' +
+      '(ignoring the arguments object)',
     thresholds: { component: 20, innerFunction: 6 }
   }
 };
