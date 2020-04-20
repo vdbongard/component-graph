@@ -33,12 +33,12 @@ export const qualityMetrics: QualityMetrics = {
   'halstead.difficulty': {
     name: 'Halstead Difficulty',
     description: 'The difficulty to write or understand the program, e.g. when doing code review.',
-    thresholds: { component: 50, innerFunction: 15 }
+    thresholds: { component: 50, innerFunction: 15, 'innerFunction.render': 22.5 }
   },
   'halstead.bugs': {
     name: 'Halstead Bugs',
     description: 'An estimate for the number of errors in the implementation.',
-    thresholds: { component: 1, innerFunction: 0.4 }
+    thresholds: { component: 1, innerFunction: 0.4, 'innerFunction.render': 0.6 }
   },
   // 'halstead.effort': {
   //   name: 'Halstead Effort',
