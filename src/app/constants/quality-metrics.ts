@@ -77,7 +77,7 @@ export const qualityMetrics: QualityMetrics = {
     description:
       'The number of parameters, analysed statically from the function signature. ' +
       '(ignoring the arguments object)',
-    thresholds: { component: 20, innerFunction: 6 }
+    thresholds: { component: 20, innerFunction: 6, 'innerFunction.render': 1 }
   }
 };
 
